@@ -94,7 +94,7 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
         <p className="mt-3 text-muted-foreground">
           {streamingActive && !hasRecommendations
             ? "Analyzing your preferences and finding the perfect destinations..."
-            : `We found ${recommendations.length} destinations for your ${quizParams.durationDays}-day ${quizParams.season === "flexible" ? "" : quizParams.season + " "}trip`}
+            : `Here are ${recommendations.length} perfect destinations for your ${quizParams.durationDays}-day ${quizParams.season === "flexible" ? "" : quizParams.season + " "}trip`}
         </p>
       </div>
 
