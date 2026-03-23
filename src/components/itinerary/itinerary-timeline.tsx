@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { itineraryResponseSchema } from "@/lib/ai/itinerary-schemas";
 import { ItineraryDayCard } from "./itinerary-day-card";
@@ -34,6 +35,7 @@ export function ItineraryTimeline({ params }: ItineraryTimelineProps) {
   const submittedRef = useRef(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
 
   const { object, submit, isLoading, error } = useObject({
@@ -200,11 +202,13 @@ export function ItineraryTimeline({ params }: ItineraryTimelineProps) {
                     jr_pass_recommended: object?.jr_pass_recommended,
                     jr_pass_reasoning: object?.jr_pass_reasoning,
                     total_budget_estimate: object?.total_budget_estimate,
+                    packing_tips: object?.packing_tips,
                   }),
                 });
                 if (res.ok) {
                   const data = await res.json();
                   setSaved(true);
+                  setSavedId(data.id);
                   setShareUrl(
                     `${window.location.origin}/itinerary/${data.id}/share`
                   );
@@ -232,6 +236,15 @@ export function ItineraryTimeline({ params }: ItineraryTimelineProps) {
               </>
             )}
           </Button>
+
+          {savedId && (
+            <Button
+              variant="outline"
+              render={<Link href={`/itinerary/${savedId}`} />}
+            >
+              View Saved
+            </Button>
+          )}
 
           {shareUrl && (
             <Button

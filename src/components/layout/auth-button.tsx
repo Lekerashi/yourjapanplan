@@ -79,7 +79,7 @@ export function AuthButton() {
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          render={<Link href="/itinerary/new" />}
+          render={<Link href="/itinerary/saved" />}
         >
           <BookOpen className="mr-2 h-4 w-4" />
           My Itineraries

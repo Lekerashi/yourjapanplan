@@ -28,11 +28,12 @@ export async function POST(request: Request) {
     jr_pass_recommended,
     jr_pass_reasoning,
     total_budget_estimate,
+    packing_tips,
   } = body;
 
   const share_token = crypto.randomUUID();
 
-  // Create itinerary
+  // Store the full generated plan in preferences_snapshot alongside preferences
   const { data: itinerary, error: itineraryError } = await supabase
     .from("itineraries")
     .insert({
@@ -47,12 +48,23 @@ export async function POST(request: Request) {
       share_token,
       is_public: false,
       preferences_snapshot: {
-        travel_style,
-        interests,
-        season,
-        duration_days,
-        budget,
-        pace,
+        preferences: {
+          travel_style,
+          interests,
+          season,
+          duration_days,
+          budget,
+          pace,
+        },
+        generated_plan: {
+          title,
+          days,
+          destinations,
+          jr_pass_recommended,
+          jr_pass_reasoning,
+          total_budget_estimate,
+          packing_tips,
+        },
       },
     })
     .select("id")
@@ -65,14 +77,19 @@ export async function POST(request: Request) {
     );
   }
 
-  // Insert days
+  // Insert days into itinerary_days table
   if (days && days.length > 0) {
     const dayRows = days.map(
       (day: {
         day_number: number;
         destination_slug: string;
         theme: string;
-        accommodation?: { name?: string; area?: string; type?: string; reasoning?: string };
+        accommodation?: {
+          name?: string;
+          area?: string;
+          type?: string;
+          reasoning?: string;
+        };
       }) => ({
         itinerary_id: itinerary.id,
         day_number: day.day_number,
@@ -93,7 +110,6 @@ export async function POST(request: Request) {
   return NextResponse.json({
     id: itinerary.id,
     share_token,
-    destinations,
   });
 }
 
@@ -101,13 +117,38 @@ export async function GET(request: Request) {
   const supabase = await createClient();
   const { searchParams } = new URL(request.url);
 
+  const id = searchParams.get("id");
   const shareToken = searchParams.get("share_token");
 
-  if (shareToken) {
-    // Public access via share token
+  // Fetch single itinerary by ID
+  if (id) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { data, error } = await supabase
       .from("itineraries")
-      .select("*, itinerary_days(*)")
+      .select("*")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (error || !data) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(data);
+  }
+
+  // Public access via share token
+  if (shareToken) {
+    const { data, error } = await supabase
+      .from("itineraries")
+      .select("*")
       .eq("share_token", shareToken)
       .eq("is_public", true)
       .single();
@@ -119,7 +160,7 @@ export async function GET(request: Request) {
     return NextResponse.json(data);
   }
 
-  // Authenticated user's itineraries
+  // List authenticated user's itineraries
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -130,7 +171,9 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabase
     .from("itineraries")
-    .select("id, title, status, created_at, share_token, is_public, travel_style, total_budget_estimate")
+    .select(
+      "id, title, status, created_at, share_token, is_public, travel_style, total_budget_estimate"
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
