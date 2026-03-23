@@ -82,7 +82,7 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
         <div className="mt-10 flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-rose-500" />
           <p className="text-sm text-muted-foreground animate-pulse">
-            Our AI is planning your perfect trip...
+            Planning your perfect trip...
           </p>
         </div>
       )}
