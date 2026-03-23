@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { itineraryResponseSchema } from "@/lib/ai/itinerary-schemas";
 import { ItineraryDayCard } from "./itinerary-day-card";
@@ -13,6 +13,9 @@ import {
   Train,
   Backpack,
   Wallet,
+  Save,
+  Share2,
+  Check,
 } from "lucide-react";
 
 interface ItineraryTimelineProps {
@@ -29,6 +32,9 @@ interface ItineraryTimelineProps {
 
 export function ItineraryTimeline({ params }: ItineraryTimelineProps) {
   const submittedRef = useRef(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
 
   const { object, submit, isLoading, error } = useObject({
     api: "/api/ai/itinerary",
@@ -170,6 +176,74 @@ export function ItineraryTimeline({ params }: ItineraryTimelineProps) {
             )}
           </div>
         )}
+
+      {/* Save / Share actions */}
+      {!isLoading && hasDays && (
+        <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <Button
+            onClick={async () => {
+              setSaving(true);
+              try {
+                const res = await fetch("/api/itinerary", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    title: object?.title ?? "My Japan Itinerary",
+                    travel_style: params.travelStyle,
+                    season: params.season,
+                    duration_days: params.durationDays,
+                    budget: params.budget,
+                    pace: params.pace,
+                    interests: params.interests,
+                    destinations: params.destinations,
+                    days: object?.days ?? [],
+                    jr_pass_recommended: object?.jr_pass_recommended,
+                    jr_pass_reasoning: object?.jr_pass_reasoning,
+                    total_budget_estimate: object?.total_budget_estimate,
+                  }),
+                });
+                if (res.ok) {
+                  const data = await res.json();
+                  setSaved(true);
+                  setShareUrl(
+                    `${window.location.origin}/itinerary/${data.id}/share`
+                  );
+                }
+              } finally {
+                setSaving(false);
+              }
+            }}
+            disabled={saving || saved}
+          >
+            {saved ? (
+              <>
+                <Check className="mr-2 h-4 w-4" />
+                Saved
+              </>
+            ) : saving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Save Itinerary
+              </>
+            )}
+          </Button>
+
+          {shareUrl && (
+            <Button
+              variant="outline"
+              onClick={() => navigator.clipboard.writeText(shareUrl)}
+            >
+              <Share2 className="mr-2 h-4 w-4" />
+              Copy Share Link
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

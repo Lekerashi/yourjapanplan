@@ -6,6 +6,7 @@ import { Menu, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
+import { AuthButton } from "./auth-button";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -32,6 +33,7 @@ export function Navbar() {
           <Button render={<Link href="/quiz" />} size="sm">
             Start Planning
           </Button>
+          <AuthButton />
         </nav>
 
         {/* Mobile nav */}
@@ -61,6 +63,9 @@ export function Navbar() {
               >
                 Start Planning
               </Button>
+              <div className="mt-4">
+                <AuthButton />
+              </div>
             </nav>
           </SheetContent>
         </Sheet>
