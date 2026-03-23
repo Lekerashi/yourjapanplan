@@ -6,6 +6,7 @@ import type {
   BudgetLevel,
   TripPace,
 } from "@/types";
+import type { RecommendationResponse } from "@/lib/ai/schemas";
 
 export interface QuizState {
   currentStep: number;
@@ -18,6 +19,7 @@ export interface QuizState {
   crowdTolerance: "low" | "medium" | "high" | null;
   firstTime: boolean | null;
   mustVisit: string[];
+  cachedResults: RecommendationResponse | null;
 }
 
 interface QuizActions {
@@ -30,6 +32,7 @@ interface QuizActions {
   setCrowdTolerance: (level: "low" | "medium" | "high") => void;
   setFirstTime: (value: boolean) => void;
   setMustVisit: (cities: string[]) => void;
+  setCachedResults: (results: RecommendationResponse) => void;
   nextStep: () => void;
   prevStep: () => void;
   goToStep: (step: number) => void;
@@ -56,6 +59,7 @@ const initialState: QuizState = {
   crowdTolerance: null,
   firstTime: null,
   mustVisit: [],
+  cachedResults: null,
 };
 
 export const useQuizStore = create<QuizState & QuizActions>()((set) => ({
@@ -75,6 +79,7 @@ export const useQuizStore = create<QuizState & QuizActions>()((set) => ({
   setCrowdTolerance: (level) => set({ crowdTolerance: level }),
   setFirstTime: (value) => set({ firstTime: value }),
   setMustVisit: (cities) => set({ mustVisit: cities }),
+  setCachedResults: (results) => set({ cachedResults: results }),
 
   nextStep: () =>
     set((s) => ({
