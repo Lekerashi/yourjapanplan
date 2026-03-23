@@ -15,7 +15,7 @@ import { INTEREST_TAGS } from "@/lib/constants";
 const FEATURES = [
   {
     icon: Sparkles,
-    title: "AI-Powered Recommendations",
+    title: "Personalized Recommendations",
     description:
       "Tell us what you love and we'll match you with the perfect destinations across Japan.",
   },
@@ -59,15 +59,15 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-sm font-semibold uppercase tracking-widest text-rose-500">
-              Your perfect Japan trip, planned by AI
+              Plan your perfect Japan trip
             </p>
             <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-6xl">
               Discover where in Japan{" "}
               <span className="text-rose-500">you</span> should go
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Take a quick quiz about your travel style and interests. Our AI
-              builds a personalized itinerary with destinations, activities,
+              Take a quick quiz about your travel style and interests. We'll
+              build a personalized itinerary with destinations, activities,
               lodging tips, and everything you need to book in advance.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
@@ -124,7 +124,7 @@ export default function Home() {
                 step: "2",
                 title: "Get recommendations",
                 description:
-                  "Our AI analyzes your preferences and matches you with the best destinations in Japan.",
+                  "We analyze your preferences and match you with the best destinations in Japan.",
               },
               {
                 step: "3",
