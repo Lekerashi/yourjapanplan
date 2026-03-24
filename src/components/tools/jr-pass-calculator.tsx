@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Plus, X, Train, ArrowRight, Check, AlertTriangle } from "lucide-react";
+import { Plus, X, Train, ArrowLeftRight, Check, AlertTriangle } from "lucide-react";
 import { TRANSPORT_ROUTES, JR_PASS_PRICES } from "@/lib/data/transport-routes";
 
 const ROUTES = TRANSPORT_ROUTES.filter((r) => r.primary_method !== "Flight").map((r) => ({
@@ -105,7 +105,7 @@ export function JRPassCalculator() {
               <Plus className="h-3.5 w-3.5 shrink-0 text-rose-500" />
               <span className="flex-1">
                 {route.from}{" "}
-                <ArrowRight className="inline h-3 w-3 text-muted-foreground" />{" "}
+                <ArrowLeftRight className="inline h-3 w-3 text-muted-foreground" />{" "}
                 {route.to}
               </span>
               <span className="text-muted-foreground">
@@ -131,7 +131,7 @@ export function JRPassCalculator() {
                 <Train className="h-4 w-4 shrink-0 text-rose-500" />
                 <div className="flex-1">
                   <span className="font-medium">
-                    {route.from} → {route.to}
+                    {route.from} ↔ {route.to}
                   </span>
                   <span className="ml-2 text-sm text-muted-foreground">
                     {route.duration}
