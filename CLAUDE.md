@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Your Japan Plan** (yourjapanplan.com) — an AI-powered Japan travel planning web app. Users take a preference quiz, get personalized destination recommendations from Claude, and generate/save/share custom day-by-day itineraries.
+**Your Japan Plan** (yourjapanplan.com) — a Japan travel planning web app. Users take a preference quiz to get destination recommendations, then build custom day-by-day itineraries by picking from pre-generated activity catalogs. Itineraries can be saved and shared via Supabase.
 
 ## Commands
 
@@ -20,9 +20,10 @@ npx tsc --noEmit     # TypeScript check (use this over `npm run build` on Window
 
 - **Next.js 16** (App Router) with TypeScript
 - **Tailwind CSS v4** + **shadcn/ui v4** (uses `@base-ui/react`, NOT Radix)
-- **Supabase** — Postgres database, Auth (Google OAuth), Storage
-- **Claude API** via **Vercel AI SDK** — streaming AI recommendations and itinerary generation
-- **Vercel** — deployment target
+- **Supabase** — Postgres database, Auth (Google OAuth + email/password), Storage
+- **Claude API** via **Vercel AI SDK** — streaming AI recommendations only (quiz results)
+- **Zustand** — client state management (quiz store, itinerary builder store)
+- **Vercel** — deployment (auto-deploys on push to `master`)
 
 ## Architecture
 
@@ -38,45 +39,100 @@ This project uses shadcn/ui v4 which is built on `@base-ui/react` instead of Rad
 <Button render={<Link href="/foo" />}>Click</Button>
 ```
 
-### Data Architecture (Hybrid)
+### Data Architecture
 
-Curated Postgres database of real destinations/activities for accuracy. Claude selects from and personalizes this data — it doesn't hallucinate places.
+**Static-first approach.** All destination, activity, and transport data is curated and stored as static TypeScript files. No database queries needed for the core experience. AI is used only for the quiz recommendation flow.
 
-- **Destinations & activities**: curated seed data in `supabase/seed.sql`
-- **AI pipeline**: DB query → filter by preferences → pass to Claude → validate response with Zod schemas → return structured JSON
+#### Static Data Files (`src/lib/data/`)
+
+- **`seed-activities.ts`** — Activity catalog (~280 entries across 26 destinations). Each activity has id, name, description, type, duration, cost, tags, reservation info, time-of-day, and insider tip.
+- **`day-templates.ts`** — Pre-built day plans (~65 templates, 2-3 per destination) that users can apply as a starting point.
+- **`transport-routes.ts`** — Train/bus/flight routes between destinations (~45 routes) with costs, durations, and JR Pass coverage. Shared by the itinerary builder and JR Pass calculator.
+
+#### Seed Destinations (`src/lib/ai/seed-destinations.ts`)
+
+26 curated destinations with highlights, tags, best seasons, crowd levels by month, accommodation zones, and reservation tips.
+
+#### AI (quiz only)
+
+The quiz recommendation flow (`/api/ai/recommend`) is the only feature that calls Claude. It streams structured recommendations using `experimental_useObject` from `@ai-sdk/react`. Results are cached in the Zustand quiz store so revisiting the page doesn't re-generate.
+
+### Streaming Partial Types — Pitfall
+
+When using `experimental_useObject` from `@ai-sdk/react`, the returned object is deeply partial (`PartialObject<T>`). Arrays become `(T | undefined)[]`. Use `.filter((a): a is NonNullable<typeof a> => !!a)` instead of `.filter(Boolean)` — the latter doesn't narrow types in TypeScript. Always define component props with optional fields when consuming streamed data.
 
 ### Key Directories
 
 ```
-src/app/            → Next.js App Router pages and API routes
-src/components/ui/  → shadcn/ui primitives (auto-generated, don't hand-edit)
-src/components/     → App components organized by feature (layout/, quiz/, itinerary/, destination/)
-src/lib/            → Utilities, Supabase clients, AI prompts, constants
-src/types/          → Shared TypeScript types
-supabase/           → SQL migrations and seed data
+src/app/               → Next.js App Router pages and API routes
+src/app/api/ai/        → AI endpoints (recommend, itinerary — itinerary is legacy)
+src/app/api/itinerary/ → Save/load itinerary CRUD
+src/components/ui/     → shadcn/ui primitives (auto-generated, don't hand-edit)
+src/components/        → App components by feature (layout/, quiz/, itinerary/, destination/, tools/)
+src/lib/data/          → Static data files (activities, templates, transport routes)
+src/lib/ai/            → AI prompts, schemas, seed destinations
+src/lib/supabase/      → Supabase client/server utilities
+src/stores/            → Zustand stores (quiz-store, itinerary-store)
+src/types/             → Shared TypeScript types
+supabase/              → SQL migrations and seed data
 ```
 
-### AI Integration Pattern
+### Itinerary Builder Flow
 
-API routes in `src/app/api/ai/` receive user preferences, query the Supabase DB for matching destinations/activities, then pass the filtered results + preferences to Claude. Responses are streamed using Vercel AI SDK and validated against Zod schemas in `src/lib/ai/schemas.ts`.
+The interactive builder uses NO AI. Users:
+1. Pick destinations + set days per destination (`DestinationPicker`)
+2. Build each day by adding activities from the pre-generated catalog (`DayBuilder` + `ActivityPicker`)
+3. Review the full itinerary with budget estimate, JR Pass recommendation, and reservation checklist (`TripSummary`)
+4. Save to Supabase and share via link
+
+State managed in `src/stores/itinerary-store.ts` with `BuilderDay` and `BuilderActivity` types. Time slots are computed in components via `useMemo`, not stored.
 
 ### Database
 
 Schema defined in `supabase/migrations/`. Core tables: `destinations`, `activities`, `itineraries`, `itinerary_days`, `itinerary_activities`, `profiles`, `quiz_responses`. All tables have RLS policies. Destinations and activities are publicly readable; itineraries are owner-only (or public if shared).
 
+### Auth
+
+Google OAuth + email/password via Supabase Auth. Middleware in `middleware.ts` refreshes sessions. `AuthButton` component in navbar shows sign-in/avatar dropdown. Auth page at `/auth` has both options with sign-in/sign-up toggle.
+
 ### Routing
 
 - `/` — Landing page
-- `/quiz` → `/quiz/results` — Preference quiz → AI recommendations
-- `/destinations` → `/destinations/[slug]` — Browse/detail pages (static for SEO)
-- `/itinerary/new` → `/itinerary/[id]` — Build/view itinerary
+- `/quiz` → `/quiz/results` — Preference quiz → AI recommendations (cached in store)
+- `/destinations` → `/destinations/[slug]` — Browse/detail pages (statically generated)
+- `/itinerary/new` — Interactive itinerary builder (pick → build → review)
+- `/itinerary/[id]` — View saved itinerary
+- `/itinerary/saved` — List of user's saved itineraries
 - `/itinerary/[id]/share` — Public shared view (no auth)
 - `/tools/jr-pass` — JR Pass calculator
-- `/auth` — Sign in (Google OAuth via Supabase)
+- `/auth` — Sign in/up (Google OAuth + email/password)
+
+### SEO
+
+- `src/app/sitemap.ts` — Dynamic sitemap with all destination pages
+- `src/app/robots.ts` — Allows all pages, blocks API routes
+- Each page has keyword-rich metadata with Open Graph and Twitter cards
+- Destination detail pages have dynamic keywords per city
+
+## Adding a New Destination
+
+When adding a new destination, update these files in order:
+
+1. **`src/lib/ai/seed-destinations.ts`** — Add the destination object (slug, name, region, description, highlights, best_seasons, crowd_level_by_month, tags, jr_accessible, reservation_tips, accommodation_zones)
+2. **`src/lib/data/seed-activities.ts`** — Add 8-12 activities for the destination. Activity IDs must follow the `{destination_slug}-{activity-slug}` format.
+3. **`src/lib/data/day-templates.ts`** — Add 2-3 day templates referencing the activity IDs from step 2.
+4. **`src/lib/data/transport-routes.ts`** — Add transport routes from/to nearby destinations.
+5. **`src/app/sitemap.ts`** — Auto-included (reads from seed destinations), no change needed.
+
+The destination will automatically appear in: browse page, filters, itinerary builder picker, JR calculator (if transport routes added), and the sitemap.
 
 ## Conventions
 
 - Path alias: `@/*` maps to `./src/*`
 - Constants/enums in `src/lib/constants.ts` — regions, interest tags, travel styles, etc.
 - TypeScript types in `src/types/index.ts`
-- All destination/activity data comes from the database, never hardcoded in components
+- All destination/activity data comes from static data files, never hardcoded in components
+- Don't mention "AI" in user-facing copy — the site should feel like curated expert recommendations
+- Prices in transport-routes.ts should be kept current — verify against official sources when updating
+- The Shinkansen does NOT go to Sapporo (only to Shin-Hakodate) — recommend flights for Hokkaido
+- There is no rail to Okinawa — flights only
