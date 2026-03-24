@@ -39,6 +39,10 @@ export const metadata: Metadata = {
     "custom Japan itinerary",
   ],
   metadataBase: new URL("https://yourjapanplan.com"),
+  icons: {
+    icon: "/icon.jpg",
+    apple: "/icon.jpg",
+  },
   openGraph: {
     title: `${SITE_NAME} — Japan Trip Planner & Itinerary Builder`,
     description: SITE_DESCRIPTION,

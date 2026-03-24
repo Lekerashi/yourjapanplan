@@ -114,17 +114,32 @@ Google OAuth + email/password via Supabase Auth. Middleware in `middleware.ts` r
 - Each page has keyword-rich metadata with Open Graph and Twitter cards
 - Destination detail pages have dynamic keywords per city
 
+## Destination Slugs — Critical
+
+Slugs MUST match exactly across all files. The canonical slug is in `seed-destinations.ts`. Known mismatches to watch for:
+
+| Destination | Correct slug | Common wrong slug |
+|---|---|---|
+| Okinawa | `okinawa-main` | `okinawa` |
+| Mt. Fuji | `mt-fuji` | `mt-fuji-area` |
+| Koya-san | `koyasan` | `koya-san` |
+
+Activity IDs use the format `{destination_slug}-{activity-slug}` (e.g. `tokyo-senso-ji`). However, some historical activity IDs don't match the destination slug exactly (e.g. `mt-fuji-area-kawaguchiko` has `destination_slug: "mt-fuji"`). This is fine — the `getActivitiesForDestination()` function filters by `destination_slug`, not the ID prefix.
+
+The `japan-map.tsx` component also has a coordinates lookup keyed by slug — update it when adding destinations.
+
 ## Adding a New Destination
 
 When adding a new destination, update these files in order:
 
 1. **`src/lib/ai/seed-destinations.ts`** — Add the destination object (slug, name, region, description, highlights, best_seasons, crowd_level_by_month, tags, jr_accessible, reservation_tips, accommodation_zones)
-2. **`src/lib/data/seed-activities.ts`** — Add 8-12 activities for the destination. Activity IDs must follow the `{destination_slug}-{activity-slug}` format.
-3. **`src/lib/data/day-templates.ts`** — Add 2-3 day templates referencing the activity IDs from step 2.
-4. **`src/lib/data/transport-routes.ts`** — Add transport routes from/to nearby destinations.
-5. **`src/app/sitemap.ts`** — Auto-included (reads from seed destinations), no change needed.
+2. **`src/lib/data/seed-activities.ts`** — Add 8-12 activities. Set `destination_slug` to match the slug from step 1. Activity IDs follow `{slug}-{activity-name}` format.
+3. **`src/lib/data/day-templates.ts`** — Add 2-3 day templates. Set `destination_slug` to match step 1. `activity_ids` must exactly match IDs from step 2.
+4. **`src/lib/data/transport-routes.ts`** — Add transport routes from/to nearby destinations with `from_slug`/`to_slug`.
+5. **`src/components/itinerary/japan-map.tsx`** — Add lat/lng coordinates in `DESTINATION_COORDS`.
+6. **`src/app/sitemap.ts`** — Auto-included (reads from seed destinations), no change needed.
 
-The destination will automatically appear in: browse page, filters, itinerary builder picker, JR calculator (if transport routes added), and the sitemap.
+The destination will automatically appear in: browse page, filters, itinerary builder map, JR calculator (if transport routes added, flights filtered out), and the sitemap.
 
 ## Conventions
 
@@ -136,3 +151,6 @@ The destination will automatically appear in: browse page, filters, itinerary bu
 - Prices in transport-routes.ts should be kept current — verify against official sources when updating
 - The Shinkansen does NOT go to Sapporo (only to Shin-Hakodate) — recommend flights for Hokkaido
 - There is no rail to Okinawa — flights only
+- NEVER use hand-drawn SVG paths for maps — use Leaflet or a real map library
+- Activities have `best_time_of_day` (morning/afternoon/evening/anytime) — the builder respects this when calculating time slots
+- Bars/nightlife should always be `best_time_of_day: "evening"` — never schedule them in the morning

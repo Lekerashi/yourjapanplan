@@ -16,7 +16,7 @@ const DESTINATION_COORDS: Record<string, [number, number]> = {
   kamakura: [35.32, 139.55],
   nikko: [36.75, 139.6],
   hakone: [35.23, 139.11],
-  "mt-fuji-area": [35.36, 138.73],
+  "mt-fuji": [35.36, 138.73],
   matsumoto: [36.24, 137.97],
   kanazawa: [36.56, 136.65],
   takayama: [36.14, 137.25],
@@ -26,7 +26,7 @@ const DESTINATION_COORDS: Record<string, [number, number]> = {
   osaka: [34.69, 135.5],
   nara: [34.69, 135.8],
   kobe: [34.69, 135.19],
-  "koya-san": [34.21, 135.6],
+  koyasan: [34.21, 135.6],
   hiroshima: [34.4, 132.46],
   onomichi: [34.41, 133.2],
   naoshima: [34.46, 133.99],
@@ -46,6 +46,7 @@ export function JapanMap({ selectedSlugs, onSelect }: JapanMapProps) {
   const leafletMapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.CircleMarker[]>([]);
   const [hoveredDest, setHoveredDest] = useState<string | null>(null);
+  const [tappedSlug, setTappedSlug] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   const hoveredData = hoveredDest
@@ -112,7 +113,22 @@ export function JapanMap({ selectedSlugs, onSelect }: JapanMapProps) {
         });
 
         marker.on("click", () => {
-          onSelect(dest.slug, dest.name);
+          // On touch devices: first tap shows info, second tap adds
+          const isTouchDevice = "ontouchstart" in window;
+          if (isTouchDevice) {
+            setTappedSlug((prev) => {
+              if (prev === dest.slug) {
+                // Second tap — add/remove
+                onSelect(dest.slug, dest.name);
+                return null;
+              }
+              // First tap — show info
+              setHoveredDest(dest.slug);
+              return dest.slug;
+            });
+          } else {
+            onSelect(dest.slug, dest.name);
+          }
         });
 
         marker.on("mouseover", () => {
@@ -199,6 +215,10 @@ export function JapanMap({ selectedSlugs, onSelect }: JapanMapProps) {
               <Badge variant="secondary" className="text-xs">
                 <Check className="mr-1 h-3 w-3" /> Added
               </Badge>
+            ) : tappedSlug === hoveredData.slug ? (
+              <Badge className="text-xs animate-pulse">
+                Tap again to add
+              </Badge>
             ) : (
               <Badge className="text-xs">
                 <Plus className="mr-1 h-3 w-3" /> Click to add
@@ -229,6 +249,3 @@ export function JapanMap({ selectedSlugs, onSelect }: JapanMapProps) {
     </div>
   );
 }
-
-// Leaflet type declaration for dynamic import
-declare const L: typeof import("leaflet");

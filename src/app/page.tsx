@@ -88,12 +88,12 @@ export default function Home() {
               need to book in advance.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
-              <Button render={<Link href="/itinerary/new" />} size="lg">
-                Build My Itinerary
+              <Button render={<Link href="/quiz" />} size="lg">
+                Take the Quiz
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button render={<Link href="/quiz" />} variant="outline" size="lg">
-                Take the Quiz
+              <Button render={<Link href="/itinerary/new" />} variant="outline" size="lg">
+                Custom Itinerary
               </Button>
             </div>
           </div>

@@ -31,7 +31,7 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "tokyo-senso-ji",
       "tokyo-meiji-shrine",
       "tokyo-shibuya-crossing",
-      "tokyo-akihabara",
+      "tokyo-harajuku",
     ],
     suggested_pace: "moderate",
   },
@@ -40,7 +40,7 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "tokyo",
     name: "Tokyo Eats & Beats",
     description:
-      "A dawn-to-dark feast through Tsukiji Market, Yanaka backstreets, and Shinjuku's izakaya scene.",
+      "A dawn-to-dark feast through Tsukiji Market, Tokyo Ramen Street, and Golden Gai's intimate bars.",
     target_interests: ["food", "nightlife", "culture"],
     activity_ids: [
       "tokyo-tsukiji-outer-market",
@@ -54,13 +54,13 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "tokyo",
     name: "Neon & Pixels",
     description:
-      "Dive into Tokyo's pop-culture universe with Akihabara arcades, TeamLab immersive art, and late-night Shinjuku.",
+      "Dive into Tokyo's pop-culture universe with Akihabara arcades, TeamLab immersive art, and a stroll through Shinjuku Gyoen.",
     target_interests: ["shopping", "culture", "nightlife"],
     activity_ids: [
       "tokyo-akihabara",
       "tokyo-teamlab-borderless",
       "tokyo-shibuya-crossing",
-      "tokyo-shinjuku-golden-gai",
+      "tokyo-golden-gai",
     ],
     suggested_pace: "packed",
   },
@@ -77,7 +77,7 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     target_interests: ["temples", "culture"],
     activity_ids: [
       "kyoto-fushimi-inari",
-      "kyoto-kinkaku-ji",
+      "kyoto-kinkakuji",
       "kyoto-tea-ceremony",
     ],
     suggested_pace: "relaxed",
@@ -90,9 +90,10 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "All the greatest hits in a single ambitious day — Kiyomizu-dera, Nishiki Market, and an evening stroll through Gion.",
     target_interests: ["temples", "food", "culture"],
     activity_ids: [
-      "kyoto-kiyomizu-dera",
+      "kyoto-kiyomizudera",
       "kyoto-nishiki-market",
-      "kyoto-gion-evening",
+      "kyoto-gion-walk",
+      "kyoto-pontocho",
     ],
     suggested_pace: "moderate",
   },
@@ -101,11 +102,12 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "kyoto",
     name: "Bamboo & Beyond",
     description:
-      "Lose yourself in the towering bamboo of Arashiyama, meet wild macaques, and wander the mossy trails west of the city.",
+      "Lose yourself in the towering bamboo of Arashiyama, then wander the mossy trails and iconic torii gates of Fushimi Inari.",
     target_interests: ["nature", "culture", "temples"],
     activity_ids: [
       "kyoto-arashiyama-bamboo",
       "kyoto-fushimi-inari",
+      "kyoto-kinkakuji",
     ],
     suggested_pace: "relaxed",
   },
@@ -132,12 +134,13 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "osaka",
     name: "Castle & Culture",
     description:
-      "Explore Osaka Castle's storied grounds, browse Shinsaibashi's shops, and close with street food along the canal.",
+      "Explore Osaka Castle's storied grounds, browse Amerikamura's shops, and close with street food along Dotonbori.",
     target_interests: ["culture", "shopping", "food"],
     activity_ids: [
       "osaka-castle",
-      "osaka-shinsaibashi",
+      "osaka-amerikamura",
       "osaka-dotonbori",
+      "osaka-namba-nightlife",
     ],
     suggested_pace: "moderate",
   },
@@ -149,8 +152,9 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "Spend the day at Universal Studios Japan, then refuel with takoyaki and ramen in the neon heart of the city.",
     target_interests: ["adventure", "food", "nightlife"],
     activity_ids: [
-      "osaka-universal-studios",
+      "osaka-usj",
       "osaka-dotonbori",
+      "osaka-namba-nightlife",
     ],
     suggested_pace: "packed",
   },
@@ -163,12 +167,12 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "hakone",
     name: "Soak & Scenery",
     description:
-      "A lazy loop of Lake Ashi cruises, Owakudani's volcanic steam, and a sunset soak in a mountain onsen.",
+      "A lazy loop of Lake Ashi cruises, Owakudani's volcanic steam, and a sunset soak in a mountain ryokan onsen.",
     target_interests: ["onsen", "nature"],
     activity_ids: [
-      "hakone-lake-ashi-cruise",
+      "hakone-lake-ashi",
       "hakone-owakudani",
-      "hakone-onsen-ryokan",
+      "hakone-ryokan-onsen",
     ],
     suggested_pace: "relaxed",
   },
@@ -177,12 +181,13 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "hakone",
     name: "Art in the Mountains",
     description:
-      "Wander the Open-Air Museum's sculpture garden, ride the ropeway over volcanic vents, and enjoy Mt. Fuji views from the lake.",
+      "Wander the Open-Air Museum's sculpture garden, visit the lakeside shrine, and enjoy Mt. Fuji views from the lake.",
     target_interests: ["culture", "nature"],
     activity_ids: [
       "hakone-open-air-museum",
-      "hakone-ropeway",
-      "hakone-lake-ashi-cruise",
+      "hakone-shrine",
+      "hakone-lake-ashi",
+      "hakone-owakudani",
     ],
     suggested_pace: "moderate",
   },
@@ -195,11 +200,11 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "hiroshima",
     name: "Peace & Remembrance",
     description:
-      "A reflective morning at the Peace Memorial Park and Museum, followed by Hiroshima's legendary okonomiyaki.",
+      "A reflective morning at the Peace Memorial Park, a stroll through Shukkeien Garden, and Hiroshima's legendary okonomiyaki.",
     target_interests: ["culture", "food"],
     activity_ids: [
-      "hiroshima-peace-memorial-park",
-      "hiroshima-atomic-bomb-dome",
+      "hiroshima-peace-park",
+      "hiroshima-shukkeien",
       "hiroshima-okonomiyaki",
     ],
     suggested_pace: "relaxed",
@@ -209,12 +214,12 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "hiroshima",
     name: "Miyajima Island Escape",
     description:
-      "Ferry to Miyajima to see the floating torii gate, hike Mt. Misen, and taste freshly grilled oysters by the water.",
+      "Ferry to Miyajima to see the floating torii gate, explore the island, and taste freshly grilled oysters by the water.",
     target_interests: ["temples", "nature", "food"],
     activity_ids: [
-      "hiroshima-miyajima-island",
-      "hiroshima-itsukushima-shrine",
-      "hiroshima-mt-misen-hike",
+      "hiroshima-miyajima",
+      "hiroshima-okonomiyaki",
+      "hiroshima-peace-park",
     ],
     suggested_pace: "moderate",
   },
@@ -231,7 +236,7 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     target_interests: ["temples", "nature", "culture"],
     activity_ids: [
       "nara-deer-park",
-      "nara-todai-ji",
+      "nara-todaiji",
       "nara-kasuga-shrine",
     ],
     suggested_pace: "relaxed",
@@ -241,13 +246,13 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "nara",
     name: "Complete Nara",
     description:
-      "A thorough exploration pairing all the major shrines with quiet strolls through Isuien Garden and the old merchant quarter of Naramachi.",
+      "A thorough exploration pairing all the major shrines with quiet strolls through the old merchant quarter of Naramachi.",
     target_interests: ["temples", "culture", "nature"],
     activity_ids: [
-      "nara-todai-ji",
+      "nara-todaiji",
       "nara-kasuga-shrine",
-      "nara-isuien-garden",
       "nara-naramachi",
+      "nara-deer-park",
     ],
     suggested_pace: "moderate",
   },
@@ -260,12 +265,11 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "kamakura",
     name: "Temple Trail to the Sea",
     description:
-      "Walk from the Great Buddha through ancient hillside temples, ending at the ocean with Enoshima Island glowing in the distance.",
+      "Walk from the Great Buddha through Hasedera temple's gardens, ending with a stroll along Komachi-dori shopping street.",
     target_interests: ["temples", "culture", "nature"],
     activity_ids: [
       "kamakura-great-buddha",
-      "kamakura-hase-dera",
-      "kamakura-tsurugaoka-hachimangu",
+      "kamakura-hasedera",
       "kamakura-komachi-dori",
     ],
     suggested_pace: "moderate",
@@ -275,12 +279,12 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "kamakura",
     name: "Surf & Shrine",
     description:
-      "Mix sacred with seaside — temples in the morning, Enoshima Island caves in the afternoon, and sunset over the Pacific.",
+      "Mix sacred with seaside — the Great Buddha in the morning, Enoshima Island in the afternoon, and sunset over the Pacific.",
     target_interests: ["beach", "temples", "nature"],
     activity_ids: [
       "kamakura-great-buddha",
-      "kamakura-enoshima-island",
-      "kamakura-beach",
+      "kamakura-enoshima",
+      "kamakura-hasedera",
     ],
     suggested_pace: "relaxed",
   },
@@ -293,12 +297,12 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "nikko",
     name: "Gilded Shrines of Nikko",
     description:
-      "Marvel at the ornate Toshogu Shrine complex, cross the sacred Shinkyo Bridge, and wander among the stone Jizo statues of Kanmangafuchi.",
+      "Marvel at the ornate Toshogu Shrine complex, then head up to the dramatic Kegon Falls.",
     target_interests: ["temples", "culture"],
     activity_ids: [
-      "nikko-toshogu-shrine",
-      "nikko-shinkyo-bridge",
-      "nikko-kanmangafuchi",
+      "nikko-toshogu",
+      "nikko-kegon-falls",
+      "nikko-lake-chuzenji",
     ],
     suggested_pace: "moderate",
   },
@@ -307,12 +311,12 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "nikko",
     name: "Waterfalls & Highland Lakes",
     description:
-      "Head up to Lake Chuzenji and Kegon Falls, hike through old-growth forest, and soak in Yumoto onsen at dusk.",
-    target_interests: ["nature", "onsen"],
+      "Head up to Lake Chuzenji and Kegon Falls for a day immersed in mountain scenery.",
+    target_interests: ["nature", "culture"],
     activity_ids: [
       "nikko-kegon-falls",
       "nikko-lake-chuzenji",
-      "nikko-yumoto-onsen",
+      "nikko-toshogu",
     ],
     suggested_pace: "relaxed",
   },
@@ -325,12 +329,11 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "takayama",
     name: "Edo-era Morning to Night",
     description:
-      "Browse the morning market at dawn, stroll the dark-wood merchant streets, sample sake in centuries-old breweries, and feast on melt-in-your-mouth Hida beef.",
+      "Browse the morning market at dawn, stroll the dark-wood merchant streets, and feast on melt-in-your-mouth Hida beef.",
     target_interests: ["culture", "food"],
     activity_ids: [
       "takayama-morning-market",
-      "takayama-sanmachi-suji",
-      "takayama-sake-breweries",
+      "takayama-old-town",
       "takayama-hida-beef",
     ],
     suggested_pace: "relaxed",
@@ -343,8 +346,8 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "Explore thatched-roof farmhouses at Hida Folk Village and learn about mountain life in the Japanese Alps.",
     target_interests: ["culture", "nature"],
     activity_ids: [
-      "takayama-hida-folk-village",
-      "takayama-sanmachi-suji",
+      "takayama-folk-village",
+      "takayama-old-town",
       "takayama-morning-market",
     ],
     suggested_pace: "moderate",
@@ -358,12 +361,12 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "kanazawa",
     name: "Gardens & Geisha Streets",
     description:
-      "Wander Kenroku-en at its seasonal best, step into a samurai residence, and sip gold-leaf tea in the geisha quarter.",
+      "Wander Kenroku-en at its seasonal best and sip gold-leaf tea in the geisha quarter.",
     target_interests: ["culture", "nature"],
     activity_ids: [
-      "kanazawa-kenroku-en",
+      "kanazawa-kenrokuen",
       "kanazawa-higashi-chaya",
-      "kanazawa-nagamachi-samurai",
+      "kanazawa-21st-century-museum",
     ],
     suggested_pace: "relaxed",
   },
@@ -400,32 +403,18 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "moderate",
   },
   {
-    id: "sapporo-city-night-day",
+    id: "sapporo-city-day",
     destination_slug: "sapporo",
-    name: "Snow City After Dark",
+    name: "Sapporo City Explorer",
     description:
-      "Stroll Odori Park, catch the Snow Festival illuminations (winter), and dive into the buzzing Susukino nightlife district.",
-    target_interests: ["nightlife", "culture", "food"],
+      "Stroll Odori Park, visit the Beer Museum, and sample fresh seafood at Nijo Market.",
+    target_interests: ["culture", "food"],
     activity_ids: [
       "sapporo-odori-park",
-      "sapporo-snow-festival",
-      "sapporo-susukino",
+      "sapporo-beer-museum",
+      "sapporo-nijo-market",
     ],
     suggested_pace: "moderate",
-  },
-  {
-    id: "sapporo-ski-day",
-    destination_slug: "sapporo",
-    name: "City Slopes",
-    description:
-      "Hit the slopes at a nearby resort in the morning, then warm up with ramen and craft beer back in the city.",
-    target_interests: ["skiing", "food"],
-    activity_ids: [
-      "sapporo-ski-resort",
-      "sapporo-ramen-alley",
-      "sapporo-beer-museum",
-    ],
-    suggested_pace: "packed",
   },
 
   // ============================================================
@@ -436,28 +425,26 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "niseko",
     name: "Legendary Powder Day",
     description:
-      "Carve through Niseko's world-famous dry powder, refuel with craft beer in Hirafu Village, and thaw in a steaming outdoor onsen.",
+      "Carve through Niseko's world-famous dry powder and thaw in a steaming outdoor onsen.",
     target_interests: ["skiing", "onsen"],
     activity_ids: [
-      "niseko-skiing",
-      "niseko-craft-beer",
-      "niseko-onsen",
+      "niseko-powder-skiing",
+      "niseko-onsen-hopping",
     ],
     suggested_pace: "packed",
   },
   {
-    id: "niseko-adventure-day",
+    id: "niseko-relax-day",
     destination_slug: "niseko",
-    name: "Mountain Adventures",
+    name: "Mountain Relaxation",
     description:
-      "Raft the Shiribetsu River in summer, hike toward Mt. Yotei's cone, and end with a well-earned soak overlooking the valley.",
-    target_interests: ["adventure", "nature", "onsen"],
+      "Take a lighter day on the slopes then spend the afternoon soaking in multiple outdoor onsens with mountain views.",
+    target_interests: ["onsen", "skiing"],
     activity_ids: [
-      "niseko-rafting",
-      "niseko-mt-yotei-hike",
-      "niseko-onsen",
+      "niseko-onsen-hopping",
+      "niseko-powder-skiing",
     ],
-    suggested_pace: "packed",
+    suggested_pace: "relaxed",
   },
 
   // ============================================================
@@ -471,9 +458,9 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "Spend the evening hopping between riverfront yatai stalls for tonkotsu ramen, gyoza, and yakitori under the lanterns.",
     target_interests: ["food", "nightlife"],
     activity_ids: [
-      "fukuoka-yatai-stalls",
+      "fukuoka-yatai",
       "fukuoka-hakata-ramen",
-      "fukuoka-nakasu-nightlife",
+      "fukuoka-canal-city",
     ],
     suggested_pace: "relaxed",
   },
@@ -482,72 +469,44 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "fukuoka",
     name: "Shrines, Parks & Ramen",
     description:
-      "Day-trip to Dazaifu Tenmangu shrine, stroll Ohori Park's lakeside paths, and circle back for a bowl of Hakata's finest.",
+      "Day-trip to Dazaifu Tenmangu shrine, explore Canal City, and circle back for a bowl of Hakata's finest.",
     target_interests: ["culture", "food", "nature"],
     activity_ids: [
-      "fukuoka-dazaifu-tenmangu",
-      "fukuoka-ohori-park",
-      "fukuoka-hakata-ramen",
-    ],
-    suggested_pace: "moderate",
-  },
-  {
-    id: "fukuoka-beach-city-day",
-    destination_slug: "fukuoka",
-    name: "Beach & Canal City",
-    description:
-      "Catch morning sun at Momochi Beach, wander the Canal City shopping complex, and wind down with seaside cocktails.",
-    target_interests: ["beach", "shopping", "nightlife"],
-    activity_ids: [
-      "fukuoka-momochi-beach",
+      "fukuoka-dazaifu",
       "fukuoka-canal-city",
-      "fukuoka-nakasu-nightlife",
+      "fukuoka-hakata-ramen",
     ],
     suggested_pace: "moderate",
   },
 
   // ============================================================
-  // OKINAWA (okinawa-main)
+  // OKINAWA
   // ============================================================
   {
     id: "okinawa-beach-day",
     destination_slug: "okinawa-main",
     name: "Tropical Beach Day",
     description:
-      "Snorkel the Blue Cave in the morning, laze on white-sand beaches in the afternoon, and watch the sun drop into the East China Sea.",
+      "Snorkel the Blue Cave in the morning, then explore Kokusai Street for Okinawan crafts and cuisine.",
     target_interests: ["beach", "adventure", "nature"],
     activity_ids: [
-      "okinawa-main-blue-cave-snorkeling",
-      "okinawa-main-beach",
-      "okinawa-main-sunset-cruise",
+      "okinawa-blue-cave",
+      "okinawa-kokusai-street",
+      "okinawa-churaumi-aquarium",
     ],
-    suggested_pace: "relaxed",
+    suggested_pace: "moderate",
   },
   {
     id: "okinawa-culture-day",
     destination_slug: "okinawa-main",
     name: "Ryukyu Kingdom",
     description:
-      "Explore the rebuilt Shuri Castle, browse Kokusai Street for Okinawan crafts, and taste unique island cuisine like goya champuru and soki soba.",
+      "Explore the rebuilt Shuri Castle, browse Kokusai Street for Okinawan crafts, and taste unique island cuisine.",
     target_interests: ["culture", "food", "shopping"],
     activity_ids: [
-      "okinawa-main-shuri-castle",
-      "okinawa-main-kokusai-street",
-      "okinawa-main-okinawan-cuisine",
-    ],
-    suggested_pace: "moderate",
-  },
-  {
-    id: "okinawa-aquarium-day",
-    destination_slug: "okinawa-main",
-    name: "Ocean Explorer",
-    description:
-      "Drive north to the jaw-dropping Churaumi Aquarium, swim at Emerald Beach, and stop at American Village on the way back.",
-    target_interests: ["nature", "beach", "culture"],
-    activity_ids: [
-      "okinawa-main-churaumi-aquarium",
-      "okinawa-main-emerald-beach",
-      "okinawa-main-american-village",
+      "okinawa-shuri-castle",
+      "okinawa-kokusai-street",
+      "okinawa-blue-cave",
     ],
     suggested_pace: "moderate",
   },
@@ -558,14 +517,14 @@ export const DAY_TEMPLATES: DayTemplate[] = [
   {
     id: "kobe-beef-sake-day",
     destination_slug: "kobe",
-    name: "Beef, Sake & Harbor Views",
+    name: "Beef, Sake & Kitano",
     description:
-      "Tour the Nada sake breweries by morning, savor Kobe beef at lunch, and catch the harbor lights at Meriken Park by night.",
+      "Tour the Nada sake breweries by morning, savor Kobe beef at lunch, and stroll the cosmopolitan Kitano district.",
     target_interests: ["food", "culture"],
     activity_ids: [
-      "kobe-nada-sake-district",
-      "kobe-beef-tasting",
-      "kobe-meriken-park",
+      "kobe-nada-sake",
+      "kobe-beef-dinner",
+      "kobe-kitano",
     ],
     suggested_pace: "relaxed",
   },
@@ -574,58 +533,44 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "kobe",
     name: "Port City Stroll",
     description:
-      "Ride the ropeway up to Nunobiki Herb Garden for panoramic views, wander Nankinmachi Chinatown, and browse the waterfront shops.",
-    target_interests: ["nature", "food", "culture"],
+      "Wander the Kitano foreign quarter, sample Kobe beef, and explore the Nada sake district.",
+    target_interests: ["culture", "food"],
     activity_ids: [
-      "kobe-nunobiki-herb-garden",
-      "kobe-nankinmachi",
-      "kobe-meriken-park",
+      "kobe-kitano",
+      "kobe-beef-dinner",
+      "kobe-nada-sake",
     ],
     suggested_pace: "moderate",
   },
 
   // ============================================================
-  // MT. FUJI AREA (mt-fuji)
+  // MT. FUJI AREA
   // ============================================================
   {
     id: "mt-fuji-lakeside-day",
     destination_slug: "mt-fuji",
     name: "Fuji Five Lakes",
     description:
-      "Circle Lake Kawaguchiko by bike, photograph the Chureito Pagoda framing Mt. Fuji, and soak in a lakeside onsen at sunset.",
-    target_interests: ["nature", "onsen"],
+      "Circle Lake Kawaguchiko by bike, photograph the Chureito Pagoda framing Mt. Fuji, and visit the springs of Oshino Hakkai.",
+    target_interests: ["nature", "culture"],
     activity_ids: [
-      "mt-fuji-kawaguchiko",
-      "mt-fuji-chureito-pagoda",
-      "mt-fuji-onsen",
+      "mt-fuji-area-kawaguchiko",
+      "mt-fuji-area-chureito-pagoda",
+      "mt-fuji-area-oshino-hakkai",
     ],
     suggested_pace: "relaxed",
-  },
-  {
-    id: "mt-fuji-adventure-day",
-    destination_slug: "mt-fuji",
-    name: "Fuji Summit Challenge",
-    description:
-      "Begin the overnight ascent of Japan's sacred peak, watch sunrise from the summit, and descend to a well-earned onsen.",
-    target_interests: ["adventure", "nature"],
-    activity_ids: [
-      "mt-fuji-climbing",
-      "mt-fuji-sunrise-summit",
-      "mt-fuji-onsen",
-    ],
-    suggested_pace: "packed",
   },
   {
     id: "mt-fuji-village-day",
     destination_slug: "mt-fuji",
     name: "Villages at Fuji's Feet",
     description:
-      "Wander the crystal-clear springs of Oshino Hakkai, visit the Itchiku Kubota Art Museum, and take in Fuji views from every angle.",
+      "Wander the crystal-clear springs of Oshino Hakkai, catch the iconic pagoda view, and take in Fuji views from every angle.",
     target_interests: ["culture", "nature"],
     activity_ids: [
-      "mt-fuji-oshino-hakkai",
-      "mt-fuji-itchiku-kubota-museum",
-      "mt-fuji-kawaguchiko",
+      "mt-fuji-area-oshino-hakkai",
+      "mt-fuji-area-chureito-pagoda",
+      "mt-fuji-area-kawaguchiko",
     ],
     suggested_pace: "moderate",
   },
@@ -648,16 +593,16 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "moderate",
   },
   {
-    id: "beppu-food-steam-day",
+    id: "beppu-relaxation-day",
     destination_slug: "beppu",
-    name: "Steam-Cooked & Soaked",
+    name: "Steam & Soak",
     description:
-      "Cook your own meal in natural steam at Jigoku Mushi workshop, wander the steaming Kannawa streets, and soak in a local sento.",
-    target_interests: ["food", "onsen", "culture"],
+      "A leisurely day hopping between Beppu's many onsen, with a sand bath on the beach and a visit to the colorful Hells.",
+    target_interests: ["onsen", "nature", "culture"],
     activity_ids: [
-      "beppu-jigoku-mushi",
-      "beppu-kannawa-walk",
       "beppu-onsen-hopping",
+      "beppu-sand-bath",
+      "beppu-hells",
     ],
     suggested_pace: "relaxed",
   },
@@ -670,12 +615,12 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "naoshima",
     name: "Art Island Immersion",
     description:
-      "Descend into Chichu Art Museum's subterranean Monets, hunt outdoor sculptures, and pose with Kusama's iconic yellow pumpkin at sunset.",
+      "Descend into Chichu Art Museum's subterranean Monets, hunt outdoor sculptures, and pose with Kusama's iconic pumpkin at sunset.",
     target_interests: ["culture", "nature"],
     activity_ids: [
-      "naoshima-chichu-art-museum",
+      "naoshima-chichu-museum",
       "naoshima-art-house-project",
-      "naoshima-yellow-pumpkin",
+      "naoshima-pumpkin",
     ],
     suggested_pace: "moderate",
   },
@@ -684,11 +629,11 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "naoshima",
     name: "Island Gallery Hop",
     description:
-      "Spend the day cycling between Benesse House, the Lee Ufan Museum, and tiny village installations on the Seto Inland Sea.",
+      "Spend the day cycling between the Chichu Museum, village art installations, and the iconic pumpkin sculptures on the Seto Inland Sea.",
     target_interests: ["culture"],
     activity_ids: [
-      "naoshima-benesse-house",
-      "naoshima-lee-ufan-museum",
+      "naoshima-chichu-museum",
+      "naoshima-pumpkin",
       "naoshima-art-house-project",
     ],
     suggested_pace: "relaxed",
@@ -706,7 +651,7 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     target_interests: ["nature", "adventure"],
     activity_ids: [
       "yakushima-jomon-sugi",
-      "yakushima-forest-hike",
+      "yakushima-shiratani",
     ],
     suggested_pace: "packed",
   },
@@ -715,12 +660,11 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "yakushima",
     name: "Princess Mononoke's Forest",
     description:
-      "Wander the ethereal moss-covered Shiratani Unsuikyo ravine that inspired Studio Ghibli, then cool off at Oko Falls.",
+      "Wander the ethereal moss-covered Shiratani Unsuikyo ravine that inspired Studio Ghibli.",
     target_interests: ["nature", "adventure"],
     activity_ids: [
-      "yakushima-shiratani-unsuikyo",
-      "yakushima-oko-falls",
-      "yakushima-yakusugi-land",
+      "yakushima-shiratani",
+      "yakushima-jomon-sugi",
     ],
     suggested_pace: "moderate",
   },
@@ -733,44 +677,42 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "shirakawa-go",
     name: "Thatched-Roof Village Walk",
     description:
-      "Step inside preserved gassho-zukuri farmhouses, climb to Shiroyama Viewpoint for the postcard panorama, and experience rural mountain hospitality.",
+      "Step inside preserved gassho-zukuri farmhouses and climb to the viewpoint for the postcard panorama of the village.",
     target_interests: ["culture", "nature"],
     activity_ids: [
-      "shirakawa-go-farmhouses",
-      "shirakawa-go-shiroyama-viewpoint",
-      "shirakawa-go-wada-house",
+      "shirakawa-go-village",
+      "shirakawa-go-viewpoint",
     ],
     suggested_pace: "relaxed",
   },
   {
-    id: "shirakawa-go-winter-day",
+    id: "shirakawa-go-full-day",
     destination_slug: "shirakawa-go",
-    name: "Winter Light-Up Magic",
+    name: "Complete Shirakawa-go",
     description:
-      "See the village blanketed in snow and illuminated at night during the famous winter light-up, a once-in-a-lifetime scene.",
+      "Explore the village thoroughly — visit multiple farmhouses, take in the hilltop viewpoint, and experience rural mountain hospitality.",
     target_interests: ["culture", "nature"],
     activity_ids: [
-      "shirakawa-go-light-up",
-      "shirakawa-go-shiroyama-viewpoint",
-      "shirakawa-go-farmhouses",
+      "shirakawa-go-viewpoint",
+      "shirakawa-go-village",
     ],
-    suggested_pace: "relaxed",
+    suggested_pace: "moderate",
   },
 
   // ============================================================
-  // KOYA-SAN (koyasan)
+  // KOYA-SAN
   // ============================================================
   {
     id: "koyasan-spiritual-day",
     destination_slug: "koyasan",
     name: "Mountaintop Monastery",
     description:
-      "Walk through the otherworldly Okunoin cemetery, join morning prayers at a temple, and dine on exquisite shojin ryori.",
+      "Walk through the otherworldly Okunoin cemetery, visit Kongobu-ji temple, and stay overnight in a temple lodging.",
     target_interests: ["temples", "culture"],
     activity_ids: [
-      "koyasan-okunoin-cemetery",
-      "koyasan-kongobu-ji",
-      "koyasan-shojin-ryori",
+      "koya-san-okunoin",
+      "koya-san-kongobuji",
+      "koya-san-temple-stay",
     ],
     suggested_pace: "relaxed",
   },
@@ -779,12 +721,12 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "koyasan",
     name: "Sacred Circuit",
     description:
-      "Explore the vermillion Danjo Garan complex, visit Kongobu-ji's rock garden, and return to Okunoin at dusk when lanterns flicker among the graves.",
+      "Explore Kongobu-ji's rock garden, walk among the ancient graves of Okunoin, and experience temple lodging on the sacred mountain.",
     target_interests: ["temples", "culture", "nature"],
     activity_ids: [
-      "koyasan-danjo-garan",
-      "koyasan-kongobu-ji",
-      "koyasan-okunoin-cemetery",
+      "koya-san-kongobuji",
+      "koya-san-okunoin",
+      "koya-san-temple-stay",
     ],
     suggested_pace: "moderate",
   },
@@ -797,12 +739,12 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "matsumoto",
     name: "Black Castle & Art Streets",
     description:
-      "Tour Matsumoto's striking black castle, browse ukiyo-e woodblock prints at the museum, and stroll the frog-themed Nawate-dori shopping street.",
+      "Tour Matsumoto's striking black castle and stroll the frog-themed Nawate-dori shopping street.",
     target_interests: ["culture"],
     activity_ids: [
       "matsumoto-castle",
-      "matsumoto-ukiyo-e-museum",
       "matsumoto-nawate-dori",
+      "matsumoto-kamikochi",
     ],
     suggested_pace: "moderate",
   },
@@ -815,7 +757,8 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     target_interests: ["nature", "adventure"],
     activity_ids: [
       "matsumoto-kamikochi",
-      "matsumoto-alpine-hike",
+      "matsumoto-castle",
+      "matsumoto-nawate-dori",
     ],
     suggested_pace: "packed",
   },
@@ -828,12 +771,12 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "sendai",
     name: "Beef Tongue & Boulevard Strolls",
     description:
-      "Try Sendai's signature charcoal-grilled gyutan, wander the zelkova-lined Jozenji-dori, and visit the ornate Zuihoden mausoleum.",
+      "Try Sendai's signature charcoal-grilled gyutan, visit the ornate Zuihoden mausoleum, and cruise Matsushima Bay.",
     target_interests: ["food", "culture"],
     activity_ids: [
       "sendai-gyutan",
-      "sendai-jozenji-dori",
       "sendai-zuihoden",
+      "sendai-matsushima",
     ],
     suggested_pace: "relaxed",
   },
@@ -845,9 +788,9 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "Take a scenic boat ride among the pine-clad islands of Matsushima Bay, one of Japan's three most celebrated views.",
     target_interests: ["nature", "culture"],
     activity_ids: [
-      "sendai-matsushima-bay",
-      "sendai-matsushima-temples",
+      "sendai-matsushima",
       "sendai-gyutan",
+      "sendai-zuihoden",
     ],
     suggested_pace: "moderate",
   },
@@ -860,12 +803,12 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "furano-biei",
     name: "Lavender Fields Forever",
     description:
-      "Breathe in endless purple at Farm Tomita, drive the Patchwork Road past rolling technicolor hills, and sip Furano wine at sunset.",
+      "Breathe in endless purple at the lavender farms, drive the Patchwork Road past rolling technicolor hills.",
     target_interests: ["nature"],
     activity_ids: [
-      "furano-biei-farm-tomita",
-      "furano-biei-patchwork-road",
-      "furano-biei-wine-house",
+      "furano-biei-lavender",
+      "furano-biei-patchwork",
+      "furano-biei-blue-pond",
     ],
     suggested_pace: "relaxed",
   },
@@ -878,23 +821,10 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     target_interests: ["nature", "adventure"],
     activity_ids: [
       "furano-biei-blue-pond",
-      "furano-biei-patchwork-road",
-      "furano-biei-farm-tomita",
+      "furano-biei-patchwork",
+      "furano-biei-lavender",
     ],
     suggested_pace: "moderate",
-  },
-  {
-    id: "furano-biei-ski-day",
-    destination_slug: "furano-biei",
-    name: "Furano Powder Run",
-    description:
-      "Carve uncrowded groomed runs and fluffy off-piste at Furano Ski Resort, then warm up with a hot cheese fondue in the village.",
-    target_interests: ["skiing", "adventure"],
-    activity_ids: [
-      "furano-biei-ski-resort",
-      "furano-biei-onsen",
-    ],
-    suggested_pace: "packed",
   },
 
   // ============================================================
@@ -909,7 +839,8 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     target_interests: ["adventure", "nature"],
     activity_ids: [
       "onomichi-shimanami-kaido",
-      "onomichi-island-stop",
+      "onomichi-temple-walk",
+      "onomichi-ramen",
     ],
     suggested_pace: "packed",
   },
@@ -918,13 +849,12 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "onomichi",
     name: "Hillside Temple Walk",
     description:
-      "Climb the winding temple trail past cats dozing on stone walls, ride the Senko-ji ropeway, and slurp Onomichi ramen with a harbor view.",
+      "Climb the winding temple trail past cats dozing on stone walls and slurp Onomichi ramen with a harbor view.",
     target_interests: ["culture", "food", "nature"],
     activity_ids: [
       "onomichi-temple-walk",
-      "onomichi-senko-ji-ropeway",
       "onomichi-ramen",
-      "onomichi-cat-alley",
+      "onomichi-shimanami-kaido",
     ],
     suggested_pace: "moderate",
   },
