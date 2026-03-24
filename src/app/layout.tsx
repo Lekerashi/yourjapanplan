@@ -40,8 +40,8 @@ export const metadata: Metadata = {
   ],
   metadataBase: new URL("https://yourjapanplan.com"),
   icons: {
-    icon: "/icon.jpg",
-    apple: "/icon.jpg",
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: `${SITE_NAME} — Japan Trip Planner & Itinerary Builder`,
