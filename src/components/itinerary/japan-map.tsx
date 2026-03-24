@@ -6,34 +6,42 @@ import { REGIONS, INTEREST_TAGS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { Check, Plus } from "lucide-react";
 
-// Positions as percentages on a 100x100 grid, tuned to match Japan's geography
 const DESTINATION_POSITIONS: Record<string, { x: number; y: number }> = {
-  sapporo: { x: 72, y: 8 },
-  niseko: { x: 65, y: 11 },
-  "furano-biei": { x: 78, y: 5 },
-  sendai: { x: 73, y: 25 },
-  tokyo: { x: 69, y: 39 },
-  kamakura: { x: 67, y: 41 },
-  nikko: { x: 67, y: 34 },
-  hakone: { x: 63, y: 42 },
-  "mt-fuji-area": { x: 59, y: 40 },
-  matsumoto: { x: 57, y: 35 },
-  kanazawa: { x: 47, y: 34 },
-  takayama: { x: 53, y: 37 },
-  "shirakawa-go": { x: 50, y: 35 },
-  ito: { x: 65, y: 44 },
-  kyoto: { x: 45, y: 42 },
-  osaka: { x: 43, y: 44 },
-  nara: { x: 47, y: 44 },
-  kobe: { x: 41, y: 44 },
-  "koya-san": { x: 44, y: 47 },
-  hiroshima: { x: 29, y: 47 },
-  onomichi: { x: 34, y: 46 },
-  naoshima: { x: 37, y: 49 },
-  fukuoka: { x: 21, y: 51 },
-  beppu: { x: 25, y: 53 },
-  yakushima: { x: 19, y: 63 },
-  okinawa: { x: 8, y: 83 },
+  // Hokkaido
+  sapporo: { x: 72, y: 10 },
+  niseko: { x: 62, y: 6 },
+  "furano-biei": { x: 82, y: 5 },
+  // Tohoku
+  sendai: { x: 75, y: 25 },
+  // Kanto — spread out more
+  tokyo: { x: 74, y: 38 },
+  kamakura: { x: 72, y: 43 },
+  nikko: { x: 70, y: 32 },
+  // Chubu — spread across the middle
+  hakone: { x: 66, y: 43 },
+  "mt-fuji-area": { x: 62, y: 39 },
+  matsumoto: { x: 56, y: 33 },
+  kanazawa: { x: 46, y: 31 },
+  takayama: { x: 52, y: 36 },
+  "shirakawa-go": { x: 48, y: 34 },
+  ito: { x: 69, y: 47 },
+  // Kansai — spread vertically
+  kyoto: { x: 43, y: 39 },
+  osaka: { x: 40, y: 43 },
+  nara: { x: 46, y: 43 },
+  kobe: { x: 37, y: 41 },
+  "koya-san": { x: 42, y: 48 },
+  // Chugoku
+  hiroshima: { x: 27, y: 45 },
+  onomichi: { x: 33, y: 43 },
+  // Shikoku
+  naoshima: { x: 35, y: 50 },
+  // Kyushu
+  fukuoka: { x: 19, y: 49 },
+  beppu: { x: 24, y: 53 },
+  yakushima: { x: 17, y: 63 },
+  // Okinawa
+  "okinawa-main": { x: 8, y: 83 },
 };
 
 interface JapanMapProps {
@@ -43,6 +51,9 @@ interface JapanMapProps {
 
 export function JapanMap({ selectedSlugs, onSelect }: JapanMapProps) {
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const [containerSize, setContainerSize] = useState({ w: 500, h: 600 });
+
   const hoveredDest = hoveredSlug
     ? SEED_DESTINATIONS.find((d) => d.slug === hoveredSlug)
     : null;
@@ -50,30 +61,72 @@ export function JapanMap({ selectedSlugs, onSelect }: JapanMapProps) {
     ? REGIONS.find((r) => r.value === hoveredDest.region)
     : null;
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setContainerSize({ w: rect.width, h: rect.height });
+    setTooltipPos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
   return (
     <div>
-      {/* Map */}
       <div
-        className="relative mx-auto border rounded-xl bg-gradient-to-b from-sky-50 to-blue-50 overflow-hidden"
+        onMouseMove={handleMouseMove}
+        className="relative mx-auto border rounded-xl overflow-hidden select-none"
         style={{ width: "100%", maxWidth: 500, height: 600 }}
       >
-        {/* Water label */}
-        <span className="absolute top-2 left-3 text-[10px] text-sky-300 font-medium">
-          Sea of Japan
-        </span>
-        <span className="absolute bottom-2 right-3 text-[10px] text-sky-300 font-medium">
-          Pacific Ocean
-        </span>
+        {/* Background SVG with land masses */}
+        <svg
+          viewBox="0 0 200 300"
+          className="absolute inset-0 w-full h-full"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+        >
+          {/* Ocean */}
+          <rect width="200" height="300" fill="#e0f2fe" />
+
+          {/* Hokkaido */}
+          <path
+            d="M130,15 C138,10 150,8 158,12 C164,16 166,22 162,28 C158,34 148,36 140,34 C132,32 126,26 128,20 Z"
+            fill="#d4d4d8" fillOpacity="0.4" stroke="#a1a1aa" strokeWidth="0.5" strokeOpacity="0.3"
+          />
+
+          {/* Honshu (main island) */}
+          <path
+            d="M148,60 C152,55 156,52 158,56 C160,62 156,68 150,74 C146,78 142,82 138,88 C134,94 130,98 126,102 C122,106 118,110 114,114 C110,118 106,120 102,122 C98,124 94,126 90,128 C86,130 82,132 78,132 C74,132 70,130 66,128 C62,126 58,124 54,126 C50,128 48,132 46,136 C44,138 42,138 40,136 C38,132 40,128 44,124 C48,120 52,118 56,116 C60,114 64,112 68,110 C72,108 74,106 76,102 C78,98 78,94 80,90 C82,86 86,84 90,82 C94,80 98,80 102,78 C106,76 110,72 114,68 C118,64 122,62 126,60 C130,58 134,56 138,56 C142,56 146,58 148,60 Z"
+            fill="#d4d4d8" fillOpacity="0.4" stroke="#a1a1aa" strokeWidth="0.5" strokeOpacity="0.3"
+          />
+
+          {/* Shikoku */}
+          <path
+            d="M68,142 C72,138 78,138 82,140 C86,142 88,146 86,150 C84,154 78,156 74,154 C70,152 66,148 68,142 Z"
+            fill="#d4d4d8" fillOpacity="0.35" stroke="#a1a1aa" strokeWidth="0.5" strokeOpacity="0.3"
+          />
+
+          {/* Kyushu */}
+          <path
+            d="M36,146 C40,142 46,140 50,144 C54,148 54,154 50,160 C46,166 40,168 36,164 C32,160 32,152 36,146 Z"
+            fill="#d4d4d8" fillOpacity="0.4" stroke="#a1a1aa" strokeWidth="0.5" strokeOpacity="0.3"
+          />
+
+          {/* Yakushima */}
+          <circle cx="38" cy="186" r="4" fill="#d4d4d8" fillOpacity="0.35" stroke="#a1a1aa" strokeWidth="0.5" strokeOpacity="0.3" />
+
+          {/* Okinawa */}
+          <ellipse cx="16" cy="248" rx="5" ry="8" fill="#d4d4d8" fillOpacity="0.35" stroke="#a1a1aa" strokeWidth="0.5" strokeOpacity="0.3" />
+        </svg>
 
         {/* Region labels */}
-        <span className="absolute text-[9px] text-muted-foreground/40 font-semibold" style={{ left: "68%", top: "2%" }}>HOKKAIDO</span>
-        <span className="absolute text-[9px] text-muted-foreground/40 font-semibold" style={{ left: "76%", top: "22%" }}>TOHOKU</span>
-        <span className="absolute text-[9px] text-muted-foreground/40 font-semibold" style={{ left: "72%", top: "36%" }}>KANTO</span>
-        <span className="absolute text-[9px] text-muted-foreground/40 font-semibold" style={{ left: "50%", top: "30%" }}>CHUBU</span>
-        <span className="absolute text-[9px] text-muted-foreground/40 font-semibold" style={{ left: "38%", top: "39%" }}>KANSAI</span>
-        <span className="absolute text-[9px] text-muted-foreground/40 font-semibold" style={{ left: "14%", top: "45%" }}>CHUGOKU</span>
-        <span className="absolute text-[9px] text-muted-foreground/40 font-semibold" style={{ left: "14%", top: "49%" }}>KYUSHU</span>
-        <span className="absolute text-[9px] text-muted-foreground/40 font-semibold" style={{ left: "2%", top: "78%" }}>OKINAWA</span>
+        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "66%", top: "2%" }}>HOKKAIDO</span>
+        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "76%", top: "22%" }}>TOHOKU</span>
+        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "73%", top: "36%" }}>KANTO</span>
+        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "50%", top: "30%" }}>CHUBU</span>
+        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "36%", top: "38%" }}>KANSAI</span>
+        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "14%", top: "44%" }}>CHUGOKU</span>
+        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "13%", top: "49%" }}>KYUSHU</span>
+        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "2%", top: "78%" }}>OKINAWA</span>
 
         {/* Destination markers */}
         {SEED_DESTINATIONS.map((dest) => {
@@ -88,77 +141,63 @@ export function JapanMap({ selectedSlugs, onSelect }: JapanMapProps) {
               onClick={() => onSelect(dest.slug, dest.name)}
               onMouseEnter={() => setHoveredSlug(dest.slug)}
               onMouseLeave={() => setHoveredSlug(null)}
-              className="absolute -translate-x-1/2 -translate-y-1/2 z-10 group"
+              className="absolute -translate-x-1/2 -translate-y-1/2 z-10"
               style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-              title={dest.name}
             >
-              {/* Dot */}
               <div
-                className={`rounded-full transition-all shadow-sm ${
+                className={`rounded-full transition-all ${
                   isSelected
-                    ? "h-4 w-4 bg-rose-500 ring-2 ring-rose-200"
+                    ? "h-4 w-4 bg-rose-500 ring-2 ring-rose-300 shadow"
                     : isHovered
-                      ? "h-4 w-4 bg-rose-400 ring-2 ring-rose-100"
-                      : "h-2.5 w-2.5 bg-rose-400/80 hover:bg-rose-500 hover:scale-150"
+                      ? "h-3.5 w-3.5 bg-rose-400 ring-2 ring-rose-200 shadow"
+                      : "h-2 w-2 bg-rose-500/80 hover:scale-150"
                 }`}
               />
-              {/* Label */}
-              <span
-                className={`absolute left-1/2 -translate-x-1/2 top-full mt-1 whitespace-nowrap rounded px-1 text-[10px] font-medium leading-tight transition-all ${
-                  isSelected
-                    ? "text-rose-700 bg-white/80"
-                    : isHovered
-                      ? "text-foreground bg-white/80"
-                      : "text-muted-foreground/70 opacity-0 group-hover:opacity-100"
-                }`}
-              >
-                {dest.name}
-              </span>
             </button>
           );
         })}
+
+        {/* Floating tooltip inside the map container */}
+        {hoveredDest && (
+          <div
+            className="absolute z-20 w-56 rounded-lg border bg-white shadow-lg p-3 pointer-events-none"
+            style={{
+              left: Math.min(tooltipPos.x + 16, containerSize.w - 240),
+              top: Math.min(tooltipPos.y - 10, containerSize.h - 140),
+            }}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <p className="text-sm font-semibold">{hoveredDest.name}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {hoveredRegion?.label}
+                  {hoveredRegion?.label_jp ? ` (${hoveredRegion.label_jp})` : ""}
+                </p>
+              </div>
+              {selectedSlugs.has(hoveredDest.slug) ? (
+                <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+              ) : (
+                <Plus className="h-4 w-4 text-rose-500 shrink-0" />
+              )}
+            </div>
+            <p className="mt-1 text-[11px] text-muted-foreground leading-snug">
+              {hoveredDest.description.split(".")[0]}.
+            </p>
+            <div className="mt-1.5 flex flex-wrap gap-1">
+              {hoveredDest.tags.slice(0, 4).map((tag) => {
+                const meta = INTEREST_TAGS.find((t) => t.value === tag);
+                return (
+                  <Badge key={tag} variant="secondary" className="text-[9px] px-1 py-0">
+                    {meta ? `${meta.icon} ${meta.label}` : tag}
+                  </Badge>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Hover info panel */}
-      {hoveredDest && (
-        <div className="mt-3 rounded-lg border bg-background p-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-semibold">{hoveredDest.name}</p>
-              <p className="text-xs text-muted-foreground">
-                {hoveredRegion?.label}
-                {hoveredRegion?.label_jp ? ` (${hoveredRegion.label_jp})` : ""}
-              </p>
-            </div>
-            {selectedSlugs.has(hoveredDest.slug) ? (
-              <Badge variant="secondary" className="text-xs">
-                <Check className="mr-1 h-3 w-3" />
-                Added
-              </Badge>
-            ) : (
-              <Badge className="text-xs">
-                <Plus className="mr-1 h-3 w-3" />
-                Click to add
-              </Badge>
-            )}
-          </div>
-          <p className="mt-1.5 text-xs text-muted-foreground">
-            {hoveredDest.description.split(".")[0]}.
-          </p>
-          <div className="mt-2 flex flex-wrap gap-1">
-            {hoveredDest.tags.map((tag) => {
-              const meta = INTEREST_TAGS.find((t) => t.value === tag);
-              return (
-                <Badge key={tag} variant="secondary" className="text-[10px]">
-                  {meta ? `${meta.icon} ${meta.label}` : tag}
-                </Badge>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {!hoveredDest && selectedSlugs.size === 0 && (
+      {selectedSlugs.size === 0 && (
         <p className="mt-3 text-center text-sm text-muted-foreground">
           Hover over a dot to see details, click to add to your itinerary
         </p>
