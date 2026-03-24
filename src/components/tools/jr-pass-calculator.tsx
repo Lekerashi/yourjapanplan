@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Plus, X, Train, ArrowRight, Check, AlertTriangle } from "lucide-react";
 import { TRANSPORT_ROUTES, JR_PASS_PRICES } from "@/lib/data/transport-routes";
 
-const ROUTES = TRANSPORT_ROUTES.map((r) => ({
+const ROUTES = TRANSPORT_ROUTES.filter((r) => r.primary_method !== "Flight").map((r) => ({
   from: r.from_name,
   to: r.to_name,
   cost: r.cost_jpy,

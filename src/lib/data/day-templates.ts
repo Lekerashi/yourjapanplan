@@ -40,7 +40,7 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     destination_slug: "tokyo",
     name: "Tokyo Eats & Beats",
     description:
-      "A dawn-to-dark feast through Tsukiji Market, Yanaka backstreets, and the tiny bars of Golden Gai.",
+      "A dawn-to-dark feast through Tsukiji Market, Yanaka backstreets, and Shinjuku's izakaya scene.",
     target_interests: ["food", "nightlife", "culture"],
     activity_ids: [
       "tokyo-tsukiji-outer-market",
