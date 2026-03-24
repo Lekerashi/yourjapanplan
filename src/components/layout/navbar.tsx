@@ -30,7 +30,7 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <Button render={<Link href="/quiz" />} size="sm">
+          <Button render={<Link href="/itinerary/new" />} size="sm">
             Start Planning
           </Button>
           <AuthButton />

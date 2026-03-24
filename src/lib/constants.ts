@@ -57,7 +57,8 @@ export const TRIP_PACES: { value: TripPace; label: string; description: string }
 ];
 
 export const NAV_LINKS = [
-  { href: "/quiz", label: "Plan My Trip" },
+  { href: "/quiz", label: "Quiz" },
+  { href: "/itinerary/new", label: "Build Itinerary" },
   { href: "/destinations", label: "Destinations" },
   { href: "/tools/jr-pass", label: "JR Pass Calculator" },
 ] as const;

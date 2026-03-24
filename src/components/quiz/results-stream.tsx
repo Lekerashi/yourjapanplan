@@ -176,6 +176,9 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
       {/* Actions */}
       {!streamingActive && hasRecommendations && (
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          <Button render={<Link href="/itinerary/new" />}>
+            Build My Itinerary
+          </Button>
           <Button render={<Link href="/quiz" />} variant="outline">
             <RotateCcw className="mr-2 h-4 w-4" />
             Adjust Preferences

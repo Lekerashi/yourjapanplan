@@ -66,17 +66,17 @@ export default function Home() {
               <span className="text-rose-500">you</span> should go
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Take a quick quiz about your travel style and interests. We'll
-              build a personalized itinerary with destinations, activities,
-              lodging tips, and everything you need to book in advance.
+              Pick your destinations, choose activities, and build a
+              personalized itinerary with lodging tips and everything you
+              need to book in advance.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
-              <Button render={<Link href="/quiz" />} size="lg">
-                Plan My Trip
+              <Button render={<Link href="/itinerary/new" />} size="lg">
+                Build My Itinerary
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button render={<Link href="/destinations" />} variant="outline" size="lg">
-                Browse Destinations
+              <Button render={<Link href="/quiz" />} variant="outline" size="lg">
+                Take the Quiz
               </Button>
             </div>
           </div>
@@ -187,7 +187,7 @@ export default function Home() {
               It only takes a couple minutes. No account required to get
               started.
             </p>
-            <Button render={<Link href="/quiz" />} size="lg" className="mt-8">
+            <Button render={<Link href="/itinerary/new" />} size="lg" className="mt-8">
               Start Planning
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
