@@ -212,11 +212,29 @@ function builderDaysToReviewFormat(
       getActivitiesForDestination(day.destinationSlug).map((a) => [a.id, a])
     );
 
-    let currentMinutes = 9 * 60;
-    const activities = day.activities.map((a) => {
+    // Sort activities by time-of-day, then calculate time slots
+    const sorted = [...day.activities].sort((a, b) => {
+      const order = { morning: 0, anytime: 1, afternoon: 2, evening: 3 };
+      const aT = catalog.get(a.catalogId)?.best_time_of_day ?? "anytime";
+      const bT = catalog.get(b.catalogId)?.best_time_of_day ?? "anytime";
+      return (order[aT] ?? 1) - (order[bT] ?? 1);
+    });
+
+    let morningTime = 9 * 60;
+    let afternoonTime = 13 * 60;
+    let eveningTime = 18 * 60;
+
+    const activities = sorted.map((a) => {
       const cat = catalog.get(a.catalogId);
-      const time = `${String(Math.floor(currentMinutes / 60)).padStart(2, "0")}:${String(currentMinutes % 60).padStart(2, "0")}`;
-      currentMinutes += (cat?.duration_minutes ?? 60) + 30;
+      const tod = cat?.best_time_of_day ?? "anytime";
+      const dur = cat?.duration_minutes ?? 60;
+
+      let startMin: number;
+      if (tod === "evening") { startMin = eveningTime; eveningTime += dur + 30; }
+      else if (tod === "afternoon") { startMin = afternoonTime; afternoonTime += dur + 30; }
+      else { startMin = morningTime; morningTime += dur + 30; }
+
+      const time = `${String(Math.floor(startMin / 60)).padStart(2, "0")}:${String(startMin % 60).padStart(2, "0")}`;
       return {
         time,
         title: a.customName ?? cat?.name ?? "Activity",

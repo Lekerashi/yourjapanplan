@@ -17,6 +17,7 @@ import {
   Lightbulb,
   Bed,
   Plus,
+  UtensilsCrossed,
 } from "lucide-react";
 
 interface DayBuilderProps {
@@ -60,16 +61,99 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
     [day?.activities]
   );
 
-  // Calculate time slots
+  // Calculate time slots respecting best_time_of_day
   const activitiesWithTime = useMemo(() => {
     if (!day) return [];
-    let currentMinutes = 9 * 60; // Start at 09:00
-    return day.activities.map((a) => {
+
+    // Group by time-of-day preference
+    const morning: typeof day.activities = [];
+    const afternoon: typeof day.activities = [];
+    const evening: typeof day.activities = [];
+
+    for (const a of day.activities) {
       const activity = catalog.get(a.catalogId);
-      const time = `${String(Math.floor(currentMinutes / 60)).padStart(2, "0")}:${String(currentMinutes % 60).padStart(2, "0")}`;
-      currentMinutes += (activity?.duration_minutes ?? 60) + 30; // activity + 30min buffer
-      return { ...a, time, catalogActivity: activity };
-    });
+      const tod = activity?.best_time_of_day ?? "anytime";
+      if (tod === "evening") evening.push(a);
+      else if (tod === "afternoon") afternoon.push(a);
+      else morning.push(a); // morning + anytime default to morning
+    }
+
+    const ordered = [...morning, ...afternoon, ...evening];
+
+    type TimelineItem = {
+      catalogId: string;
+      customName: string | null;
+      customDescription: string | null;
+      notes: string;
+      time: string;
+      catalogActivity: CatalogActivity | undefined;
+      isMealSlot?: boolean;
+    };
+
+    const results: TimelineItem[] = [];
+
+    let morningTime = 9 * 60;   // 09:00
+    let afternoonTime = 13 * 60; // 13:00
+    let eveningTime = 18 * 60;   // 18:00
+
+    for (const a of ordered) {
+      const activity = catalog.get(a.catalogId);
+      const tod = activity?.best_time_of_day ?? "anytime";
+      const duration = activity?.duration_minutes ?? 60;
+
+      let startMinutes: number;
+      if (tod === "evening") {
+        startMinutes = eveningTime;
+        eveningTime += duration + 30;
+      } else if (tod === "afternoon") {
+        startMinutes = afternoonTime;
+        afternoonTime += duration + 30;
+      } else {
+        startMinutes = morningTime;
+        morningTime += duration + 30;
+      }
+
+      const time = `${String(Math.floor(startMinutes / 60)).padStart(2, "0")}:${String(startMinutes % 60).padStart(2, "0")}`;
+      results.push({ ...a, time, catalogActivity: activity });
+    }
+
+    // Insert lunch and dinner meal slots between activities
+    const hasLunchActivity = results.some((r) => r.catalogActivity?.type === "food" && r.time >= "11:30" && r.time <= "14:30");
+    const hasDinnerActivity = results.some((r) => r.catalogActivity?.type === "food" && r.time >= "17:00");
+
+    if (!hasLunchActivity && results.length > 0) {
+      // Find a natural lunch gap: after the last morning activity ends, clamp to 11:30-14:30
+      const lunchTime = Math.max(11 * 60 + 30, Math.min(morningTime, 14 * 60 + 30));
+      const lunchStr = `${String(Math.floor(lunchTime / 60)).padStart(2, "0")}:${String(lunchTime % 60).padStart(2, "0")}`;
+      results.push({
+        catalogId: "meal-lunch",
+        customName: "Lunch",
+        customDescription: "Explore local restaurants or try the area's specialty.",
+        notes: "",
+        time: lunchStr,
+        catalogActivity: undefined,
+        isMealSlot: true,
+      });
+    }
+    if (!hasDinnerActivity && results.length > 0) {
+      // Dinner after afternoon activities, clamp to 17:00-20:00
+      const dinnerTime = Math.max(17 * 60, Math.min(Math.max(afternoonTime, eveningTime - 30), 20 * 60));
+      const dinnerStr = `${String(Math.floor(dinnerTime / 60)).padStart(2, "0")}:${String(dinnerTime % 60).padStart(2, "0")}`;
+      results.push({
+        catalogId: "meal-dinner",
+        customName: "Dinner",
+        customDescription: "End the day with a local dining experience.",
+        notes: "",
+        time: dinnerStr,
+        catalogActivity: undefined,
+        isMealSlot: true,
+      });
+    }
+
+    // Sort everything by time
+    results.sort((a, b) => a.time.localeCompare(b.time));
+
+    return results;
   }, [day, catalog]);
 
   // Auto-select accommodation
@@ -117,6 +201,28 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
               const a = item.catalogActivity;
               const name = item.customName ?? a?.name ?? "Custom Activity";
               const desc = item.customDescription ?? a?.description;
+              const isMeal = item.isMealSlot;
+
+              // Meal slot — simple row, not removable
+              if (isMeal) {
+                return (
+                  <div
+                    key={item.catalogId}
+                    className="flex items-center gap-3 rounded-lg border border-dashed border-amber-200 bg-amber-50/50 px-3 py-2"
+                  >
+                    <div className="w-12 shrink-0 text-right">
+                      <span className="text-sm font-semibold text-amber-600">
+                        {item.time}
+                      </span>
+                    </div>
+                    <UtensilsCrossed className="h-4 w-4 shrink-0 text-amber-500" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-amber-800">{name}</p>
+                      <p className="text-xs text-amber-600/80">{desc}</p>
+                    </div>
+                  </div>
+                );
+              }
 
               return (
                 <Card key={item.catalogId} size="sm">

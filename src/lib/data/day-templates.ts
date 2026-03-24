@@ -44,8 +44,8 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     target_interests: ["food", "nightlife", "culture"],
     activity_ids: [
       "tokyo-tsukiji-outer-market",
-      "tokyo-yanaka-walk",
-      "tokyo-shinjuku-golden-gai",
+      "tokyo-ramen-street",
+      "tokyo-golden-gai",
     ],
     suggested_pace: "moderate",
   },
