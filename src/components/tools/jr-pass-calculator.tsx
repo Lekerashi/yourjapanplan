@@ -6,40 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Plus, X, Train, ArrowRight, Check, AlertTriangle } from "lucide-react";
+import { TRANSPORT_ROUTES, JR_PASS_PRICES } from "@/lib/data/transport-routes";
 
-// Current JR Pass prices (2024-2025, in JPY)
-const JR_PASS_PRICES = {
-  "7-day": { ordinary: 50000, green: 70000 },
-  "14-day": { ordinary: 80000, green: 110000 },
-  "21-day": { ordinary: 100000, green: 140000 },
-};
-
-// Common Shinkansen route costs (one-way, reserved seat, in JPY)
-const ROUTES: {
-  from: string;
-  to: string;
-  cost: number;
-  duration: string;
-  line: string;
-}[] = [
-  { from: "Tokyo", to: "Kyoto", cost: 13320, duration: "2h 15m", line: "Tokaido Shinkansen" },
-  { from: "Tokyo", to: "Osaka", cost: 13870, duration: "2h 30m", line: "Tokaido Shinkansen" },
-  { from: "Tokyo", to: "Hiroshima", cost: 18380, duration: "4h", line: "Tokaido/Sanyo Shinkansen" },
-  { from: "Tokyo", to: "Kanazawa", cost: 14380, duration: "2h 30m", line: "Hokuriku Shinkansen" },
-  { from: "Tokyo", to: "Sendai", cost: 11210, duration: "1h 30m", line: "Tohoku Shinkansen" },
-  { from: "Tokyo", to: "Hakone", cost: 3280, duration: "35m", line: "Tokaido Shinkansen (Odawara)" },
-  { from: "Tokyo", to: "Nagoya", cost: 10560, duration: "1h 40m", line: "Tokaido Shinkansen" },
-  { from: "Kyoto", to: "Osaka", cost: 580, duration: "15m", line: "JR Special Rapid" },
-  { from: "Kyoto", to: "Nara", cost: 720, duration: "45m", line: "JR Nara Line" },
-  { from: "Kyoto", to: "Hiroshima", cost: 10440, duration: "1h 40m", line: "Sanyo Shinkansen" },
-  { from: "Osaka", to: "Hiroshima", cost: 10010, duration: "1h 30m", line: "Sanyo Shinkansen" },
-  { from: "Osaka", to: "Kobe", cost: 410, duration: "20m", line: "JR Special Rapid" },
-  { from: "Hiroshima", to: "Fukuoka", cost: 8290, duration: "1h", line: "Sanyo Shinkansen" },
-  { from: "Tokyo", to: "Takayama", cost: 12130, duration: "4h", line: "Shinkansen + JR Hida" },
-  { from: "Kanazawa", to: "Kyoto", cost: 6490, duration: "2h 15m", line: "Thunderbird Limited Express" },
-  { from: "Tokyo", to: "Sapporo", cost: 27760, duration: "4h", line: "Tohoku/Hokkaido Shinkansen" },
-  { from: "Osaka", to: "Kanazawa", cost: 7260, duration: "2h 30m", line: "Thunderbird Limited Express" },
-];
+const ROUTES = TRANSPORT_ROUTES.map((r) => ({
+  from: r.from_name,
+  to: r.to_name,
+  cost: r.cost_jpy,
+  duration: r.duration,
+  line: r.primary_method,
+}));
 
 interface SelectedRoute {
   id: number;

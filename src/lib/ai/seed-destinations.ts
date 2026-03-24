@@ -394,4 +394,20 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
       { name: "Onomichi hillside", description: "Atmospheric old town with temple walks and sea views", best_for: ["culture", "budget"] },
     ],
   },
+  {
+    slug: "ito",
+    name: "Ito",
+    region: "chubu",
+    description: "Laid-back hot spring resort town on the Izu Peninsula with a volcanic coastline, fresh seafood, and surprisingly lively nightlife.",
+    highlights: ["Ito Onsen", "Jogasaki Coast", "Kinmedai seafood", "Local nightlife bars", "Izu ocean views"],
+    best_seasons: ["spring", "autumn", "winter"],
+    crowd_level_by_month: {"1":2,"2":2,"3":3,"4":3,"5":3,"6":2,"7":4,"8":4,"9":2,"10":3,"11":3,"12":2},
+    tags: ["onsen", "nightlife", "food", "nature"],
+    jr_accessible: true,
+    reservation_tips: "Book ryokans with private onsen ahead for weekends. Most restaurants are walk-in.",
+    accommodation_zones: [
+      { name: "Ito Station area", description: "Central location near nightlife and restaurants with easy train access", best_for: ["nightlife", "convenience", "first-timers"] },
+      { name: "Jogasaki coast", description: "Quieter area near the dramatic coastline with ocean-view ryokans", best_for: ["nature", "couples", "onsen"] },
+    ],
+  },
 ];
