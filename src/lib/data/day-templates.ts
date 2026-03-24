@@ -941,10 +941,9 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     target_interests: ["onsen", "nightlife", "food"],
     activity_ids: [
       "ito-onsen",
-      "ito-seafood",
+      "ito-marine-town",
       "ito-joynt",
       "ito-craps",
-      "ito-akatambo",
     ],
     suggested_pace: "moderate",
   },
@@ -958,7 +957,7 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     activity_ids: [
       "ito-jogasaki-coast",
       "ito-onsen",
-      "ito-seafood",
+      "ito-marine-town",
     ],
     suggested_pace: "relaxed",
   },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useItineraryStore } from "@/stores/itinerary-store";
 import { useQuizStore } from "@/stores/quiz-store";
 import { DestinationPicker } from "@/components/itinerary/destination-picker";
@@ -103,14 +104,14 @@ export default function NewItineraryPage() {
         </div>
 
         {store.destinations.length > 0 && (
-          <div className="mt-8 flex flex-col items-center gap-2">
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Button size="lg" onClick={handleStartBuild}>
               <MapPin className="mr-2 h-4 w-4" />
               Build {totalDays}-Day Itinerary
             </Button>
-            <p className="text-xs text-muted-foreground">
-              {travelStyle} / {budget} budget / {pace} pace / {season}
-            </p>
+            <Button variant="outline" render={<Link href="/quiz" />}>
+              Adjust Preferences
+            </Button>
           </div>
         )}
       </div>

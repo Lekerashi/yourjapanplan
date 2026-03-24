@@ -6,42 +6,43 @@ import { REGIONS, INTEREST_TAGS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { Check, Plus } from "lucide-react";
 
+// Positions mapped to the SVG viewBox (0 0 580 800)
 const DESTINATION_POSITIONS: Record<string, { x: number; y: number }> = {
   // Hokkaido
-  sapporo: { x: 72, y: 10 },
-  niseko: { x: 62, y: 6 },
-  "furano-biei": { x: 82, y: 5 },
+  sapporo: { x: 420, y: 95 },
+  niseko: { x: 370, y: 110 },
+  "furano-biei": { x: 450, y: 70 },
   // Tohoku
-  sendai: { x: 75, y: 25 },
-  // Kanto — spread out more
-  tokyo: { x: 74, y: 38 },
-  kamakura: { x: 72, y: 43 },
-  nikko: { x: 70, y: 32 },
-  // Chubu — spread across the middle
-  hakone: { x: 66, y: 43 },
-  "mt-fuji-area": { x: 62, y: 39 },
-  matsumoto: { x: 56, y: 33 },
-  kanazawa: { x: 46, y: 31 },
-  takayama: { x: 52, y: 36 },
-  "shirakawa-go": { x: 48, y: 34 },
-  ito: { x: 69, y: 47 },
-  // Kansai — spread vertically
-  kyoto: { x: 43, y: 39 },
-  osaka: { x: 40, y: 43 },
-  nara: { x: 46, y: 43 },
-  kobe: { x: 37, y: 41 },
-  "koya-san": { x: 42, y: 48 },
+  sendai: { x: 430, y: 245 },
+  // Kanto
+  tokyo: { x: 410, y: 370 },
+  kamakura: { x: 395, y: 390 },
+  nikko: { x: 385, y: 330 },
+  // Chubu
+  hakone: { x: 370, y: 395 },
+  "mt-fuji-area": { x: 345, y: 380 },
+  matsumoto: { x: 325, y: 340 },
+  kanazawa: { x: 270, y: 325 },
+  takayama: { x: 300, y: 350 },
+  "shirakawa-go": { x: 280, y: 340 },
+  ito: { x: 385, y: 415 },
+  // Kansai
+  kyoto: { x: 248, y: 380 },
+  osaka: { x: 235, y: 400 },
+  nara: { x: 258, y: 400 },
+  kobe: { x: 218, y: 395 },
+  "koya-san": { x: 240, y: 425 },
   // Chugoku
-  hiroshima: { x: 27, y: 45 },
-  onomichi: { x: 33, y: 43 },
+  hiroshima: { x: 150, y: 410 },
+  onomichi: { x: 180, y: 400 },
   // Shikoku
-  naoshima: { x: 35, y: 50 },
+  naoshima: { x: 195, y: 430 },
   // Kyushu
-  fukuoka: { x: 19, y: 49 },
-  beppu: { x: 24, y: 53 },
-  yakushima: { x: 17, y: 63 },
+  fukuoka: { x: 100, y: 430 },
+  beppu: { x: 130, y: 460 },
+  yakushima: { x: 90, y: 545 },
   // Okinawa
-  "okinawa-main": { x: 8, y: 83 },
+  "okinawa-main": { x: 50, y: 700 },
 };
 
 interface JapanMapProps {
@@ -52,7 +53,7 @@ interface JapanMapProps {
 export function JapanMap({ selectedSlugs, onSelect }: JapanMapProps) {
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
-  const [containerSize, setContainerSize] = useState({ w: 500, h: 600 });
+  const [containerSize, setContainerSize] = useState({ w: 580, h: 800 });
 
   const hoveredDest = hoveredSlug
     ? SEED_DESTINATIONS.find((d) => d.slug === hoveredSlug)
@@ -74,96 +75,75 @@ export function JapanMap({ selectedSlugs, onSelect }: JapanMapProps) {
     <div>
       <div
         onMouseMove={handleMouseMove}
-        className="relative mx-auto border rounded-xl overflow-hidden select-none"
-        style={{ width: "100%", maxWidth: 500, height: 600 }}
+        className="relative mx-auto overflow-hidden rounded-xl border"
+        style={{ width: "100%", maxWidth: 580, aspectRatio: "580/800" }}
       >
-        {/* Background SVG with land masses */}
         <svg
-          viewBox="0 0 200 300"
+          viewBox="0 0 580 800"
           className="absolute inset-0 w-full h-full"
           xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="none"
         >
-          {/* Ocean */}
-          <rect width="200" height="300" fill="#e0f2fe" />
+          {/* Ocean background */}
+          <rect width="580" height="800" fill="#dbeafe" />
 
           {/* Hokkaido */}
-          <path
-            d="M130,15 C138,10 150,8 158,12 C164,16 166,22 162,28 C158,34 148,36 140,34 C132,32 126,26 128,20 Z"
-            fill="#d4d4d8" fillOpacity="0.4" stroke="#a1a1aa" strokeWidth="0.5" strokeOpacity="0.3"
-          />
+          <path d="M360,55 L380,45 L410,40 L440,45 L465,55 L475,70 L478,90 L470,110 L455,125 L435,130 L415,128 L395,120 L375,115 L360,105 L350,90 L348,75 Z"
+            fill="#e8e8e8" stroke="#c4c4c4" strokeWidth="1" />
 
-          {/* Honshu (main island) */}
-          <path
-            d="M148,60 C152,55 156,52 158,56 C160,62 156,68 150,74 C146,78 142,82 138,88 C134,94 130,98 126,102 C122,106 118,110 114,114 C110,118 106,120 102,122 C98,124 94,126 90,128 C86,130 82,132 78,132 C74,132 70,130 66,128 C62,126 58,124 54,126 C50,128 48,132 46,136 C44,138 42,138 40,136 C38,132 40,128 44,124 C48,120 52,118 56,116 C60,114 64,112 68,110 C72,108 74,106 76,102 C78,98 78,94 80,90 C82,86 86,84 90,82 C94,80 98,80 102,78 C106,76 110,72 114,68 C118,64 122,62 126,60 C130,58 134,56 138,56 C142,56 146,58 148,60 Z"
-            fill="#d4d4d8" fillOpacity="0.4" stroke="#a1a1aa" strokeWidth="0.5" strokeOpacity="0.3"
-          />
+          {/* Honshu - main island */}
+          <path d="M455,175 L465,185 L470,200 L468,220 L460,235 L450,250 L442,265 L438,280 L435,295 L430,310 L425,325 L420,340 L418,355 L415,365 L420,380 L415,395 L405,405 L390,410 L375,405 L360,398 L345,395 L330,388 L315,380 L300,375 L285,370 L270,368 L255,370 L240,375 L225,380 L210,385 L195,388 L180,385 L168,380 L160,372 L155,360 L160,350 L170,342 L182,338 L195,335 L210,332 L225,330 L240,325 L255,320 L270,315 L285,318 L298,325 L310,330 L325,332 L340,330 L355,325 L370,318 L385,310 L395,298 L405,285 L410,270 L415,255 L420,240 L428,225 L435,210 L440,195 L445,180 Z"
+            fill="#e8e8e8" stroke="#c4c4c4" strokeWidth="1" />
 
           {/* Shikoku */}
-          <path
-            d="M68,142 C72,138 78,138 82,140 C86,142 88,146 86,150 C84,154 78,156 74,154 C70,152 66,148 68,142 Z"
-            fill="#d4d4d8" fillOpacity="0.35" stroke="#a1a1aa" strokeWidth="0.5" strokeOpacity="0.3"
-          />
+          <path d="M175,415 L195,410 L215,415 L230,425 L235,440 L225,450 L210,452 L195,448 L180,440 L170,430 L172,420 Z"
+            fill="#e8e8e8" stroke="#c4c4c4" strokeWidth="1" />
 
           {/* Kyushu */}
-          <path
-            d="M36,146 C40,142 46,140 50,144 C54,148 54,154 50,160 C46,166 40,168 36,164 C32,160 32,152 36,146 Z"
-            fill="#d4d4d8" fillOpacity="0.4" stroke="#a1a1aa" strokeWidth="0.5" strokeOpacity="0.3"
-          />
+          <path d="M80,400 L100,395 L120,400 L135,415 L140,435 L138,455 L130,470 L118,480 L105,485 L90,480 L78,470 L70,455 L68,435 L72,418 Z"
+            fill="#e8e8e8" stroke="#c4c4c4" strokeWidth="1" />
 
           {/* Yakushima */}
-          <circle cx="38" cy="186" r="4" fill="#d4d4d8" fillOpacity="0.35" stroke="#a1a1aa" strokeWidth="0.5" strokeOpacity="0.3" />
+          <circle cx="90" cy="545" r="12" fill="#e8e8e8" stroke="#c4c4c4" strokeWidth="1" />
 
           {/* Okinawa */}
-          <ellipse cx="16" cy="248" rx="5" ry="8" fill="#d4d4d8" fillOpacity="0.35" stroke="#a1a1aa" strokeWidth="0.5" strokeOpacity="0.3" />
+          <ellipse cx="50" cy="700" rx="12" ry="25" fill="#e8e8e8" stroke="#c4c4c4" strokeWidth="1" />
+
+          {/* Destination dots */}
+          {SEED_DESTINATIONS.map((dest) => {
+            const pos = DESTINATION_POSITIONS[dest.slug];
+            if (!pos) return null;
+            const isSelected = selectedSlugs.has(dest.slug);
+            const isHovered = hoveredSlug === dest.slug;
+
+            return (
+              <g key={dest.slug}>
+                {isSelected && (
+                  <circle cx={pos.x} cy={pos.y} r="10" fill="#fda4af" fillOpacity="0.4" />
+                )}
+                <circle
+                  cx={pos.x}
+                  cy={pos.y}
+                  r={isSelected ? 6 : isHovered ? 5 : 4}
+                  fill={isSelected ? "#e11d48" : isHovered ? "#fb7185" : "#f43f5e"}
+                  stroke="white"
+                  strokeWidth={isSelected ? 2 : 1}
+                  className="cursor-pointer"
+                  onMouseEnter={() => setHoveredSlug(dest.slug)}
+                  onMouseLeave={() => setHoveredSlug(null)}
+                  onClick={() => onSelect(dest.slug, dest.name)}
+                />
+              </g>
+            );
+          })}
         </svg>
 
-        {/* Region labels */}
-        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "66%", top: "2%" }}>HOKKAIDO</span>
-        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "76%", top: "22%" }}>TOHOKU</span>
-        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "73%", top: "36%" }}>KANTO</span>
-        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "50%", top: "30%" }}>CHUBU</span>
-        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "36%", top: "38%" }}>KANSAI</span>
-        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "14%", top: "44%" }}>CHUGOKU</span>
-        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "13%", top: "49%" }}>KYUSHU</span>
-        <span className="absolute text-[9px] text-muted-foreground/50 font-semibold pointer-events-none" style={{ left: "2%", top: "78%" }}>OKINAWA</span>
-
-        {/* Destination markers */}
-        {SEED_DESTINATIONS.map((dest) => {
-          const pos = DESTINATION_POSITIONS[dest.slug];
-          if (!pos) return null;
-          const isSelected = selectedSlugs.has(dest.slug);
-          const isHovered = hoveredSlug === dest.slug;
-
-          return (
-            <button
-              key={dest.slug}
-              onClick={() => onSelect(dest.slug, dest.name)}
-              onMouseEnter={() => setHoveredSlug(dest.slug)}
-              onMouseLeave={() => setHoveredSlug(null)}
-              className="absolute -translate-x-1/2 -translate-y-1/2 z-10"
-              style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-            >
-              <div
-                className={`rounded-full transition-all ${
-                  isSelected
-                    ? "h-4 w-4 bg-rose-500 ring-2 ring-rose-300 shadow"
-                    : isHovered
-                      ? "h-3.5 w-3.5 bg-rose-400 ring-2 ring-rose-200 shadow"
-                      : "h-2 w-2 bg-rose-500/80 hover:scale-150"
-                }`}
-              />
-            </button>
-          );
-        })}
-
-        {/* Floating tooltip inside the map container */}
+        {/* Floating tooltip */}
         {hoveredDest && (
           <div
             className="absolute z-20 w-56 rounded-lg border bg-white shadow-lg p-3 pointer-events-none"
             style={{
               left: Math.min(tooltipPos.x + 16, containerSize.w - 240),
-              top: Math.min(tooltipPos.y - 10, containerSize.h - 140),
+              top: Math.max(10, Math.min(tooltipPos.y - 20, containerSize.h - 120)),
             }}
           >
             <div className="flex items-center justify-between gap-2">
