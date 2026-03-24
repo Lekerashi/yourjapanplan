@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { JRPassCalculator } from "@/components/tools/jr-pass-calculator";
 
 export const metadata: Metadata = {
-  title: "JR Pass Calculator | Your Japan Plan",
+  title: "JR Pass Calculator 2026 — Is the Japan Rail Pass Worth It?",
   description:
-    "Calculate if the Japan Rail Pass is worth it for your trip. Compare individual ticket costs vs. JR Pass prices for common Shinkansen routes.",
+    "Calculate if the Japan Rail Pass is worth it for your trip. Compare Shinkansen ticket prices vs JR Pass costs for routes like Tokyo to Osaka, Kyoto, Hiroshima, and more.",
+  keywords: ["JR Pass calculator", "Japan Rail Pass worth it", "JR Pass 2026 price", "Shinkansen cost calculator", "Japan train pass"],
 };
 
 export default function JRPassPage() {

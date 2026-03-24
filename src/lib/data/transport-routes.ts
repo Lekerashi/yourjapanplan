@@ -12,7 +12,7 @@ export interface TransportRoute {
 }
 
 export const TRANSPORT_ROUTES: TransportRoute[] = [
-  // Tokyo connections (prices updated 2025)
+  // Tokyo connections (prices updated 2026)
   { from_slug: "tokyo", to_slug: "kyoto", from_name: "Tokyo", to_name: "Kyoto", primary_method: "Tokaido Shinkansen", duration: "2h 15m", cost_jpy: 14170, cost_display: "~¥14,170", jr_pass_covered: true, tip: "Take Nozomi for fastest (not JR Pass), Hikari for JR Pass holders" },
   { from_slug: "tokyo", to_slug: "osaka", from_name: "Tokyo", to_name: "Osaka", primary_method: "Tokaido Shinkansen", duration: "2h 30m", cost_jpy: 14920, cost_display: "~¥14,920", jr_pass_covered: true, tip: "Shin-Osaka station — transfer to local lines for Namba/Dotonbori" },
   { from_slug: "tokyo", to_slug: "hiroshima", from_name: "Tokyo", to_name: "Hiroshima", primary_method: "Tokaido/Sanyo Shinkansen", duration: "4h", cost_jpy: 19760, cost_display: "~¥19,760", jr_pass_covered: true, tip: "Long ride — reserve a window seat on the right side for Mt. Fuji views" },

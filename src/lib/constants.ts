@@ -2,7 +2,7 @@ import type { Region, InterestTag, Season, TravelStyle, BudgetLevel, TripPace } 
 
 export const SITE_NAME = "Your Japan Plan";
 export const SITE_DESCRIPTION =
-  "AI-powered Japan travel planning. Get personalized destination recommendations, custom itineraries, and expert tips for your perfect Japan trip.";
+  "Plan your perfect Japan trip. Build custom itineraries with curated destinations, activities, where to stay, JR Pass calculator, and what to reserve in advance.";
 
 export const REGIONS: { value: Region; label: string; label_jp: string }[] = [
   { value: "hokkaido", label: "Hokkaido", label_jp: "北海道" },

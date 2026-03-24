@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { DestinationFilters } from "@/components/destination/destination-filters";
 
 export const metadata: Metadata = {
-  title: "Destinations | Your Japan Plan",
+  title: "Best Places to Visit in Japan — Destinations Guide",
   description:
-    "Explore 28 curated destinations across Japan. Filter by region, interests, and season to find your perfect trip.",
+    "Explore 26 curated destinations across Japan from Tokyo to Okinawa. Filter by region, interests like onsen, temples, food, and nightlife, and find the best season to visit.",
+  keywords: ["best places to visit in Japan", "Japan destinations", "where to go in Japan", "Japan regions guide", "Japan travel destinations"],
 };
 
 export default function DestinationsPage() {

@@ -30,9 +30,11 @@ export function generateMetadata({
   return params.then(({ slug }) => {
     const dest = SEED_DESTINATIONS.find((d) => d.slug === slug);
     if (!dest) return { title: "Not Found" };
+    const region = REGIONS.find((r) => r.value === dest.region);
     return {
-      title: `${dest.name} | Your Japan Plan`,
-      description: dest.description,
+      title: `${dest.name} Japan Travel Guide — Things to Do, Where to Stay & Tips`,
+      description: `${dest.description} Best seasons, crowd levels, where to stay, what to reserve, and insider tips for visiting ${dest.name}${region ? ` in ${region.label}` : ""}.`,
+      keywords: [`${dest.name} Japan`, `${dest.name} travel guide`, `things to do in ${dest.name}`, `${dest.name} itinerary`, `visit ${dest.name}`],
     };
   });
 }

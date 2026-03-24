@@ -1,6 +1,23 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+
+export const metadata: Metadata = {
+  title: "Your Japan Plan — Japan Trip Planner & Itinerary Builder",
+  description:
+    "Plan your perfect Japan trip. Build custom day-by-day itineraries, discover the best destinations from Tokyo to Okinawa, calculate JR Pass savings, and know what to book in advance.",
+  keywords: [
+    "Japan trip planner",
+    "Japan itinerary builder",
+    "plan Japan trip",
+    "Japan vacation planner",
+    "where to go in Japan",
+    "Japan travel planner",
+    "custom Japan itinerary",
+    "Japan for first timers",
+  ],
+};
 import {
   MapPin,
   Sparkles,
