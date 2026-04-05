@@ -1,214 +1,110 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
-**Your Japan Plan** (yourjapanplan.com) — a Japan travel planning web app. Users take a preference quiz to get destination recommendations, then build custom day-by-day itineraries by picking from pre-generated activity catalogs. Itineraries can be saved and shared via Supabase.
+**Your Japan Plan** (yourjapanplan.com) — Japan travel planning app. Quiz → destination recommendations → custom day-by-day itineraries from curated activity catalogs. Save, edit, and share via Supabase.
 
 ## Commands
 
 ```bash
-npm run dev          # Start dev server (Turbopack)
-npm run build        # Production build
-npm run start        # Start production server
+npm run dev          # Dev server (Turbopack)
 npm run lint         # ESLint
-npx tsc --noEmit     # TypeScript check (use this over `npm run build` on Windows — Turbopack build workers can crash)
+npx tsc --noEmit     # TypeScript check (use this over `npm run build` on Windows — Turbopack workers crash)
 ```
 
 ## Tech Stack
 
-- **Next.js 16** (App Router) with TypeScript
-- **Tailwind CSS v4** + **shadcn/ui v4** (uses `@base-ui/react`, NOT Radix)
-- **Supabase** — Postgres database, Auth (Google OAuth + email/password), Storage
-- **Claude API** via **Vercel AI SDK** — streaming AI recommendations only (quiz results)
-- **Zustand** — client state management (quiz store, itinerary builder store)
-- **Vercel** — deployment (auto-deploys on push to `master`)
+Next.js 16 (App Router), TypeScript, Tailwind v4, **shadcn/ui v4** (`@base-ui/react`, NOT Radix), Supabase (Postgres + Auth), Claude API via Vercel AI SDK (quiz only), Zustand, Vercel (auto-deploys on push to `master`).
 
-## Architecture
-
-### shadcn/ui v4 — Important
-
-This project uses shadcn/ui v4 which is built on `@base-ui/react` instead of Radix UI. Key difference: **there is no `asChild` prop**. Use the `render` prop instead:
+### shadcn/ui v4 — No `asChild`
 
 ```tsx
-// WRONG (Radix/shadcn v3 pattern):
-<Button asChild><Link href="/foo">Click</Link></Button>
-
-// CORRECT (base-ui/shadcn v4 pattern):
-<Button render={<Link href="/foo" />}>Click</Button>
+// WRONG:  <Button asChild><Link href="/foo">Click</Link></Button>
+// RIGHT:  <Button render={<Link href="/foo" />}>Click</Button>
 ```
 
-### Data Architecture
+## Data Architecture
 
-**Static-first approach.** All destination, activity, and transport data is curated and stored as static TypeScript files. No database queries needed for the core experience. AI is used only for the quiz recommendation flow.
+**Static-first.** All destination/activity/transport data lives in TypeScript files under `src/lib/data/`. AI is used only for quiz recommendations.
 
-#### Static Data Files (`src/lib/data/`)
+- **`seed-activities.ts`** — ~127 activities across 27 destinations (id, name, type, duration, cost, tags, `best_time_of_day`, `area`, `first_timer`)
+- **`day-templates.ts`** — ~64 preset day plans (2-3 per destination)
+- **`transport-routes.ts`** — ~55 inter-city routes. `findRoute()` = best single, `findAllRoutes()` = all options
+- **`movement-times.ts`** — Area-to-area transit within destinations
+- **`packing-rules.ts`** — Season + activity-tag → packing items
+- **`seed-destinations.ts`** (`src/lib/ai/`) — 27 destinations with crowd_level_by_month, best_seasons, accommodation_zones
 
-- **`seed-activities.ts`** — Activity catalog (~127 entries across 27 destinations). Each activity has id, name, description, type, duration, cost, tags, reservation info, time-of-day, insider tip, optional `area` (for movement time), and optional `first_timer` flag.
-- **`day-templates.ts`** — Pre-built day plans (~64 templates, 2-3 per destination) that users can apply as a starting point.
-- **`transport-routes.ts`** — Train/bus/flight routes between destinations (~55 routes) with costs, durations, and JR Pass coverage. Use `findRoute()` for best single route, `findAllRoutes()` for all options (e.g., both Shinkansen and flight). Shared by the itinerary builder, JR Pass calculator, day trips, and trip summary.
-- **`movement-times.ts`** — Area-to-area transit time lookup within destinations. Activities have an optional `area` field; this file maps area pairs to travel time and method (walk/train/bus/ferry). Used by the day builder to replace flat buffers with realistic transit estimates.
+### Streaming Partial Types
 
-#### Seed Destinations (`src/lib/ai/seed-destinations.ts`)
+`experimental_useObject` returns deeply partial objects. Use `.filter((a): a is NonNullable<typeof a> => !!a)` not `.filter(Boolean)`.
 
-27 curated destinations with highlights, tags, best seasons, crowd levels by month, accommodation zones, and reservation tips.
+## Itinerary Builder
 
-#### AI (quiz only)
+No AI. Users pick destinations → build days from catalog → review (budget, JR Pass, reservations, packing list) → save/edit/share.
 
-The quiz recommendation flow (`/api/ai/recommend`) is the only feature that calls Claude. It streams structured recommendations using `experimental_useObject` from `@ai-sdk/react`. Results are cached in the Zustand quiz store so revisiting the page doesn't re-generate.
+State: `src/stores/itinerary-store.ts` — `BuilderDay[]`, `BuilderActivity` (`catalogId`, `customName`, `customDescription`, `notes`, `customStartTime`, `booked`).
 
-### Streaming Partial Types — Pitfall
+### Save / Edit / Share
 
-When using `experimental_useObject` from `@ai-sdk/react`, the returned object is deeply partial (`PartialObject<T>`). Arrays become `(T | undefined)[]`. Use `.filter((a): a is NonNullable<typeof a> => !!a)` instead of `.filter(Boolean)` — the latter doesn't narrow types in TypeScript. Always define component props with optional fields when consuming streamed data.
+- **Save**: POST `/api/itinerary`. Stores `builder_state` (raw store state) + `generated_plan` (review format) in `preferences_snapshot` JSONB. The `builder_state` key is the source of truth for editing.
+- **Edit**: `/itinerary/new?edit={id}` → fetches itinerary → `store.loadItinerary()` → PUT on save. `editingId` tracks edit mode.
+- **Share**: PATCH toggles `is_public`. Share page fetches with `?public=true`. No auth for public view.
+- **Delete**: DELETE endpoint with cascade. `window.confirm()` for UI.
+- **DB enum**: `travel_style` doesn't include `honeymoon` — API maps it to `couple` via `safeTravelStyle()`.
 
-### Key Directories
+### Day Scheduling
 
-```
-src/app/               → Next.js App Router pages and API routes
-src/app/api/ai/        → AI endpoints (recommend, itinerary — itinerary is legacy)
-src/app/api/itinerary/ → Save/load itinerary CRUD (POST, GET, PUT, DELETE, PATCH)
-src/app/profile/       → User profile page
-src/components/ui/     → shadcn/ui primitives (auto-generated, don't hand-edit)
-src/components/        → App components by feature (layout/, quiz/, itinerary/, destination/, tools/)
-src/lib/data/          → Static data files (activities, templates, transport routes, packing rules)
-src/lib/utils/         → Utility functions (iCal export)
-src/lib/ai/            → AI prompts, schemas, seed destinations
-src/lib/supabase/      → Supabase client/server utilities
-src/stores/            → Zustand stores (quiz-store, itinerary-store)
-src/types/             → Shared TypeScript types
-supabase/              → SQL migrations and seed data
-```
+4 time buckets: morning (9:00), afternoon (13:00), evening (18:00), late evening (after dinner = nightlife only). Movement time from `movement-times.ts`. Auto-inserted meal slots. Dinner shifts with evening preference (early/moderate/nightowl). Activities with `customStartTime` override auto-calculation.
 
-### Itinerary Builder Flow
+### Day Trips
 
-The interactive builder uses NO AI. Users:
-1. Pick destinations + set days per destination + optional travel dates (`DestinationPicker`)
-2. Build each day by adding activities from the pre-generated catalog (`DayBuilder` + `ActivityPicker`)
-3. Review the full itinerary with budget estimate, JR Pass recommendation, reservation checklist, and packing list (`TripSummary`)
-4. Save to Supabase, edit later, and share via link
+`dayTripSlug` on `BuilderDay` → shows activities from trip destination, auto-adds transport bookends, shifts morning start. Filtered from `TRANSPORT_ROUTES` (within 2h, no flights).
 
-State managed in `src/stores/itinerary-store.ts` with `BuilderDay` and `BuilderActivity` types. Time slots are computed in components via `useMemo`, not stored.
+## Routing
 
-#### Save / Edit / Share
-
-- **Save**: POST to `/api/itinerary`. Stores both `generated_plan` (review format) and `builder_state` (raw `BuilderDay[]`, `SelectedDestination[]`, `eveningPreference`, `startDate`) in `preferences_snapshot` JSONB. The `builder_state` enables loading back into the builder for editing.
-- **Edit**: View page has "Edit" button linking to `/itinerary/new?edit={id}`. The builder page detects the `?edit=` param (via `useSearchParams` wrapped in `<Suspense>`), fetches the itinerary, calls `store.loadItinerary()`, and uses PUT instead of POST on save. `editingId` in the store tracks whether we're editing.
-- **Share**: Owner toggles `is_public` via PATCH. Share page at `/itinerary/[id]/share` fetches with `?public=true` — only works when `is_public` is true. No auth required for public view.
-- **Delete**: DELETE endpoint removes itinerary. Cascade deletes handle days/activities. Confirmation via `window.confirm()`.
-- **API endpoints**: `route.ts` exports POST, GET, PUT, DELETE, PATCH.
-- **DB enum caveat**: `travel_style` enum doesn't include `honeymoon` — the API maps it to `couple` via `safeTravelStyle()`.
-
-#### BuilderActivity Fields
-
-`BuilderActivity` has: `catalogId`, `customName`, `customDescription`, `notes`, `customStartTime` (override auto-calculated time), `booked` (reservation tracking). The `customStartTime` and `booked` fields are used by the day builder for inline time editing and booking status toggles.
-
-#### Day Scheduling Algorithm
-
-The `DayBuilder` component computes time slots in a `useMemo` block with 4 buckets:
-1. **Morning** (9:00) — activities with `best_time_of_day: "morning"` or `"anytime"`
-2. **Afternoon** (13:00) — activities with `best_time_of_day: "afternoon"`
-3. **Evening** (18:00) — non-nightlife activities with `best_time_of_day: "evening"`
-4. **Late evening** (after dinner) — activities with `type: "nightlife"`, always scheduled after dinner
-
-Movement time between activities is computed dynamically from `movement-times.ts` based on each activity's `area` field (defaults: 10 min same area, 20 min unknown). Meal slots (lunch/dinner) are auto-inserted when no food activity exists in the time window. Dinner timing shifts based on the user's evening preference (early: 17:00, moderate: 18:00, nightowl: 19:00).
-
-#### Day Trips
-
-`BuilderDay` has an optional `dayTripSlug` field. When set, the day builder:
-- Shows activities from the day-trip destination instead of the base
-- Auto-adds transport bookend entries (departure/return) using `findRoute()`
-- Shifts morning start time based on travel duration
-- Nearby destinations are filtered from `TRANSPORT_ROUTES` (within 2 hours, no flights)
-
-#### Evening Preference
-
-The quiz captures `eveningPreference` (`"early"` | `"moderate"` | `"nightowl"`) in the Preferences step. This flows through quiz store → itinerary store → day builder, controlling dinner timing and nightlife scheduling. The AI prompt also uses it to rank nightlife-heavy destinations higher for night owls.
-
-### Database
-
-Schema defined in `supabase/migrations/`. Core tables: `destinations`, `activities`, `itineraries`, `itinerary_days`, `itinerary_activities`, `profiles`, `quiz_responses`. All tables have RLS policies. Destinations and activities are publicly readable; itineraries are owner-only (or public if shared).
-
-### Auth
-
-Google OAuth + email/password via Supabase Auth. Middleware in `middleware.ts` refreshes sessions. `AuthButton` component in navbar shows sign-in/avatar dropdown. Auth page at `/auth` has both options with sign-in/sign-up toggle.
-
-### Routing
-
-- `/` — Landing page
-- `/quiz` → `/quiz/results` — Preference quiz → AI recommendations (cached in store)
-- `/destinations` → `/destinations/[slug]` — Browse/detail pages (statically generated)
-- `/itinerary/new` — Interactive itinerary builder (pick → build → review)
-- `/itinerary/new?edit={id}` — Edit existing itinerary (loads saved state into builder)
-- `/itinerary/[id]` — View saved itinerary (owner only — has edit, delete, share controls)
-- `/itinerary/saved` — List of user's saved itineraries (with delete)
-- `/itinerary/[id]/share` — Public shared view (no auth, requires `is_public` = true)
-- `/tools/jr-pass` — JR Pass calculator
-- `/profile` — User profile (itineraries, account info, sign out)
-- `/auth` — Sign in/up (Google OAuth + email/password)
-
-### SEO
-
-- `src/app/sitemap.ts` — Dynamic sitemap with all destination pages
-- `src/app/robots.ts` — Allows all pages, blocks API routes
-- Each page has keyword-rich metadata with Open Graph and Twitter cards
-- Destination detail pages have dynamic keywords per city
+| Route | Purpose |
+|---|---|
+| `/quiz` → `/quiz/results` | Preference quiz → AI recommendations |
+| `/destinations/[slug]` | Destination detail (static) |
+| `/itinerary/new` | Builder (pick → build → review) |
+| `/itinerary/new?edit={id}` | Edit existing itinerary |
+| `/itinerary/[id]` | View saved (edit, delete, share, print, calendar export) |
+| `/itinerary/[id]/share` | Public shared view (requires `is_public`) |
+| `/itinerary/saved` | User's saved itineraries |
+| `/profile` | User profile + account |
+| `/tools/jr-pass` | JR Pass calculator |
 
 ## Destination Slugs — Critical
 
-Slugs MUST match exactly across all files. The canonical slug is in `seed-destinations.ts`. Known mismatches to watch for:
+Slugs MUST match across all files. Canonical source: `seed-destinations.ts`.
 
-| Destination | Correct slug | Common wrong slug |
+| Destination | Correct | Wrong |
 |---|---|---|
 | Okinawa | `okinawa-main` | `okinawa` |
 | Mt. Fuji | `mt-fuji` | `mt-fuji-area` |
 | Koya-san | `koyasan` | `koya-san` |
 
-Activity IDs use the format `{destination_slug}-{activity-slug}` (e.g. `tokyo-senso-ji`). However, some historical activity IDs don't match the destination slug exactly (e.g. `mt-fuji-area-kawaguchiko` has `destination_slug: "mt-fuji"`). This is fine — the `getActivitiesForDestination()` function filters by `destination_slug`, not the ID prefix.
-
-The `japan-map.tsx` component also has a coordinates lookup keyed by slug — update it when adding destinations.
+Activity IDs: `{slug}-{activity}` format. `getActivitiesForDestination()` filters by `destination_slug`, not ID prefix. Update `japan-map.tsx` coords when adding destinations.
 
 ## Adding a New Destination
 
-When adding a new destination, update these files in order:
+1. **`seed-destinations.ts`** — destination object
+2. **`seed-activities.ts`** — 8-12 activities, matching `destination_slug`
+3. **`day-templates.ts`** — 2-3 templates, `activity_ids` must match step 2
+4. **`transport-routes.ts`** — routes to/from nearby destinations
+5. **`movement-times.ts`** — area-to-area times (skip for small walkable places)
+6. **`japan-map.tsx`** — lat/lng in `DESTINATION_COORDS`
 
-1. **`src/lib/ai/seed-destinations.ts`** — Add the destination object (slug, name, region, description, highlights, best_seasons, crowd_level_by_month, tags, jr_accessible, reservation_tips, accommodation_zones)
-2. **`src/lib/data/seed-activities.ts`** — Add 8-12 activities. Set `destination_slug` to match the slug from step 1. Activity IDs follow `{slug}-{activity-name}` format. Add `area` field for cities with spread-out activities. Add `first_timer: true` for must-do activities. Include at least 1-2 nightlife activities for cities with bar scenes.
-3. **`src/lib/data/day-templates.ts`** — Add 2-3 day templates. Set `destination_slug` to match step 1. `activity_ids` must exactly match IDs from step 2. Consider adding an "After Dark" nightlife template if the destination has nightlife activities.
-4. **`src/lib/data/transport-routes.ts`** — Add transport routes from/to nearby destinations with `from_slug`/`to_slug`. For distant destinations, add both rail and flight options. Use `primary_method: "Flight"` for air routes.
-5. **`src/lib/data/movement-times.ts`** — If the destination has activities spread across distinct areas, add area-to-area transit times. Small walkable destinations can skip this (defaults to 20 min).
-6. **`src/components/itinerary/japan-map.tsx`** — Add lat/lng coordinates in `DESTINATION_COORDS`.
-7. **`src/app/sitemap.ts`** — Auto-included (reads from seed destinations), no change needed.
-
-The destination will automatically appear in: browse page, filters, itinerary builder map, JR calculator (if transport routes added, flights filtered out), and the sitemap.
-
-## Builder Features
-
-- **Travel dates** — Optional start date picker in destination step. When set, day-of-week labels appear on builder day tabs and headers. Dates are stored in `start_date`/`end_date` DB columns and in `builder_state.startDate`.
-- **Custom activity times** — Click any activity's time in the day builder to override the auto-calculated schedule via `<input type="time">`. Stored as `customStartTime` on `BuilderActivity`.
-- **Booking status** — Activities with `reservation_required` show a booked/unbooked toggle badge. Trip summary checklist distinguishes booked (checkmark, strikethrough) from unbooked (warning icon).
-- **Budget tracking** — Per-day cost subtotals in day builder header. Trip summary shows a progress bar comparing activity costs against budget tier (budget: ¥8k/day, moderate: ¥18k/day, luxury: ¥40k/day).
-- **Packing list** — Auto-generated from season + activity types/tags. Rules in `src/lib/data/packing-rules.ts`. Checklist UI with localStorage-persisted check state in `src/components/itinerary/packing-list.tsx`. Shown in trip summary.
-- **Seasonal/weather context** — Day builder shows an info banner per destination with crowd level and seasonal tips, color-coded by severity. Uses `crowd_level_by_month` and `best_seasons` from seed destinations.
-- **Print/PDF** — `window.print()` with `print:hidden` on non-printable UI elements (nav, buttons, toggles).
-- **Calendar export** — `.ics` file generation via `src/lib/utils/ical-export.ts`. Available on view page when travel dates are set. One event per activity + transport legs.
-- **Quiz re-take** — Results page has "Edit Preferences" (clears cache, keeps answers) and "Retake Quiz" (full reset) buttons.
+Auto-appears in: browse page, filters, builder map, JR calculator, sitemap.
 
 ## Conventions
 
-- Path alias: `@/*` maps to `./src/*`
-- Constants/enums in `src/lib/constants.ts` — regions, interest tags, travel styles, evening preferences, etc.
-- TypeScript types in `src/types/index.ts`
-- All destination/activity data comes from static data files, never hardcoded in components
-- Don't mention "AI" in user-facing copy — the site should feel like curated expert recommendations
-- Prices in transport-routes.ts should be kept current — verify against official sources when updating
-- The Shinkansen does NOT go to Sapporo (only to Shin-Hakodate) — recommend flights for Hokkaido
-- There is no rail to Okinawa — flights only
-- NEVER use hand-drawn SVG paths for maps — use Leaflet or a real map library
-- Activities have `best_time_of_day` (morning/afternoon/evening/anytime) — the builder respects this when calculating time slots
-- Bars/nightlife should always be `best_time_of_day: "evening"` and `type: "nightlife"` — the builder schedules them in a separate late-evening bucket after dinner, never before
-- Activities can have an optional `area` field for movement time calculation and an optional `first_timer: true` flag for must-do badges
-- Travel styles: solo, couple, friends, family, workcation, honeymoon (6 total) — the AI prompt has per-style hints
-- Transport routes can have duplicates for the same city pair (e.g., Shinkansen + Flight for Tokyo→Fukuoka) — `findRoute()` prefers rail, `findAllRoutes()` returns both, trip summary shows alternatives
-- `useSearchParams()` must be wrapped in a `<Suspense>` boundary — Next.js 16 requires this for static page generation. See `/itinerary/new/page.tsx` for the pattern (thin page component wraps content in Suspense).
-- The `itinerary_activities` and `itinerary_days` DB tables exist but the app primarily reads/writes via `preferences_snapshot` JSONB. The `builder_state` key in the snapshot is the source of truth for the edit flow. Structured tables are populated for basic structure but not used as primary data source.
+- `@/*` maps to `./src/*`
+- Don't mention "AI" in user-facing copy
+- Shinkansen does NOT reach Sapporo (only Shin-Hakodate) — flights for Hokkaido
+- No rail to Okinawa — flights only
+- NEVER hand-draw SVG maps — use Leaflet
+- Nightlife: always `best_time_of_day: "evening"` + `type: "nightlife"` — scheduled after dinner, never before
+- Travel styles: solo, couple, friends, family, workcation, honeymoon (6 total)
+- `useSearchParams()` requires `<Suspense>` wrapper — see `itinerary/new/page.tsx`
+- `preferences_snapshot` JSONB is the primary data store for itineraries. Structured `itinerary_days`/`itinerary_activities` tables are populated but not the source of truth.
