@@ -45,7 +45,7 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     activity_ids: [
       "tokyo-tsukiji-outer-market",
       "tokyo-ramen-street",
-      "tokyo-golden-gai",
+      "tokyo-ebisu-bars",
     ],
     suggested_pace: "moderate",
   },
@@ -60,7 +60,7 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "tokyo-akihabara",
       "tokyo-teamlab-borderless",
       "tokyo-shibuya-crossing",
-      "tokyo-golden-gai",
+      "tokyo-shinjuku-nightlife",
     ],
     suggested_pace: "packed",
   },
@@ -237,6 +237,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "moderate",
   },
 
+  {
+    id: "hakone-shrine-soak-day",
+    destination_slug: "hakone",
+    name: "Shrine, Steam & Soak",
+    description:
+      "Photograph Hakone Shrine's lakeside torii, taste volcanic black eggs at Owakudani, and melt into a ryokan onsen at sunset.",
+    target_interests: ["temples", "onsen", "food"],
+    activity_ids: [
+      "hakone-shrine",
+      "hakone-owakudani",
+      "hakone-ryokan-onsen",
+    ],
+    suggested_pace: "relaxed",
+  },
+
   // ============================================================
   // HIROSHIMA
   // ============================================================
@@ -267,6 +282,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "hiroshima-peace-park",
     ],
     suggested_pace: "moderate",
+  },
+
+  {
+    id: "hiroshima-garden-foodie-day",
+    destination_slug: "hiroshima",
+    name: "Gardens & Griddles",
+    description:
+      "Stroll the serene Shukkeien Garden, dive into Hiroshima-style okonomiyaki, then reflect at the Peace Park at dusk.",
+    target_interests: ["nature", "food", "culture"],
+    activity_ids: [
+      "hiroshima-shukkeien",
+      "hiroshima-okonomiyaki",
+      "hiroshima-peace-park",
+    ],
+    suggested_pace: "relaxed",
   },
 
   // ============================================================
@@ -302,6 +332,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "moderate",
   },
 
+  {
+    id: "nara-naramachi-stroll-day",
+    destination_slug: "nara",
+    name: "Naramachi & Deer Snacks",
+    description:
+      "Browse machiya craft shops in Naramachi, feed the bowing deer, and graze on mochi and street food along the way.",
+    target_interests: ["food", "shopping", "culture"],
+    activity_ids: [
+      "nara-naramachi",
+      "nara-deer-park",
+      "nara-kasuga-shrine",
+    ],
+    suggested_pace: "relaxed",
+  },
+
   // ============================================================
   // KAMAKURA
   // ============================================================
@@ -332,6 +377,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "kamakura-hasedera",
     ],
     suggested_pace: "relaxed",
+  },
+
+  {
+    id: "kamakura-enoshima-eats-day",
+    destination_slug: "kamakura",
+    name: "Island Eats & Seaside Shops",
+    description:
+      "Explore Enoshima's sea caves and shirasu restaurants, then browse the snack-filled Komachi-dori on the way back.",
+    target_interests: ["food", "beach", "shopping"],
+    activity_ids: [
+      "kamakura-enoshima",
+      "kamakura-komachi-dori",
+      "kamakura-hasedera",
+    ],
+    suggested_pace: "moderate",
   },
 
   // ============================================================
@@ -366,6 +426,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "relaxed",
   },
 
+  {
+    id: "nikko-full-day",
+    destination_slug: "nikko",
+    name: "Shrines, Falls & Lake Loop",
+    description:
+      "Hit all three highlights in one ambitious day -- Toshogu's gilded halls, Kegon Falls, and a lakeside stroll at Chuzenji.",
+    target_interests: ["temples", "nature", "adventure"],
+    activity_ids: [
+      "nikko-toshogu",
+      "nikko-kegon-falls",
+      "nikko-lake-chuzenji",
+    ],
+    suggested_pace: "packed",
+  },
+
   // ============================================================
   // NAGOYA
   // ============================================================
@@ -395,6 +470,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "nagoya-hitsumabushi",
       "nagoya-miso-katsu",
       "nagoya-sakae-nightlife",
+    ],
+    suggested_pace: "moderate",
+  },
+
+  {
+    id: "nagoya-castle-industry-day",
+    destination_slug: "nagoya",
+    name: "Castle to Factory Floor",
+    description:
+      "Pair Nagoya Castle's golden dolphins with the Toyota Museum's robotic marvels, then refuel with miso katsu.",
+    target_interests: ["culture", "food"],
+    activity_ids: [
+      "nagoya-castle",
+      "nagoya-toyota-museum",
+      "nagoya-miso-katsu",
     ],
     suggested_pace: "moderate",
   },
@@ -431,6 +521,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "moderate",
   },
 
+  {
+    id: "takayama-wagyu-sake-day",
+    destination_slug: "takayama",
+    name: "Wagyu & Sake Trail",
+    description:
+      "Graze on Hida beef sushi from street vendors, taste fresh sake at old-town breweries, and browse the morning market.",
+    target_interests: ["food", "culture", "shopping"],
+    activity_ids: [
+      "takayama-hida-beef",
+      "takayama-old-town",
+      "takayama-morning-market",
+    ],
+    suggested_pace: "relaxed",
+  },
+
   // ============================================================
   // KANAZAWA
   // ============================================================
@@ -461,6 +566,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "kanazawa-higashi-chaya",
     ],
     suggested_pace: "moderate",
+  },
+
+  {
+    id: "kanazawa-seafood-garden-day",
+    destination_slug: "kanazawa",
+    name: "Crab, Gardens & Gold Leaf",
+    description:
+      "Feast on winter crab at Omicho Market, wander snow-dusted Kenroku-en, and sip gold-leaf tea in the geisha quarter.",
+    target_interests: ["food", "nature", "culture"],
+    activity_ids: [
+      "kanazawa-omicho-market",
+      "kanazawa-kenrokuen",
+      "kanazawa-higashi-chaya",
+    ],
+    suggested_pace: "relaxed",
   },
 
   // ============================================================
@@ -540,6 +660,20 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "relaxed",
   },
 
+  {
+    id: "niseko-apres-ski-day",
+    destination_slug: "niseko",
+    name: "Powder to Onsen",
+    description:
+      "Morning laps through waist-deep powder, then a long soak in an outdoor onsen watching the snow fall.",
+    target_interests: ["skiing", "onsen", "adventure"],
+    activity_ids: [
+      "niseko-powder-skiing",
+      "niseko-onsen-hopping",
+    ],
+    suggested_pace: "moderate",
+  },
+
   // ============================================================
   // FUKUOKA
   // ============================================================
@@ -615,6 +749,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "okinawa-shuri-castle",
       "okinawa-kokusai-street",
       "okinawa-blue-cave",
+    ],
+    suggested_pace: "moderate",
+  },
+
+  {
+    id: "okinawa-ocean-day",
+    destination_slug: "okinawa-main",
+    name: "Ocean Giants & Island Flavors",
+    description:
+      "Watch whale sharks glide at Churaumi Aquarium, then head to Kokusai Street for Okinawan street food and awamori.",
+    target_interests: ["nature", "food", "culture"],
+    activity_ids: [
+      "okinawa-churaumi-aquarium",
+      "okinawa-kokusai-street",
+      "okinawa-shuri-castle",
     ],
     suggested_pace: "moderate",
   },
@@ -698,6 +847,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "moderate",
   },
 
+  {
+    id: "mt-fuji-sunrise-chase-day",
+    destination_slug: "mt-fuji",
+    name: "Sunrise Fuji Chase",
+    description:
+      "Climb Chureito Pagoda at dawn for the iconic shot, then cruise Kawaguchiko and wander the springs of Oshino Hakkai.",
+    target_interests: ["nature", "temples"],
+    activity_ids: [
+      "mt-fuji-area-chureito-pagoda",
+      "mt-fuji-area-kawaguchiko",
+      "mt-fuji-area-oshino-hakkai",
+    ],
+    suggested_pace: "packed",
+  },
+
   // ============================================================
   // BEPPU
   // ============================================================
@@ -728,6 +892,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "beppu-hells",
     ],
     suggested_pace: "relaxed",
+  },
+
+  {
+    id: "beppu-sand-and-steam-day",
+    destination_slug: "beppu",
+    name: "Buried in Sand, Bathed in Steam",
+    description:
+      "Get buried in hot volcanic sand on the beach, tour the colorful Hells, and finish with a classic public onsen.",
+    target_interests: ["onsen", "adventure", "nature"],
+    activity_ids: [
+      "beppu-sand-bath",
+      "beppu-hells",
+      "beppu-onsen-hopping",
+    ],
+    suggested_pace: "moderate",
   },
 
   // ============================================================
@@ -762,6 +941,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "relaxed",
   },
 
+  {
+    id: "naoshima-village-art-day",
+    destination_slug: "naoshima",
+    name: "Honmura Village Crawl",
+    description:
+      "Spend the day exploring transformed village houses in the Art House Project, then catch the pumpkin at golden hour.",
+    target_interests: ["culture", "nature"],
+    activity_ids: [
+      "naoshima-art-house-project",
+      "naoshima-pumpkin",
+      "naoshima-chichu-museum",
+    ],
+    suggested_pace: "relaxed",
+  },
+
   // ============================================================
   // YAKUSHIMA
   // ============================================================
@@ -792,6 +986,20 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "moderate",
   },
 
+  {
+    id: "yakushima-easy-trail-day",
+    destination_slug: "yakushima",
+    name: "Mossy Ravine & Cedar Giants",
+    description:
+      "Take the easier Shiratani Unsuikyo loop through the moss-draped forest, then push on to see ancient cedars on the Jomon trail.",
+    target_interests: ["nature", "adventure"],
+    activity_ids: [
+      "yakushima-shiratani",
+      "yakushima-jomon-sugi",
+    ],
+    suggested_pace: "relaxed",
+  },
+
   // ============================================================
   // SHIRAKAWA-GO
   // ============================================================
@@ -820,6 +1028,20 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "shirakawa-go-village",
     ],
     suggested_pace: "moderate",
+  },
+
+  {
+    id: "shirakawa-go-viewpoint-walk-day",
+    destination_slug: "shirakawa-go",
+    name: "Postcard Panorama",
+    description:
+      "Hike to the Shiroyama viewpoint at dawn for the classic village panorama, then explore the farmhouses up close.",
+    target_interests: ["nature", "culture"],
+    activity_ids: [
+      "shirakawa-go-viewpoint",
+      "shirakawa-go-village",
+    ],
+    suggested_pace: "packed",
   },
 
   // ============================================================
@@ -854,6 +1076,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "moderate",
   },
 
+  {
+    id: "koyasan-night-walk-day",
+    destination_slug: "koyasan",
+    name: "Lanterns & Lodging",
+    description:
+      "Walk Okunoin's lantern-lit cemetery at dusk, then settle into a temple stay for evening chanting and shojin ryori.",
+    target_interests: ["temples", "culture", "food"],
+    activity_ids: [
+      "koya-san-okunoin",
+      "koya-san-temple-stay",
+      "koya-san-kongobuji",
+    ],
+    suggested_pace: "relaxed",
+  },
+
   // ============================================================
   // MATSUMOTO
   // ============================================================
@@ -884,6 +1121,20 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "matsumoto-nawate-dori",
     ],
     suggested_pace: "packed",
+  },
+
+  {
+    id: "matsumoto-town-stroll-day",
+    destination_slug: "matsumoto",
+    name: "Castle Town Wanderer",
+    description:
+      "Tour the black castle at dawn, browse Nawate-dori's frog-themed shops, and catch Alpine views from the craft quarter.",
+    target_interests: ["culture", "shopping", "nature"],
+    activity_ids: [
+      "matsumoto-castle",
+      "matsumoto-nawate-dori",
+    ],
+    suggested_pace: "relaxed",
   },
 
   // ============================================================
@@ -918,6 +1169,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "moderate",
   },
 
+  {
+    id: "sendai-history-food-day",
+    destination_slug: "sendai",
+    name: "Samurai Lord & Sizzling Tongue",
+    description:
+      "Visit Date Masamune's ornate mausoleum, feast on thick-cut charcoal gyutan, and cruise Matsushima at sunset.",
+    target_interests: ["culture", "food", "nature"],
+    activity_ids: [
+      "sendai-zuihoden",
+      "sendai-gyutan",
+      "sendai-matsushima",
+    ],
+    suggested_pace: "packed",
+  },
+
   // ============================================================
   // FURANO & BIEI
   // ============================================================
@@ -948,6 +1214,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "furano-biei-lavender",
     ],
     suggested_pace: "moderate",
+  },
+
+  {
+    id: "furano-biei-cycling-day",
+    destination_slug: "furano-biei",
+    name: "Patchwork Hills by Bike",
+    description:
+      "Cycle Biei's rolling patchwork hills, stop at the Blue Pond, and finish with lavender soft serve at Farm Tomita.",
+    target_interests: ["adventure", "nature"],
+    activity_ids: [
+      "furano-biei-patchwork",
+      "furano-biei-blue-pond",
+      "furano-biei-lavender",
+    ],
+    suggested_pace: "packed",
   },
 
   // ============================================================
@@ -982,6 +1263,20 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "moderate",
   },
 
+  {
+    id: "onomichi-ramen-temples-day",
+    destination_slug: "onomichi",
+    name: "Noodles & Hilltop Temples",
+    description:
+      "Slurp the city's famous soy-pork-fat ramen, then climb the winding temple trail for Inland Sea views.",
+    target_interests: ["food", "temples", "culture"],
+    activity_ids: [
+      "onomichi-ramen",
+      "onomichi-temple-walk",
+    ],
+    suggested_pace: "relaxed",
+  },
+
   // ============================================================
   // ITO
   // ============================================================
@@ -1013,6 +1308,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "ito-marine-town",
     ],
     suggested_pace: "relaxed",
+  },
+  {
+    id: "ito-coast-and-craft-beer",
+    destination_slug: "ito",
+    name: "Cliffs, Craft Beer & Bars",
+    description:
+      "Hike the Jogasaki coast in the morning, grab kinmedai at Marine Town, then bar-hop Ito's nightlife scene.",
+    target_interests: ["nature", "nightlife", "food"],
+    activity_ids: [
+      "ito-jogasaki-coast",
+      "ito-marine-town",
+      "ito-joynt",
+      "ito-craps",
+    ],
+    suggested_pace: "moderate",
   },
 ];
 
