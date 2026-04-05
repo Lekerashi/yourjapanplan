@@ -113,10 +113,13 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
     const evening: typeof day.activities = [];
     const lateEvening: typeof day.activities = [];
 
+    const lunchFood: typeof day.activities = [];
+
     for (const a of day.activities) {
       const activity = catalog.get(a.catalogId);
       const tod = activity?.best_time_of_day ?? "anytime";
       const isNightlife = activity?.type === "nightlife";
+      const isFood = activity?.type === "food";
 
       if (isNightlife) {
         lateEvening.push(a); // Always scheduled after dinner
@@ -124,12 +127,14 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
         evening.push(a);
       } else if (tod === "afternoon") {
         afternoon.push(a);
+      } else if (isFood && tod === "anytime") {
+        lunchFood.push(a); // Food with "anytime" slots into the lunch window
       } else {
-        morning.push(a); // morning + anytime default to morning
+        morning.push(a); // morning + anytime non-food default to morning
       }
     }
 
-    const ordered = [...morning, ...afternoon, ...evening];
+    const ordered = [...morning, ...lunchFood, ...afternoon, ...evening];
 
     type TimelineItem = {
       catalogId: string;
@@ -174,10 +179,13 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
       morningTime = departTime + dayTripDurationMin + 15; // arrival + buffer
     }
 
-    let afternoonTime = 13 * 60; // 13:00
-    let eveningTime = 18 * 60;   // 18:00
+    let lunchTime = 11 * 60 + 30; // 11:30
+    let afternoonTime = 13 * 60;  // 13:00
+    let eveningTime = 18 * 60;    // 18:00
 
+    const lunchFoodSet = new Set(lunchFood.map((a) => a.catalogId));
     let prevMorningActivity: CatalogActivity | undefined;
+    let prevLunchActivity: CatalogActivity | undefined;
     let prevAfternoonActivity: CatalogActivity | undefined;
     let prevEveningActivity: CatalogActivity | undefined;
 
@@ -185,6 +193,7 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
       const activity = catalog.get(a.catalogId);
       const tod = activity?.best_time_of_day ?? "anytime";
       const duration = activity?.duration_minutes ?? 60;
+      const isLunchSlot = lunchFoodSet.has(a.catalogId);
 
       let startMinutes: number;
       if (tod === "evening") {
@@ -201,6 +210,15 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
         startMinutes = afternoonTime;
         afternoonTime += duration + move;
         prevAfternoonActivity = activity;
+      } else if (isLunchSlot) {
+        const move = prevLunchActivity
+          ? getMovementTime(activeSlug, prevLunchActivity.area, activity?.area).minutes
+          : 0;
+        startMinutes = lunchTime;
+        lunchTime += duration + move;
+        // Push afternoon start if lunch runs long
+        afternoonTime = Math.max(afternoonTime, lunchTime + 15);
+        prevLunchActivity = activity;
       } else {
         const move = prevMorningActivity
           ? getMovementTime(activeSlug, prevMorningActivity.area, activity?.area).minutes
