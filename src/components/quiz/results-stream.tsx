@@ -5,12 +5,15 @@ import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { recommendationResponseSchema } from "@/lib/ai/schemas";
 import type { RecommendationResponse } from "@/lib/ai/schemas";
 import { useQuizStore } from "@/stores/quiz-store";
+import { useItineraryStore } from "@/stores/itinerary-store";
+import { SEED_DESTINATIONS } from "@/lib/ai/seed-destinations";
 import { RecommendationCard } from "./recommendation-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Loader2, RotateCcw, Train, CalendarCheck, Route } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface ResultsStreamProps {
   quizParams: {
@@ -177,9 +180,7 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
       {/* Actions */}
       {!streamingActive && hasRecommendations && (
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-          <Button render={<Link href="/itinerary/new" />}>
-            Build My Itinerary
-          </Button>
+          <BuildItineraryButton recommendations={recommendations} quizParams={quizParams} />
           <Button
             variant="outline"
             onClick={() => {
@@ -209,5 +210,55 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
         </div>
       )}
     </div>
+  );
+}
+
+function BuildItineraryButton({
+  recommendations,
+  quizParams,
+}: {
+  recommendations: ({ destination_slug?: string; suggested_days?: number } | undefined)[];
+  quizParams: ResultsStreamProps["quizParams"];
+}) {
+  const router = useRouter();
+  const store = useItineraryStore;
+
+  const handleClick = () => {
+    // Reset builder state
+    store.getState().reset();
+
+    // Pre-populate destinations from quiz recommendations
+    const recs = recommendations.filter(
+      (r): r is NonNullable<typeof r> => !!r?.destination_slug
+    );
+    for (const rec of recs) {
+      const dest = SEED_DESTINATIONS.find((d) => d.slug === rec.destination_slug);
+      if (dest) {
+        store.getState().addDestination({
+          slug: dest.slug,
+          name: dest.name,
+          days: rec.suggested_days ?? 2,
+        });
+      }
+    }
+
+    // Set preferences from quiz params
+    store.getState().setPreferences({
+      travelStyle: quizParams.travelStyle,
+      interests: quizParams.interests,
+      season: quizParams.season,
+      durationDays: quizParams.durationDays,
+      budget: quizParams.budget,
+      pace: quizParams.pace,
+      eveningPreference: quizParams.eveningPreference,
+    });
+
+    router.push("/itinerary/new");
+  };
+
+  return (
+    <Button onClick={handleClick}>
+      Build My Itinerary
+    </Button>
   );
 }
