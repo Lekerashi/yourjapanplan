@@ -28,7 +28,7 @@ Next.js 16 (App Router), TypeScript, Tailwind v4, **shadcn/ui v4** (`@base-ui/re
 **Static-first.** All destination/activity/transport data lives in TypeScript files under `src/lib/data/`. AI is used only for quiz recommendations.
 
 - **`seed-activities.ts`** — ~127 activities across 27 destinations (id, name, type, duration, cost, tags, `best_time_of_day`, `area`, `first_timer`)
-- **`day-templates.ts`** — ~64 preset day plans (2-3 per destination)
+- **`day-templates.ts`** — ~85 preset day plans (3+ per destination)
 - **`transport-routes.ts`** — ~55 inter-city routes. `findRoute()` = best single, `findAllRoutes()` = all options
 - **`movement-times.ts`** — Area-to-area transit within destinations
 - **`packing-rules.ts`** — Season + activity-tag → packing items
@@ -40,7 +40,7 @@ Next.js 16 (App Router), TypeScript, Tailwind v4, **shadcn/ui v4** (`@base-ui/re
 
 ## Itinerary Builder
 
-No AI. Users pick destinations → build days from catalog → review (budget, JR Pass, reservations, packing list) → save/edit/share.
+No AI. Users pick destinations (reorderable via arrow buttons) → build days from catalog → review (budget, JR Pass, reservations, packing list) → save/edit/share. "Build My Itinerary" from quiz results pre-populates destinations sorted geographically (nearest-neighbor from easternmost city) and skips straight to the day builder.
 
 State: `src/stores/itinerary-store.ts` — `BuilderDay[]`, `BuilderActivity` (`catalogId`, `customName`, `customDescription`, `notes`, `customStartTime`, `booked`).
 
@@ -54,7 +54,7 @@ State: `src/stores/itinerary-store.ts` — `BuilderDay[]`, `BuilderActivity` (`c
 
 ### Day Scheduling
 
-4 time buckets: morning (9:00), afternoon (13:00), evening (18:00), late evening (after dinner = nightlife only). Movement time from `movement-times.ts`. Auto-inserted meal slots. Dinner shifts with evening preference (early/moderate/nightowl). Activities with `customStartTime` override auto-calculation.
+5 time buckets: morning (9:00), lunch (11:30 — food activities with `best_time_of_day: "anytime"`), afternoon (13:00), evening (18:00), late evening (after dinner = nightlife only). Movement time from `movement-times.ts`. Auto-inserted meal slots when no food activity exists in the window. Dinner shifts with evening preference (early/moderate/nightowl). Activities with `customStartTime` override auto-calculation.
 
 ### Day Trips
 
@@ -105,6 +105,7 @@ Auto-appears in: browse page, filters, builder map, JR calculator, sitemap.
 - No rail to Okinawa — flights only
 - NEVER hand-draw SVG maps — use Leaflet
 - Nightlife: always `best_time_of_day: "evening"` + `type: "nightlife"` — scheduled after dinner, never before
+- `first_timer: true` activities are hidden from the activity picker for returning visitors — only shown to first-timers
 - Travel styles: solo, couple, friends, family, workcation, honeymoon (6 total)
 - `useSearchParams()` requires `<Suspense>` wrapper — see `itinerary/new/page.tsx`
 - `preferences_snapshot` JSONB is the primary data store for itineraries. Structured `itinerary_days`/`itinerary_activities` tables are populated but not the source of truth.
