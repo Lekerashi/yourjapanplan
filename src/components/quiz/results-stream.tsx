@@ -253,7 +253,7 @@ function BuildItineraryButton({
       eveningPreference: quizParams.eveningPreference,
     });
 
-    router.push("/itinerary/new");
+    router.push("/itinerary/new?from=quiz");
   };
 
   return (

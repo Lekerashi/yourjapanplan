@@ -51,6 +51,16 @@ function NewItineraryContent() {
   const store = useItineraryStore();
   const quiz = useQuizStore();
 
+  // Skip to builder if destinations are already loaded (e.g. from quiz)
+  const fromQuiz = searchParams.get("from") === "quiz";
+  useEffect(() => {
+    if (fromQuiz && store.destinations.length > 0 && !store.isBuilderActive) {
+      store.initializeBuilder();
+      setStep("build");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fromQuiz]);
+
   // Load existing itinerary for editing
   useEffect(() => {
     if (!editId) return;
