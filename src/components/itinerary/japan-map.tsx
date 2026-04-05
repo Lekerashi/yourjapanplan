@@ -19,6 +19,7 @@ const DESTINATION_COORDS: Record<string, [number, number]> = {
   "mt-fuji": [35.36, 138.73],
   matsumoto: [36.24, 137.97],
   kanazawa: [36.56, 136.65],
+  nagoya: [35.18, 136.91],
   takayama: [36.14, 137.25],
   "shirakawa-go": [36.26, 136.91],
   ito: [34.97, 139.1],

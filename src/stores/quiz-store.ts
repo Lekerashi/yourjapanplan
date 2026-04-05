@@ -5,6 +5,7 @@ import type {
   Season,
   BudgetLevel,
   TripPace,
+  EveningPreference,
 } from "@/types";
 import type { RecommendationResponse } from "@/lib/ai/schemas";
 
@@ -17,6 +18,7 @@ export interface QuizState {
   budget: BudgetLevel | null;
   pace: TripPace | null;
   crowdTolerance: "low" | "medium" | "high" | null;
+  eveningPreference: EveningPreference | null;
   firstTime: boolean | null;
   mustVisit: string[];
   cachedResults: RecommendationResponse | null;
@@ -30,6 +32,7 @@ interface QuizActions {
   setBudget: (budget: BudgetLevel) => void;
   setPace: (pace: TripPace) => void;
   setCrowdTolerance: (level: "low" | "medium" | "high") => void;
+  setEveningPreference: (pref: EveningPreference) => void;
   setFirstTime: (value: boolean) => void;
   setMustVisit: (cities: string[]) => void;
   setCachedResults: (results: RecommendationResponse) => void;
@@ -57,6 +60,7 @@ const initialState: QuizState = {
   budget: null,
   pace: null,
   crowdTolerance: null,
+  eveningPreference: null,
   firstTime: null,
   mustVisit: [],
   cachedResults: null,
@@ -77,6 +81,7 @@ export const useQuizStore = create<QuizState & QuizActions>()((set) => ({
   setBudget: (budget) => set({ budget }),
   setPace: (pace) => set({ pace }),
   setCrowdTolerance: (level) => set({ crowdTolerance: level }),
+  setEveningPreference: (pref) => set({ eveningPreference: pref }),
   setFirstTime: (value) => set({ firstTime: value }),
   setMustVisit: (cities) => set({ mustVisit: cities }),
   setCachedResults: (results) => set({ cachedResults: results }),

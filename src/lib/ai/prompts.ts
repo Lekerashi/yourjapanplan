@@ -20,9 +20,25 @@ interface QuizParams {
   budget: string;
   pace: string;
   crowdTolerance: string;
+  eveningPreference?: string;
   firstTime: boolean;
   mustVisit: string[];
 }
+
+const EVENING_PREF_DESCRIPTIONS: Record<string, string> = {
+  early: "Early Bird — prefers to be back at the hotel by 9pm",
+  moderate: "Moderate — happy staying out until 10-11pm",
+  nightowl: "Night Owl — loves late nights, bars, and nightlife",
+};
+
+const TRAVEL_STYLE_HINTS: Record<string, string> = {
+  honeymoon: "This is a HONEYMOON trip — prioritize romantic experiences: luxury ryokans with private onsen, kaiseki fine dining, scenic and intimate settings, and special couple-oriented activities. Avoid crowded tourist traps and party nightlife.",
+  couple: "Traveling as a couple — suggest romantic dining, scenic spots, and a balanced mix of activities.",
+  solo: "Solo traveler — suggest places that are easy to navigate alone, with good hostel/social scenes and safe late-night options.",
+  friends: "Group of friends — prioritize fun experiences, nightlife, food crawls, and group-friendly activities.",
+  family: "Family trip — prioritize kid-friendly activities, accessible routes, and a comfortable pace.",
+  workcation: "Working remotely — suggest destinations with good WiFi, cafes, and a relaxed pace with things to do after work hours.",
+};
 
 export function buildRecommendationPrompt(
   params: QuizParams,
@@ -38,11 +54,21 @@ export function buildRecommendationPrompt(
     `- **Budget**: ${params.budget}`,
     `- **Pace**: ${params.pace} (${params.pace === "relaxed" ? "2-3 activities/day" : params.pace === "moderate" ? "3-4 activities/day" : "5+ activities/day"})`,
     `- **Crowd tolerance**: ${params.crowdTolerance}`,
+    `- **Evening preference**: ${EVENING_PREF_DESCRIPTIONS[params.eveningPreference ?? "moderate"] ?? "Moderate"}`,
     `- **First time in Japan**: ${params.firstTime ? "Yes" : "No, they've been before"}`,
   ];
 
   if (params.mustVisit.length > 0) {
     lines.push(`- **Must visit**: ${params.mustVisit.join(", ")}`);
+  }
+
+  const styleHint = TRAVEL_STYLE_HINTS[params.travelStyle];
+  if (styleHint) {
+    lines.push(``, `**Style note**: ${styleHint}`);
+  }
+
+  if (params.eveningPreference === "nightowl") {
+    lines.push(``, `**Evening note**: This traveler loves nightlife — rank destinations with vibrant bar scenes, late-night districts, and evening food culture higher. Tokyo, Osaka, Fukuoka, and Sapporo are strong picks for night owls.`);
   }
 
   lines.push(

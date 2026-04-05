@@ -1,4 +1,4 @@
-import type { Region, InterestTag, Season, TravelStyle, BudgetLevel, TripPace } from "@/types";
+import type { Region, InterestTag, Season, TravelStyle, BudgetLevel, TripPace, EveningPreference } from "@/types";
 
 export const SITE_NAME = "Your Japan Plan";
 export const SITE_DESCRIPTION =
@@ -42,6 +42,7 @@ export const TRAVEL_STYLES: { value: TravelStyle; label: string; description: st
   { value: "friends", label: "Friends", description: "Group trip with friends" },
   { value: "family", label: "Family", description: "Traveling with kids or relatives" },
   { value: "workcation", label: "Workcation", description: "Working remotely while exploring" },
+  { value: "honeymoon", label: "Honeymoon", description: "Celebrating with someone special" },
 ];
 
 export const BUDGET_LEVELS: { value: BudgetLevel; label: string; description: string }[] = [
@@ -54,6 +55,12 @@ export const TRIP_PACES: { value: TripPace; label: string; description: string }
   { value: "relaxed", label: "Relaxed", description: "2-3 activities per day, plenty of downtime" },
   { value: "moderate", label: "Moderate", description: "3-4 activities per day, balanced schedule" },
   { value: "packed", label: "Packed", description: "5+ activities per day, see everything" },
+];
+
+export const EVENING_PREFERENCES: { value: EveningPreference; label: string; description: string }[] = [
+  { value: "early", label: "Early Bird", description: "Back to the hotel by 9pm" },
+  { value: "moderate", label: "Moderate", description: "Out until 10-11pm" },
+  { value: "nightowl", label: "Night Owl", description: "Late nights, bars, and nightlife" },
 ];
 
 export const NAV_LINKS = [

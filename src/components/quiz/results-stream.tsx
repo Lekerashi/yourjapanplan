@@ -21,6 +21,7 @@ interface ResultsStreamProps {
     budget: string;
     pace: string;
     crowdTolerance: string;
+    eveningPreference: string;
     firstTime: boolean;
     mustVisit: string[];
   };

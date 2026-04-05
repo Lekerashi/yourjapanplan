@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useItineraryStore } from "@/stores/itinerary-store";
 import { getActivitiesForDestination } from "@/lib/data/seed-activities";
-import { findRoute, JR_PASS_PRICES } from "@/lib/data/transport-routes";
+import { findRoute, findAllRoutes, JR_PASS_PRICES } from "@/lib/data/transport-routes";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -51,14 +51,21 @@ export function TripSummary() {
       from: string;
       to: string;
       route: ReturnType<typeof findRoute>;
+      altRoute: ReturnType<typeof findRoute>;
     }[] = [];
     let prevSlug = "";
     for (const day of builderDays) {
       if (day.destinationSlug !== prevSlug && prevSlug) {
+        const allRoutes = findAllRoutes(prevSlug, day.destinationSlug);
+        const primary = findRoute(prevSlug, day.destinationSlug);
+        const alt = allRoutes.length > 1
+          ? allRoutes.find((r) => r !== primary) ?? null
+          : null;
         legs.push({
           from: prevSlug,
           to: day.destinationSlug,
-          route: findRoute(prevSlug, day.destinationSlug),
+          route: primary,
+          altRoute: alt,
         });
       }
       prevSlug = day.destinationSlug;
@@ -161,10 +168,17 @@ export function TripSummary() {
                     <ArrowRight className="h-3 w-3 text-muted-foreground" />
                     <span className="font-medium">{toName}</span>
                     {leg.route ? (
-                      <span className="ml-auto text-xs text-muted-foreground">
-                        {leg.route.primary_method} · {leg.route.duration} ·{" "}
-                        {leg.route.cost_display}
-                      </span>
+                      <div className="ml-auto text-right">
+                        <span className="text-xs text-muted-foreground">
+                          {leg.route.primary_method} · {leg.route.duration} ·{" "}
+                          {leg.route.cost_display}
+                        </span>
+                        {leg.altRoute && (
+                          <p className="text-[11px] text-muted-foreground/70">
+                            or {leg.altRoute.primary_method} · {leg.altRoute.duration} · {leg.altRoute.cost_display}
+                          </p>
+                        )}
+                      </div>
                     ) : (
                       <span className="ml-auto text-xs text-muted-foreground">
                         Route info not available

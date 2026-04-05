@@ -10,6 +10,7 @@ const STYLE_ICONS: Record<string, string> = {
   friends: "👯",
   family: "👨‍👩‍👧‍👦",
   workcation: "💻",
+  honeymoon: "💍",
 };
 
 export function StepTravelStyle() {

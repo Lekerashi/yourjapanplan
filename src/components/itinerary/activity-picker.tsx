@@ -32,6 +32,7 @@ interface ActivityPickerProps {
   destinationSlug: string;
   addedActivityIds: Set<string>;
   userInterests: string[];
+  isFirstTimer?: boolean;
   onAddActivity: (catalogId: string) => void;
   onApplyTemplate: (activityIds: string[]) => void;
   showTemplates: boolean;
@@ -41,6 +42,7 @@ export function ActivityPicker({
   destinationSlug,
   addedActivityIds,
   userInterests,
+  isFirstTimer,
   onAddActivity,
   onApplyTemplate,
   showTemplates,
@@ -79,9 +81,16 @@ export function ActivityPicker({
       );
     }
 
-    // Sort: matching interests first, then alphabetical
+    // Sort: first-timer picks first (if first-timer), then matching interests, then alphabetical
     const interestSet = new Set(userInterests);
     result.sort((a, b) => {
+      // First-timer picks to the top for first-time visitors
+      if (isFirstTimer) {
+        const aFirst = a.first_timer ?? false;
+        const bFirst = b.first_timer ?? false;
+        if (aFirst && !bFirst) return -1;
+        if (!aFirst && bFirst) return 1;
+      }
       const aMatch = a.tags.some((t) => interestSet.has(t));
       const bMatch = b.tags.some((t) => interestSet.has(t));
       if (aMatch && !bMatch) return -1;
@@ -90,7 +99,7 @@ export function ActivityPicker({
     });
 
     return result;
-  }, [allActivities, typeFilter, timeFilter, search, userInterests]);
+  }, [allActivities, typeFilter, timeFilter, search, userInterests, isFirstTimer]);
 
   return (
     <div className="space-y-4">
@@ -188,6 +197,11 @@ export function ActivityPicker({
                       >
                         {typeInfo?.label ?? activity.type}
                       </span>
+                      {activity.first_timer && (
+                        <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium bg-amber-100 text-amber-700">
+                          Must-do
+                        </span>
+                      )}
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
                       {activity.description}

@@ -17,6 +17,7 @@ export async function POST(request: Request) {
     budget,
     pace,
     crowdTolerance,
+    eveningPreference,
     firstTime,
     mustVisit = [],
   } = body;
@@ -40,6 +41,7 @@ export async function POST(request: Request) {
       budget,
       pace,
       crowdTolerance,
+      eveningPreference,
       firstTime,
       mustVisit,
     },

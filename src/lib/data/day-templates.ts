@@ -65,6 +65,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "packed",
   },
 
+  {
+    id: "tokyo-nightlife-day",
+    destination_slug: "tokyo",
+    name: "Tokyo After Dark",
+    description:
+      "Shibuya Crossing at twilight, then dive into Shinjuku's neon-drenched nightlife and wind down at Ebisu's cocktail bars.",
+    target_interests: ["nightlife", "food"],
+    activity_ids: [
+      "tokyo-shibuya-crossing",
+      "tokyo-shinjuku-nightlife",
+      "tokyo-ebisu-bars",
+    ],
+    suggested_pace: "moderate",
+  },
+
   // ============================================================
   // KYOTO
   // ============================================================
@@ -108,6 +123,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "kyoto-arashiyama-bamboo",
       "kyoto-fushimi-inari",
       "kyoto-kinkakuji",
+    ],
+    suggested_pace: "relaxed",
+  },
+
+  {
+    id: "kyoto-by-night",
+    destination_slug: "kyoto",
+    name: "Kyoto by Night",
+    description:
+      "Catch a maiko in Gion at dusk, dine along the Pontocho canal, then bar-hop the Kiyamachi backstreets.",
+    target_interests: ["nightlife", "culture", "food"],
+    activity_ids: [
+      "kyoto-gion-walk",
+      "kyoto-pontocho",
+      "kyoto-kiyamachi-bars",
     ],
     suggested_pace: "relaxed",
   },
@@ -157,6 +187,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "osaka-namba-nightlife",
     ],
     suggested_pace: "packed",
+  },
+
+  {
+    id: "osaka-nightlife-day",
+    destination_slug: "osaka",
+    name: "Osaka After Dark",
+    description:
+      "Shinsekai's retro neon bars, hidden cocktail spots in Ura-Namba, then full-send at Namba's clubs and karaoke joints.",
+    target_interests: ["nightlife", "food"],
+    activity_ids: [
+      "osaka-shinsekai-nightlife",
+      "osaka-hozenji-bars",
+      "osaka-namba-nightlife",
+    ],
+    suggested_pace: "moderate",
   },
 
   // ============================================================
@@ -322,6 +367,39 @@ export const DAY_TEMPLATES: DayTemplate[] = [
   },
 
   // ============================================================
+  // NAGOYA
+  // ============================================================
+  {
+    id: "nagoya-classic-day",
+    destination_slug: "nagoya",
+    name: "Nagoya Highlights",
+    description:
+      "Nagoya Castle in the morning, hitsumabushi eel for lunch, then browse Osu Kannon's quirky shopping arcades.",
+    target_interests: ["culture", "food", "shopping"],
+    activity_ids: [
+      "nagoya-castle",
+      "nagoya-hitsumabushi",
+      "nagoya-osu-kannon",
+    ],
+    suggested_pace: "moderate",
+  },
+  {
+    id: "nagoya-foodie-day",
+    destination_slug: "nagoya",
+    name: "Nagoya Meshi Tour",
+    description:
+      "A day devoted to Nagoya's unique food culture — hitsumabushi eel, miso katsu, tebasaki wings, and Sakae nightlife.",
+    target_interests: ["food", "nightlife"],
+    activity_ids: [
+      "nagoya-atsuta-shrine",
+      "nagoya-hitsumabushi",
+      "nagoya-miso-katsu",
+      "nagoya-sakae-nightlife",
+    ],
+    suggested_pace: "moderate",
+  },
+
+  // ============================================================
   // TAKAYAMA
   // ============================================================
   {
@@ -417,6 +495,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
     suggested_pace: "moderate",
   },
 
+  {
+    id: "sapporo-nightlife-day",
+    destination_slug: "sapporo",
+    name: "Sapporo After Dark",
+    description:
+      "Miso ramen on Ramen Alley, craft beers at Hokkaido's best taprooms, then lose yourself in the neon maze of Susukino.",
+    target_interests: ["nightlife", "food"],
+    activity_ids: [
+      "sapporo-ramen-alley",
+      "sapporo-craft-beer",
+      "sapporo-susukino",
+    ],
+    suggested_pace: "moderate",
+  },
+
   // ============================================================
   // NISEKO
   // ============================================================
@@ -475,6 +568,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "fukuoka-dazaifu",
       "fukuoka-canal-city",
       "fukuoka-hakata-ramen",
+    ],
+    suggested_pace: "moderate",
+  },
+
+  {
+    id: "fukuoka-nightlife-day",
+    destination_slug: "fukuoka",
+    name: "Fukuoka After Dark",
+    description:
+      "Yatai stalls by the river, then bar-hop through Nakasu's neon streets and Daimyo's hidden cocktail alleys.",
+    target_interests: ["nightlife", "food"],
+    activity_ids: [
+      "fukuoka-yatai",
+      "fukuoka-nakasu-bars",
+      "fukuoka-tenjin-underground",
     ],
     suggested_pace: "moderate",
   },
@@ -539,6 +647,21 @@ export const DAY_TEMPLATES: DayTemplate[] = [
       "kobe-kitano",
       "kobe-beef-dinner",
       "kobe-nada-sake",
+    ],
+    suggested_pace: "moderate",
+  },
+
+  {
+    id: "kobe-after-dark",
+    destination_slug: "kobe",
+    name: "Kobe After Dark",
+    description:
+      "Feast on Kobe beef, then bar-hop through Sannomiya's backstreets and finish with harbor night views.",
+    target_interests: ["food", "nightlife"],
+    activity_ids: [
+      "kobe-beef-dinner",
+      "kobe-sannomiya-bars",
+      "kobe-harborland-night",
     ],
     suggested_pace: "moderate",
   },

@@ -21,6 +21,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     budget: params.budget ?? "moderate",
     pace: params.pace ?? "moderate",
     crowdTolerance: params.crowd ?? "medium",
+    eveningPreference: params.evening ?? "moderate",
     firstTime: params.firstTime === "true",
     mustVisit: params.mustVisit?.split(",").filter(Boolean) ?? [],
   };

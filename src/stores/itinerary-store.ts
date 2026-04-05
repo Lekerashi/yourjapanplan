@@ -16,6 +16,7 @@ export interface BuilderActivity {
 export interface BuilderDay {
   dayNumber: number;
   destinationSlug: string;
+  dayTripSlug: string | null;
   activities: BuilderActivity[];
   accommodation: {
     zone: string;
@@ -33,6 +34,7 @@ interface ItineraryBuilderState {
   durationDays: number;
   budget: string | null;
   pace: string | null;
+  eveningPreference: string | null;
   builderDays: BuilderDay[];
   isBuilderActive: boolean;
   activeDay: number;
@@ -50,6 +52,7 @@ interface ItineraryBuilderActions {
     durationDays: number;
     budget: string;
     pace: string;
+    eveningPreference?: string;
   }) => void;
   initializeBuilder: () => void;
   setActiveDay: (day: number) => void;
@@ -64,6 +67,7 @@ interface ItineraryBuilderActions {
     dayNumber: number,
     accommodation: BuilderDay["accommodation"]
   ) => void;
+  setDayTrip: (dayNumber: number, slug: string | null) => void;
   setDayNotes: (dayNumber: number, notes: string) => void;
   addCustomActivity: (
     dayNumber: number,
@@ -81,6 +85,7 @@ const initialState: ItineraryBuilderState = {
   durationDays: 10,
   budget: null,
   pace: null,
+  eveningPreference: null,
   builderDays: [],
   isBuilderActive: false,
   activeDay: 1,
@@ -119,6 +124,7 @@ export const useItineraryStore = create<
       durationDays: prefs.durationDays,
       budget: prefs.budget,
       pace: prefs.pace,
+      eveningPreference: prefs.eveningPreference ?? null,
     }),
 
   initializeBuilder: () => {
@@ -130,6 +136,7 @@ export const useItineraryStore = create<
         days.push({
           dayNumber: dayNum++,
           destinationSlug: dest.slug,
+          dayTripSlug: null,
           activities: [],
           accommodation: null,
           notes: "",
@@ -204,6 +211,15 @@ export const useItineraryStore = create<
     set((s) => ({
       builderDays: s.builderDays.map((d) =>
         d.dayNumber === dayNumber ? { ...d, accommodation } : d
+      ),
+    })),
+
+  setDayTrip: (dayNumber, slug) =>
+    set((s) => ({
+      builderDays: s.builderDays.map((d) =>
+        d.dayNumber === dayNumber
+          ? { ...d, dayTripSlug: slug, activities: [] }
+          : d
       ),
     })),
 

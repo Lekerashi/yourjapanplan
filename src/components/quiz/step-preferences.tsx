@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuizStore } from "@/stores/quiz-store";
-import { BUDGET_LEVELS, TRIP_PACES } from "@/lib/constants";
+import { BUDGET_LEVELS, TRIP_PACES, EVENING_PREFERENCES } from "@/lib/constants";
 import { OptionCard } from "./option-card";
 
 const BUDGET_ICONS: Record<string, string> = {
@@ -16,6 +16,12 @@ const PACE_ICONS: Record<string, string> = {
   packed: "🏃",
 };
 
+const EVENING_ICONS: Record<string, string> = {
+  early: "🌙",
+  moderate: "🕐",
+  nightowl: "🦉",
+};
+
 const CROWD_OPTIONS = [
   { value: "low" as const, label: "Avoid crowds", icon: "🏞️", description: "Off the beaten path" },
   { value: "medium" as const, label: "Don't mind", icon: "🚶‍♂️", description: "A mix is fine" },
@@ -23,7 +29,7 @@ const CROWD_OPTIONS = [
 ];
 
 export function StepPreferences() {
-  const { budget, setBudget, pace, setPace, crowdTolerance, setCrowdTolerance } =
+  const { budget, setBudget, pace, setPace, crowdTolerance, setCrowdTolerance, eveningPreference, setEveningPreference } =
     useQuizStore();
 
   return (
@@ -77,6 +83,25 @@ export function StepPreferences() {
               icon={opt.icon}
               selected={crowdTolerance === opt.value}
               onClick={() => setCrowdTolerance(opt.value)}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-2xl font-bold">How late do you want to stay out?</h2>
+        <p className="mt-2 text-muted-foreground">
+          This shapes your evening schedule and nightlife recommendations.
+        </p>
+        <div className="mt-6 grid grid-cols-3 gap-4">
+          {EVENING_PREFERENCES.map((pref) => (
+            <OptionCard
+              key={pref.value}
+              label={pref.label}
+              description={pref.description}
+              icon={EVENING_ICONS[pref.value]}
+              selected={eveningPreference === pref.value}
+              onClick={() => setEveningPreference(pref.value)}
             />
           ))}
         </div>

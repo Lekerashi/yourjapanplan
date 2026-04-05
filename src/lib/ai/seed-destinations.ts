@@ -32,7 +32,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     highlights: ["Fushimi Inari Shrine", "Kinkaku-ji", "Arashiyama Bamboo Grove", "Gion District", "Nishiki Market", "Kiyomizu-dera"],
     best_seasons: ["spring", "autumn"],
     crowd_level_by_month: {"1":2,"2":2,"3":4,"4":5,"5":4,"6":3,"7":3,"8":3,"9":3,"10":4,"11":5,"12":3},
-    tags: ["temples", "culture", "food", "nature", "shopping"],
+    tags: ["temples", "culture", "food", "nature", "shopping", "nightlife"],
     jr_accessible: true,
     reservation_tips: "Book ryokans 2-3 months ahead during cherry blossom (late Mar-Apr) and autumn foliage (Nov). Some temples require advance booking.",
     accommodation_zones: [
@@ -137,6 +137,22 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     ],
   },
   {
+    slug: "nagoya",
+    name: "Nagoya",
+    region: "chubu",
+    description: "Japan's fourth-largest city and a major transport hub. Known for its unique food culture (miso everything), Toyota heritage, Nagoya Castle, and easy access to the Japanese Alps.",
+    highlights: ["Nagoya Castle", "Atsuta Shrine", "Osu Kannon & Shopping", "Toyota Museum", "Miso Katsu & Hitsumabushi"],
+    best_seasons: ["spring", "autumn"],
+    crowd_level_by_month: {"1":2,"2":2,"3":3,"4":3,"5":3,"6":2,"7":3,"8":3,"9":2,"10":3,"11":3,"12":2},
+    tags: ["food", "culture", "shopping"],
+    jr_accessible: true,
+    reservation_tips: "Atsuta Horaiken (hitsumabushi) is always packed — go at opening or expect a wait. Castle admission is timed.",
+    accommodation_zones: [
+      { name: "Nagoya Station area", description: "Major transport hub with easy Shinkansen access", best_for: ["transit", "budget", "convenience"] },
+      { name: "Sakae", description: "Central shopping and entertainment district with restaurants and nightlife", best_for: ["shopping", "nightlife", "food"] },
+    ],
+  },
+  {
     slug: "takayama",
     name: "Takayama",
     region: "chubu",
@@ -237,11 +253,11 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     highlights: ["Kobe Beef tasting", "Nada sake district", "Nankinmachi Chinatown", "Nunobiki Herb Garden", "Meriken Park"],
     best_seasons: ["spring", "autumn"],
     crowd_level_by_month: {"1":2,"2":2,"3":3,"4":3,"5":3,"6":2,"7":3,"8":3,"9":2,"10":3,"11":3,"12":2},
-    tags: ["food", "culture", "nature"],
+    tags: ["food", "culture", "nature", "nightlife"],
     jr_accessible: true,
     reservation_tips: "Reserve Kobe beef restaurants at least a week ahead, especially on weekends.",
     accommodation_zones: [
-      { name: "Sannomiya/Motomachi", description: "Central district with shopping, Chinatown, and restaurants", best_for: ["food", "shopping", "convenience"] },
+      { name: "Sannomiya/Motomachi", description: "Central district with shopping, Chinatown, nightlife, and restaurants", best_for: ["food", "shopping", "nightlife", "convenience"] },
     ],
   },
   {

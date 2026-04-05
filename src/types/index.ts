@@ -40,9 +40,12 @@ export type TravelStyle =
   | "couple"
   | "friends"
   | "family"
-  | "workcation";
+  | "workcation"
+  | "honeymoon";
 
 export type BudgetLevel = "budget" | "moderate" | "luxury";
+
+export type EveningPreference = "early" | "moderate" | "nightowl";
 
 export type TripPace = "relaxed" | "moderate" | "packed";
 
@@ -153,6 +156,7 @@ export interface QuizAnswers {
   budget: BudgetLevel;
   pace: TripPace;
   crowd_tolerance: "low" | "medium" | "high";
+  evening_preference: EveningPreference;
   first_time: boolean;
   must_visit: string[];
 }

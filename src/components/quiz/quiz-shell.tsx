@@ -32,7 +32,7 @@ function canProceed(step: number, state: ReturnType<typeof useQuizStore.getState
     case 3:
       return state.durationDays > 0;
     case 4:
-      return state.budget !== null && state.pace !== null && state.crowdTolerance !== null;
+      return state.budget !== null && state.pace !== null && state.crowdTolerance !== null && state.eveningPreference !== null;
     case 5:
       return state.firstTime !== null;
     default:
@@ -61,6 +61,7 @@ export function QuizShell() {
         budget: store.budget!,
         pace: store.pace!,
         crowd: store.crowdTolerance!,
+        evening: store.eveningPreference!,
         firstTime: String(store.firstTime),
       });
       if (store.mustVisit.length > 0) {
