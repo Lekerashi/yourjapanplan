@@ -85,7 +85,7 @@ export function AuthButton() {
           My Itineraries
         </DropdownMenuItem>
         <DropdownMenuItem
-          render={<Link href="/auth" />}
+          render={<Link href="/profile" />}
         >
           <User className="mr-2 h-4 w-4" />
           Profile

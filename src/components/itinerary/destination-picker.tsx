@@ -3,12 +3,15 @@
 import { useMemo } from "react";
 import { useItineraryStore } from "@/stores/itinerary-store";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Minus, Plus, X, Calendar } from "lucide-react";
 import { JapanMap } from "./japan-map";
 
 export function DestinationPicker() {
   const { destinations, addDestination, removeDestination, updateDays } =
     useItineraryStore();
+  const startDate = useItineraryStore((s) => s.startDate);
+  const setStartDate = useItineraryStore((s) => s.setStartDate);
 
   const totalDays = destinations.reduce((sum, d) => sum + d.days, 0);
 
@@ -76,6 +79,47 @@ export function DestinationPicker() {
                 </Button>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Travel dates */}
+      {destinations.length > 0 && (
+        <div>
+          <h3 className="font-semibold flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            Travel Dates
+            <span className="font-normal text-sm text-muted-foreground">(optional)</span>
+          </h3>
+          <div className="mt-2 flex items-center gap-3">
+            <Input
+              type="date"
+              value={startDate ?? ""}
+              onChange={(e) => setStartDate(e.target.value || null)}
+              className="w-44"
+            />
+            {startDate && (
+              <span className="text-sm text-muted-foreground">
+                to{" "}
+                {new Date(
+                  new Date(startDate).getTime() + (totalDays - 1) * 86400000
+                ).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </span>
+            )}
+            {startDate && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground"
+                onClick={() => setStartDate(null)}
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            )}
           </div>
         </div>
       )}

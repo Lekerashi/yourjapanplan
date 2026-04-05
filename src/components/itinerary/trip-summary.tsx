@@ -7,6 +7,8 @@ import { findRoute, findAllRoutes, JR_PASS_PRICES } from "@/lib/data/transport-r
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { PackingList } from "./packing-list";
 import {
   Wallet,
   Train,
@@ -19,6 +21,7 @@ import {
 export function TripSummary() {
   const builderDays = useItineraryStore((s) => s.builderDays);
   const destinations = useItineraryStore((s) => s.destinations);
+  const budgetTier = useItineraryStore((s) => s.budget);
 
   // Build activity lookup
   const catalogMap = useMemo(() => {
@@ -44,6 +47,19 @@ export function TripSummary() {
     }
     return total;
   }, [builderDays, catalogMap]);
+
+  // Budget comparison
+  const budgetComparison = useMemo(() => {
+    const dailyBudgets: Record<string, number> = {
+      budget: 8000,
+      moderate: 18000,
+      luxury: 40000,
+    };
+    const dailyTarget = dailyBudgets[budgetTier ?? "moderate"] ?? 18000;
+    const totalTarget = dailyTarget * builderDays.length;
+    const pct = totalTarget > 0 ? Math.round((budgetEstimate / totalTarget) * 100) : 0;
+    return { dailyTarget, totalTarget, pct };
+  }, [budgetEstimate, budgetTier, builderDays.length]);
 
   // Transport routes between consecutive destinations
   const transportLegs = useMemo(() => {
@@ -102,7 +118,7 @@ export function TripSummary() {
 
   // Reservation checklist
   const reservations = useMemo(() => {
-    const items: { name: string; destination: string }[] = [];
+    const items: { name: string; destination: string; booked: boolean }[] = [];
     for (const day of builderDays) {
       for (const activity of day.activities) {
         const a = catalogMap.get(activity.catalogId);
@@ -110,7 +126,7 @@ export function TripSummary() {
           const destName = destinations.find(
             (d) => d.slug === a.destination_slug
           )?.name ?? a.destination_slug;
-          items.push({ name: a.name, destination: destName });
+          items.push({ name: a.name, destination: destName, booked: activity.booked });
         }
       }
     }
@@ -137,8 +153,18 @@ export function TripSummary() {
             <p className="text-lg font-bold">
               ~¥{budgetEstimate.toLocaleString()}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <div className="mt-2 flex items-center gap-3">
+              <Progress
+                value={Math.min(budgetComparison.pct, 100)}
+                className="h-2 flex-1"
+              />
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                {budgetComparison.pct}% of {budgetTier ?? "moderate"} budget
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
               {totalActivities} activities across {builderDays.length} days
+              · Target: ~¥{budgetComparison.totalTarget.toLocaleString()}
               (excludes lodging, transport, meals not listed)
             </p>
           </div>
@@ -226,16 +252,26 @@ export function TripSummary() {
             <ul className="mt-2 space-y-1">
               {reservations.map((r, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm">
+                  {r.booked ? (
+                    <Check className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                  ) : (
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                  )}
                   <Badge variant="outline" className="text-[10px] shrink-0">
                     {r.destination}
                   </Badge>
-                  {r.name}
+                  <span className={r.booked ? "line-through text-muted-foreground" : ""}>
+                    {r.name}
+                  </span>
                 </li>
               ))}
             </ul>
           </CardContent>
         </Card>
       )}
+
+      {/* Packing List */}
+      <PackingList />
     </div>
   );
 }

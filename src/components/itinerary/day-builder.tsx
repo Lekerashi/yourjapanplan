@@ -38,6 +38,8 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
   const applyTemplate = useItineraryStore((s) => s.applyTemplate);
   const setAccommodation = useItineraryStore((s) => s.setAccommodation);
   const setDayTrip = useItineraryStore((s) => s.setDayTrip);
+  const setActivityTime = useItineraryStore((s) => s.setActivityTime);
+  const toggleBooked = useItineraryStore((s) => s.toggleBooked);
   const quizInterests = useQuizStore((s) => s.interests);
   const quizEveningPref = useQuizStore((s) => s.eveningPreference);
   const quizFirstTime = useQuizStore((s) => s.firstTime);
@@ -135,6 +137,8 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
       customDescription: string | null;
       notes: string;
       time: string;
+      customStartTime: string | null;
+      booked: boolean;
       catalogActivity: CatalogActivity | undefined;
       isMealSlot?: boolean;
       isMovement?: boolean;
@@ -161,6 +165,8 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
         customDescription: `${dayTripRoute.primary_method} (${dayTripRoute.duration}, ${dayTripRoute.cost_display}${dayTripRoute.jr_pass_covered ? ", JR Pass covered" : ""})`,
         notes: "",
         time: toTimeStr(departTime),
+        customStartTime: null,
+        booked: false,
         catalogActivity: undefined,
         isMovement: true,
         movementMethod: dayTripRoute.primary_method,
@@ -204,7 +210,9 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
         prevMorningActivity = activity;
       }
 
-      results.push({ ...a, time: toTimeStr(startMinutes), catalogActivity: activity });
+      // Use custom time if set, otherwise auto-calculated
+      const effectiveTime = a.customStartTime ?? toTimeStr(startMinutes);
+      results.push({ ...a, time: effectiveTime, catalogActivity: activity });
     }
 
     // Insert lunch and dinner meal slots
@@ -219,6 +227,8 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
         customDescription: "Explore local restaurants or try the area's specialty.",
         notes: "",
         time: toTimeStr(lunchTime),
+        customStartTime: null,
+        booked: false,
         catalogActivity: undefined,
         isMealSlot: true,
       });
@@ -239,6 +249,8 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
           : "End the day with a local dining experience.",
         notes: "",
         time: toTimeStr(dinnerTime),
+        customStartTime: null,
+        booked: false,
         catalogActivity: undefined,
         isMealSlot: true,
       });
@@ -257,7 +269,8 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
       for (const a of lateEvening) {
         const activity = catalog.get(a.catalogId);
         const duration = activity?.duration_minutes ?? 60;
-        results.push({ ...a, time: toTimeStr(lateTime), catalogActivity: activity });
+        const effectiveTime = a.customStartTime ?? toTimeStr(lateTime);
+        results.push({ ...a, time: effectiveTime, catalogActivity: activity });
         lateTime += duration + 20; // Shorter buffer between bars
       }
     }
@@ -279,6 +292,8 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
           customDescription: `${dayTripRoute.primary_method} (${dayTripRoute.duration})`,
           notes: "",
           time: toTimeStr(returnTime),
+          customStartTime: null,
+          booked: false,
           catalogActivity: undefined,
           isMovement: true,
           movementMethod: dayTripRoute.primary_method,
@@ -290,7 +305,7 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
     results.sort((a, b) => a.time.localeCompare(b.time));
 
     return results;
-  }, [day, catalog, eveningPreference, dayTripRoute, dayTripSlug]);
+  }, [day, catalog, eveningPreference, dayTripRoute, dayTripSlug, activeSlug]);
 
   // Auto-select accommodation
   const suggestedAccommodation = useMemo(() => {
@@ -308,6 +323,61 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
     };
   }, [destination, day?.accommodation, budget]);
 
+  // Per-day cost estimate
+  const dayCost = useMemo(() => {
+    if (!day) return 0;
+    let total = 0;
+    for (const a of day.activities) {
+      const cat = catalog.get(a.catalogId);
+      if (!cat) continue;
+      const match = cat.cost_estimate.match(/[\d,]+/);
+      if (match) total += parseInt(match[0].replace(/,/g, ""), 10);
+    }
+    return total;
+  }, [day, catalog]);
+
+  // Seasonal info banner
+  const startDate = useItineraryStore((s) => s.startDate);
+  const storeSeason = useItineraryStore((s) => s.season);
+
+  const seasonalInfo = useMemo(() => {
+    if (!destination) return null;
+    // If we have a start date, compute the month for this specific day
+    let month: number | null = null;
+    if (startDate) {
+      const d = new Date(startDate + "T00:00:00");
+      d.setDate(d.getDate() + dayNumber - 1);
+      month = d.getMonth() + 1; // 1-indexed
+    }
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const crowdMap = destination.crowd_level_by_month as Record<string, number>;
+    const crowdLevel = month ? crowdMap[String(month)] ?? null : null;
+    const bestSeasons = destination.best_seasons ?? [];
+    const currentSeason = storeSeason ?? "spring";
+    const isGoodSeason = bestSeasons.some((s) => s.toLowerCase().includes(currentSeason));
+
+    if (!crowdLevel && !bestSeasons.length) return null;
+
+    const parts: string[] = [];
+    if (month) {
+      parts.push(`${destination.name} in ${monthNames[month - 1]}`);
+      if (crowdLevel) {
+        const crowdLabel = crowdLevel <= 2 ? "Low crowds" : crowdLevel <= 3 ? "Moderate crowds" : "Heavy crowds";
+        parts.push(`${crowdLabel} (${crowdLevel}/5)`);
+      }
+    }
+    if (isGoodSeason) {
+      parts.push(`Best seasons: ${bestSeasons.join(", ")}`);
+    } else if (bestSeasons.length > 0) {
+      parts.push(`Best in ${bestSeasons.join(", ")} (current: ${currentSeason})`);
+    }
+    if (destination.reservation_tips) {
+      parts.push(destination.reservation_tips);
+    }
+
+    return { parts, crowdLevel, isGoodSeason };
+  }, [destination, startDate, dayNumber, storeSeason]);
+
   if (!day) return null;
 
   const moveActivity = (index: number, direction: -1 | 1) => {
@@ -323,7 +393,14 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
       {/* Left — Your Day */}
       <div>
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold">Your Day</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="font-semibold">Your Day</h3>
+            {dayCost > 0 && (
+              <span className="text-xs text-muted-foreground">
+                ~¥{dayCost.toLocaleString()}
+              </span>
+            )}
+          </div>
           {nearbyDestinations.length > 0 && (
             <div className="flex items-center gap-2">
               {dayTripSlug ? (
@@ -355,6 +432,17 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
             </div>
           )}
         </div>
+        {seasonalInfo && seasonalInfo.parts.length > 0 && (
+          <div className={`mt-2 rounded-lg px-3 py-1.5 text-xs border ${
+            seasonalInfo.crowdLevel && seasonalInfo.crowdLevel >= 4
+              ? "bg-amber-50/50 border-amber-200 text-amber-700"
+              : seasonalInfo.isGoodSeason
+                ? "bg-emerald-50/50 border-emerald-200 text-emerald-700"
+                : "bg-slate-50/50 border-slate-200 text-slate-600"
+          }`}>
+            {seasonalInfo.parts.join(" · ")}
+          </div>
+        )}
         {dayTripSlug && (
           <div className="mt-2 flex items-center gap-2 rounded-lg bg-blue-50/50 border border-blue-200 px-3 py-1.5 text-xs text-blue-700">
             <MapPin className="h-3 w-3 shrink-0" />
@@ -442,16 +530,37 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
                   {movementIndicator}
                   <Card size="sm">
                     <CardContent className="flex items-start gap-3 p-3">
-                      {/* Time */}
+                      {/* Time — click to edit */}
                       <div className="w-12 shrink-0 pt-0.5 text-right">
-                        <span className="text-sm font-semibold text-rose-600">
-                          {item.time}
-                        </span>
+                        <input
+                          type="time"
+                          value={item.customStartTime ?? item.time}
+                          onChange={(e) =>
+                            setActivityTime(dayNumber, item.catalogId, e.target.value || null)
+                          }
+                          className="w-full bg-transparent text-sm font-semibold text-rose-600 text-right cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden appearance-none border-none p-0 focus:outline-none focus:ring-1 focus:ring-rose-300 rounded"
+                          title="Click to set custom time"
+                        />
                       </div>
 
                       {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{name}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-sm font-medium">{name}</p>
+                          {a?.reservation_required && (
+                            <button
+                              onClick={() => toggleBooked(dayNumber, item.catalogId)}
+                              className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium transition-colors ${
+                                item.booked
+                                  ? "bg-emerald-100 text-emerald-700"
+                                  : "bg-amber-100 text-amber-700 hover:bg-amber-200"
+                              }`}
+                              title={item.booked ? "Marked as booked" : "Click to mark as booked"}
+                            >
+                              {item.booked ? "Booked" : "Book"}
+                            </button>
+                          )}
+                        </div>
                         {desc && (
                           <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
                             {desc}

@@ -8,11 +8,21 @@ import { TripSummary } from "./trip-summary";
 import { Badge } from "@/components/ui/badge";
 import { Train } from "lucide-react";
 
+function getDayDate(startDate: string | null, dayNumber: number): Date | null {
+  if (!startDate) return null;
+  const d = new Date(startDate + "T00:00:00");
+  d.setDate(d.getDate() + dayNumber - 1);
+  return d;
+}
+
+const SHORT_DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 export function ItineraryBuilder() {
   const builderDays = useItineraryStore((s) => s.builderDays);
   const activeDay = useItineraryStore((s) => s.activeDay);
   const setActiveDay = useItineraryStore((s) => s.setActiveDay);
   const destinations = useItineraryStore((s) => s.destinations);
+  const startDate = useItineraryStore((s) => s.startDate);
 
   // Group days by destination for the navigator
   const dayGroups: {
@@ -67,6 +77,12 @@ export function ItineraryBuilder() {
                 }`}
               >
                 <span className="font-semibold">D{group.dayNumber}</span>
+                {startDate && (() => {
+                  const d = getDayDate(startDate, group.dayNumber);
+                  return d ? (
+                    <span className="text-[10px] opacity-70">{SHORT_DAYS[d.getDay()]}</span>
+                  ) : null;
+                })()}
                 <span className="text-xs opacity-80">{group.name}</span>
                 {activeDayData &&
                   group.dayNumber === activeDay &&
@@ -89,6 +105,14 @@ export function ItineraryBuilder() {
         <div>
           <h2 className="text-xl font-bold">
             Day {activeDay}: {activeDest.name}
+            {startDate && (() => {
+              const d = getDayDate(startDate, activeDay);
+              return d ? (
+                <span className="ml-2 text-base font-normal text-muted-foreground">
+                  {d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
+                </span>
+              ) : null;
+            })()}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {activeDest.description.split(".")[0]}.

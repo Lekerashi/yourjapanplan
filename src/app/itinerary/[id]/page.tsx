@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ItineraryDayCard } from "@/components/itinerary/itinerary-day-card";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,17 +14,31 @@ import {
   Wallet,
   Backpack,
   Share2,
+  Pencil,
+  Trash2,
+  Globe,
+  Lock,
+  Check,
+  Printer,
+  CalendarPlus,
 } from "lucide-react";
+import { generateICS, downloadICS } from "@/lib/utils/ical-export";
 
 interface SavedItinerary {
   id: string;
   title: string;
   share_token: string;
   is_public: boolean;
+  start_date: string | null;
   jr_pass_recommended: boolean | null;
   jr_pass_reasoning: string | null;
   total_budget_estimate: string | null;
   preferences_snapshot: {
+    builder_state?: {
+      destinations: unknown[];
+      builderDays: unknown[];
+      eveningPreference?: string;
+    };
     generated_plan?: {
       title: string;
       days: {
@@ -63,10 +77,14 @@ interface SavedItinerary {
 
 export default function ItineraryViewPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   const [itinerary, setItinerary] = useState<SavedItinerary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [togglingPublic, setTogglingPublic] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetch(`/api/itinerary?id=${id}`)
@@ -78,6 +96,44 @@ export default function ItineraryViewPage() {
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [id]);
+
+  const handleTogglePublic = async () => {
+    if (!itinerary) return;
+    setTogglingPublic(true);
+    try {
+      const res = await fetch("/api/itinerary", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, is_public: !itinerary.is_public }),
+      });
+      if (res.ok) {
+        setItinerary({ ...itinerary, is_public: !itinerary.is_public });
+      }
+    } finally {
+      setTogglingPublic(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Delete this itinerary? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/itinerary?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        router.push("/itinerary/saved");
+      }
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleCopyShare = () => {
+    navigator.clipboard.writeText(
+      `${window.location.origin}/itinerary/${id}/share`
+    );
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   if (loading) {
     return (
@@ -108,6 +164,7 @@ export default function ItineraryViewPage() {
 
   const plan = itinerary.preferences_snapshot?.generated_plan;
   const days = plan?.days ?? [];
+  const canEdit = !!itinerary.preferences_snapshot?.builder_state;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
@@ -115,15 +172,38 @@ export default function ItineraryViewPage() {
         variant="ghost"
         size="sm"
         render={<Link href="/itinerary/saved" />}
-        className="mb-6 -ml-2"
+        className="mb-6 -ml-2 print:hidden"
       >
         <ArrowLeft className="mr-1.5 h-4 w-4" />
         My Itineraries
       </Button>
 
-      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-        {itinerary.title}
-      </h1>
+      <div className="flex items-start justify-between gap-4">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          {itinerary.title}
+        </h1>
+        <div className="flex shrink-0 gap-2 print:hidden">
+          {canEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              render={<Link href={`/itinerary/new?edit=${id}`} />}
+            >
+              <Pencil className="mr-1.5 h-3.5 w-3.5" />
+              Edit
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
 
       {/* Day cards */}
       {days.length > 0 && (
@@ -193,20 +273,87 @@ export default function ItineraryViewPage() {
         )}
       </div>
 
-      {/* Share */}
-      <div className="mt-10 flex justify-center">
+      {/* Share & Visibility */}
+      <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center print:hidden">
         <Button
           variant="outline"
-          onClick={() =>
-            navigator.clipboard.writeText(
-              `${window.location.origin}/itinerary/${itinerary.id}/share`
-            )
-          }
+          size="sm"
+          onClick={() => window.print()}
         >
-          <Share2 className="mr-2 h-4 w-4" />
-          Copy Share Link
+          <Printer className="mr-1.5 h-3.5 w-3.5" />
+          Print / PDF
+        </Button>
+
+        {itinerary.start_date && days.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const calDays = days.map((day, i) => {
+                const date = new Date(itinerary.start_date + "T00:00:00");
+                date.setDate(date.getDate() + i);
+                const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+                return {
+                  date: dateStr,
+                  destination_name: day.destination_name ?? "",
+                  activities: (day.activities ?? []).map((a) => ({
+                    time: a.time ?? "09:00",
+                    title: a.title ?? "Activity",
+                    description: a.description ?? "",
+                    duration_minutes: a.duration_minutes ?? 60,
+                    location: day.destination_name ?? "",
+                  })),
+                  transport: day.transport,
+                };
+              });
+              const ics = generateICS(calDays, itinerary.title);
+              downloadICS(ics, `${itinerary.title.replace(/\s+/g, "-")}.ics`);
+            }}
+          >
+            <CalendarPlus className="mr-1.5 h-3.5 w-3.5" />
+            Add to Calendar
+          </Button>
+        )}
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleTogglePublic}
+          disabled={togglingPublic}
+        >
+          {itinerary.is_public ? (
+            <>
+              <Globe className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
+              Public
+            </>
+          ) : (
+            <>
+              <Lock className="mr-1.5 h-3.5 w-3.5" />
+              Private
+            </>
+          )}
+        </Button>
+
+        <Button variant="outline" onClick={handleCopyShare}>
+          {copied ? (
+            <>
+              <Check className="mr-2 h-4 w-4 text-emerald-600" />
+              Copied!
+            </>
+          ) : (
+            <>
+              <Share2 className="mr-2 h-4 w-4" />
+              Copy Share Link
+            </>
+          )}
         </Button>
       </div>
+
+      {!itinerary.is_public && (
+        <p className="mt-2 text-center text-xs text-muted-foreground print:hidden">
+          Make your itinerary public for the share link to work.
+        </p>
+      )}
     </div>
   );
 }

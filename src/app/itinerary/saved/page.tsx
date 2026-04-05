@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Plus, CalendarCheck } from "lucide-react";
+import { Loader2, Plus, CalendarCheck, Trash2 } from "lucide-react";
 
 interface ItinerarySummary {
   id: string;
@@ -18,6 +18,7 @@ export default function SavedItinerariesPage() {
   const [itineraries, setItineraries] = useState<ItinerarySummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/itinerary")
@@ -29,6 +30,22 @@ export default function SavedItinerariesPage() {
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!confirm("Delete this itinerary? This cannot be undone.")) return;
+
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/itinerary?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setItineraries((prev) => prev.filter((it) => it.id !== id));
+      }
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -81,7 +98,7 @@ export default function SavedItinerariesPage() {
             <Link key={it.id} href={`/itinerary/${it.id}`} className="block">
               <Card className="transition-shadow hover:shadow-md">
                 <CardContent className="flex items-center justify-between p-4">
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <h3 className="font-semibold">{it.title}</h3>
                     <p className="mt-0.5 text-sm text-muted-foreground">
                       {it.travel_style}
@@ -90,9 +107,22 @@ export default function SavedItinerariesPage() {
                         : ""}
                     </p>
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(it.created_at).toLocaleDateString()}
-                  </span>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(it.created_at).toLocaleDateString()}
+                    </span>
+                    <button
+                      onClick={(e) => handleDelete(e, it.id)}
+                      disabled={deletingId === it.id}
+                      className="rounded-md p-1.5 text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                    >
+                      {deletingId === it.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </CardContent>
               </Card>
             </Link>

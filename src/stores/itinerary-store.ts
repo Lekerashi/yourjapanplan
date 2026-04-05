@@ -11,6 +11,8 @@ export interface BuilderActivity {
   customName: string | null;
   customDescription: string | null;
   notes: string;
+  customStartTime: string | null;
+  booked: boolean;
 }
 
 export interface BuilderDay {
@@ -35,9 +37,12 @@ interface ItineraryBuilderState {
   budget: string | null;
   pace: string | null;
   eveningPreference: string | null;
+  startDate: string | null;
   builderDays: BuilderDay[];
   isBuilderActive: boolean;
   activeDay: number;
+  editingId: string | null;
+  editingShareToken: string | null;
 }
 
 interface ItineraryBuilderActions {
@@ -69,11 +74,33 @@ interface ItineraryBuilderActions {
   ) => void;
   setDayTrip: (dayNumber: number, slug: string | null) => void;
   setDayNotes: (dayNumber: number, notes: string) => void;
+  setStartDate: (date: string | null) => void;
+  setActivityTime: (
+    dayNumber: number,
+    catalogId: string,
+    time: string | null
+  ) => void;
+  toggleBooked: (dayNumber: number, catalogId: string) => void;
   addCustomActivity: (
     dayNumber: number,
     name: string,
     description: string
   ) => void;
+  loadItinerary: (data: {
+    id: string;
+    shareToken: string;
+    destinations: SelectedDestination[];
+    builderDays: BuilderDay[];
+    startDate?: string | null;
+    preferences: {
+      travelStyle: string;
+      interests: string[];
+      season: string;
+      budget: string;
+      pace: string;
+      eveningPreference?: string;
+    };
+  }) => void;
   reset: () => void;
 }
 
@@ -86,9 +113,12 @@ const initialState: ItineraryBuilderState = {
   budget: null,
   pace: null,
   eveningPreference: null,
+  startDate: null,
   builderDays: [],
   isBuilderActive: false,
   activeDay: 1,
+  editingId: null,
+  editingShareToken: null,
 };
 
 export const useItineraryStore = create<
@@ -162,6 +192,8 @@ export const useItineraryStore = create<
                   customName: null,
                   customDescription: null,
                   notes: "",
+                  customStartTime: null,
+                  booked: false,
                 },
               ],
             }
@@ -201,6 +233,8 @@ export const useItineraryStore = create<
                 customName: null,
                 customDescription: null,
                 notes: "",
+                customStartTime: null,
+                booked: false,
               })),
             }
           : d
@@ -230,6 +264,38 @@ export const useItineraryStore = create<
       ),
     })),
 
+  setStartDate: (date) => set({ startDate: date }),
+
+  setActivityTime: (dayNumber, catalogId, time) =>
+    set((s) => ({
+      builderDays: s.builderDays.map((d) =>
+        d.dayNumber === dayNumber
+          ? {
+              ...d,
+              activities: d.activities.map((a) =>
+                a.catalogId === catalogId
+                  ? { ...a, customStartTime: time }
+                  : a
+              ),
+            }
+          : d
+      ),
+    })),
+
+  toggleBooked: (dayNumber, catalogId) =>
+    set((s) => ({
+      builderDays: s.builderDays.map((d) =>
+        d.dayNumber === dayNumber
+          ? {
+              ...d,
+              activities: d.activities.map((a) =>
+                a.catalogId === catalogId ? { ...a, booked: !a.booked } : a
+              ),
+            }
+          : d
+      ),
+    })),
+
   addCustomActivity: (dayNumber, name, description) =>
     set((s) => ({
       builderDays: s.builderDays.map((d) =>
@@ -243,12 +309,32 @@ export const useItineraryStore = create<
                   customName: name,
                   customDescription: description,
                   notes: "",
+                  customStartTime: null,
+                  booked: false,
                 },
               ],
             }
           : d
       ),
     })),
+
+  loadItinerary: (data) =>
+    set({
+      editingId: data.id,
+      editingShareToken: data.shareToken,
+      destinations: data.destinations,
+      builderDays: data.builderDays,
+      startDate: data.startDate ?? null,
+      travelStyle: data.preferences.travelStyle,
+      interests: data.preferences.interests,
+      season: data.preferences.season,
+      budget: data.preferences.budget,
+      pace: data.preferences.pace,
+      eveningPreference: data.preferences.eveningPreference ?? null,
+      durationDays: data.destinations.reduce((sum, d) => sum + d.days, 0),
+      isBuilderActive: true,
+      activeDay: 1,
+    }),
 
   reset: () => set(initialState),
 }));

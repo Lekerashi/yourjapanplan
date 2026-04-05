@@ -180,9 +180,24 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
           <Button render={<Link href="/itinerary/new" />}>
             Build My Itinerary
           </Button>
-          <Button render={<Link href="/quiz" />} variant="outline">
+          <Button
+            variant="outline"
+            onClick={() => {
+              useQuizStore.getState().setCachedResults(null as unknown as RecommendationResponse);
+            }}
+            render={<Link href="/quiz" />}
+          >
             <RotateCcw className="mr-2 h-4 w-4" />
-            Adjust Preferences
+            Edit Preferences
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              useQuizStore.getState().reset();
+            }}
+            render={<Link href="/quiz" />}
+          >
+            Retake Quiz
           </Button>
         </div>
       )}
