@@ -18,6 +18,7 @@ export interface DestinationRow {
   jr_accessible: boolean;
   reservation_tips: string;
   accommodation_zones: { name: string; description: string; best_for: string[] }[];
+  image?: string;
 }
 
 export function formatDestinationsForPrompt(destinations: DestinationRow[]): string {

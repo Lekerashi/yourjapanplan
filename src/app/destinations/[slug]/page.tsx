@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { SEED_DESTINATIONS } from "@/lib/ai/seed-destinations";
 import { INTEREST_TAGS, REGIONS, SEASONS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
@@ -63,13 +64,35 @@ export default async function DestinationDetailPage({
         All Destinations
       </Button>
 
+      {/* Hero image */}
+      {dest.image && (
+        <div className="relative mb-8 h-48 w-full overflow-hidden rounded-xl sm:h-64 md:h-72">
+          <Image
+            src={dest.image}
+            alt={dest.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 896px) 100vw, 896px"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4">
+            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl drop-shadow-lg">
+              {dest.name}
+            </h1>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              {dest.name}
-            </h1>
+            {!dest.image && (
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                {dest.name}
+              </h1>
+            )}
             <div className="mt-2 flex items-center gap-2 text-muted-foreground">
               <MapPin className="h-4 w-4" />
               <span>

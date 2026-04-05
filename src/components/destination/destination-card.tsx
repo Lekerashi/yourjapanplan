@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Train } from "lucide-react";
@@ -14,7 +15,24 @@ export function DestinationCard({ destination: d }: DestinationCardProps) {
 
   return (
     <Link href={`/destinations/${d.slug}`} className="group block">
-      <Card className="h-full transition-shadow group-hover:shadow-md">
+      <Card className="h-full overflow-hidden transition-shadow group-hover:shadow-md">
+        {d.image && (
+          <div className="relative h-40 w-full overflow-hidden">
+            <Image
+              src={d.image}
+              alt={d.name}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+            {d.jr_accessible && (
+              <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-emerald-700 shadow-sm">
+                <Train className="h-3 w-3" />
+                JR
+              </div>
+            )}
+          </div>
+        )}
         <CardContent className="p-5">
           <div className="flex items-start justify-between gap-2">
             <div>
@@ -29,7 +47,7 @@ export function DestinationCard({ destination: d }: DestinationCardProps) {
                 </span>
               </div>
             </div>
-            {d.jr_accessible && (
+            {!d.image && d.jr_accessible && (
               <div className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
                 <Train className="h-3 w-3" />
                 JR

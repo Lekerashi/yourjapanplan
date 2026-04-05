@@ -23,6 +23,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
       { name: "Asakusa", description: "Traditional neighborhood near Senso-ji, budget-friendly", best_for: ["culture", "budget", "temples"] },
       { name: "Ginza", description: "Upscale district with luxury shopping and fine dining", best_for: ["luxury", "shopping", "couples"] },
     ],
+    image: "https://plus.unsplash.com/premium_photo-1749757898790-d8528d52049b?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "kyoto",
@@ -41,6 +42,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
       { name: "Arashiyama", description: "Western district with bamboo grove and monkey park", best_for: ["nature", "couples"] },
       { name: "Kyoto Station area", description: "Transit hub, convenient for day trips", best_for: ["transit", "budget"] },
     ],
+    image: "https://plus.unsplash.com/premium_photo-1673285285994-6bfff235db97?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "osaka",
@@ -58,6 +60,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
       { name: "Umeda/Kita", description: "Business district with upscale dining and shopping", best_for: ["luxury", "shopping"] },
       { name: "Shinsekai", description: "Retro neighborhood famous for kushikatsu and local vibes", best_for: ["food", "budget", "culture"] },
     ],
+    image: "https://plus.unsplash.com/premium_photo-1724593825200-39731dcdacf8?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "hakone",
@@ -74,6 +77,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
       { name: "Hakone-Yumoto", description: "Main gateway town with many ryokans and easy access", best_for: ["onsen", "convenience"] },
       { name: "Gora/Sounzan area", description: "Higher elevation with mountain views and quieter atmosphere", best_for: ["nature", "luxury", "couples"] },
     ],
+    image: "https://plus.unsplash.com/premium_photo-1723054810919-e181b7efa764?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "hiroshima",
@@ -90,6 +94,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
       { name: "Peace Park area", description: "Central, walkable to main sights and okonomiyaki street", best_for: ["culture", "convenience", "first-timers"] },
       { name: "Miyajima Island", description: "Stay overnight to see the shrine without day-trip crowds", best_for: ["temples", "couples", "nature"] },
     ],
+    image: "https://plus.unsplash.com/premium_photo-1751729232888-8c7a7f594b48?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "nara",
@@ -105,6 +110,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Near Nara Park", description: "Walking distance to deer park and temples", best_for: ["convenience", "culture"] },
     ],
+    image: "https://plus.unsplash.com/premium_photo-1742948213097-7b1d9078bb1b?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "kamakura",
@@ -120,6 +126,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Kamakura Station area", description: "Walking distance to temples and Komachi-dori shopping street", best_for: ["convenience", "culture"] },
     ],
+    image: "https://images.unsplash.com/photo-1669954435562-94c02d3246cf?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "nikko",
@@ -135,6 +142,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Nikko town center", description: "Near the shrines and main attractions", best_for: ["convenience", "culture"] },
     ],
+    image: "https://plus.unsplash.com/premium_photo-1678249204369-d7582731335d?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "nagoya",
@@ -151,6 +159,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
       { name: "Nagoya Station area", description: "Major transport hub with easy Shinkansen access", best_for: ["transit", "budget", "convenience"] },
       { name: "Sakae", description: "Central shopping and entertainment district with restaurants and nightlife", best_for: ["shopping", "nightlife", "food"] },
     ],
+    image: "https://images.unsplash.com/photo-1648534092296-272a36375e45?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "takayama",
@@ -166,6 +175,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Old Town area", description: "Walking distance to Sanmachi Suji, markets, and breweries", best_for: ["culture", "food", "walking"] },
     ],
+    image: "https://images.unsplash.com/photo-1662138589066-d627f283cde4?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "kanazawa",
@@ -181,6 +191,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Central Kanazawa", description: "Near Kenroku-en and the main attractions, walkable", best_for: ["convenience", "culture"] },
     ],
+    image: "https://images.unsplash.com/photo-1637846931849-d1748990481b?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "sapporo",
@@ -197,6 +208,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
       { name: "Odori/Tanukikoji", description: "Central area near parks, shopping, and attractions", best_for: ["convenience", "shopping", "first-timers"] },
       { name: "Susukino", description: "Nightlife and entertainment district", best_for: ["nightlife", "food"] },
     ],
+    image: "https://images.unsplash.com/photo-1755789487714-5a681b890406?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "niseko",
@@ -212,6 +224,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Hirafu Village", description: "Main village with most restaurants, bars, and ski access", best_for: ["skiing", "nightlife", "convenience"] },
     ],
+    image: "https://images.unsplash.com/photo-1646440135621-288cad46d1fe?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "fukuoka",
@@ -228,6 +241,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
       { name: "Tenjin/Nakasu", description: "Central entertainment district with yatai stalls along the river", best_for: ["nightlife", "food", "first-timers"] },
       { name: "Hakata Station area", description: "Transit hub, convenient for bullet train travel", best_for: ["transit", "convenience"] },
     ],
+    image: "https://images.unsplash.com/photo-1685845285281-94f706da0907?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "okinawa-main",
@@ -244,6 +258,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
       { name: "Naha", description: "Capital city with Kokusai Street, nightlife, and Shuri Castle", best_for: ["nightlife", "food", "culture", "budget"] },
       { name: "Chatan/American Village", description: "Mid-island area with beaches, shopping, and resort hotels", best_for: ["beach", "family", "shopping"] },
     ],
+    image: "https://images.unsplash.com/photo-1754228781615-cc3d79670b0e?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "kobe",
@@ -259,6 +274,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Sannomiya/Motomachi", description: "Central district with shopping, Chinatown, nightlife, and restaurants", best_for: ["food", "shopping", "nightlife", "convenience"] },
     ],
+    image: "https://images.unsplash.com/photo-1706172216985-a7fdb4efcfc8?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "mt-fuji",
@@ -274,6 +290,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Kawaguchiko", description: "Lake town with Fuji views, onsen, and museums", best_for: ["nature", "onsen", "couples"] },
     ],
+    image: "https://plus.unsplash.com/premium_photo-1723196718472-be6b6a214845?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "beppu",
@@ -289,6 +306,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Kannawa area", description: "Traditional onsen town with steam vents and ryokans", best_for: ["onsen", "culture"] },
     ],
+    image: "https://images.unsplash.com/photo-1752917870379-ed88be3c2050?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "naoshima",
@@ -304,6 +322,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Honmura area", description: "Village with Art House Project installations", best_for: ["culture", "budget"] },
     ],
+    image: "https://images.unsplash.com/photo-1577814575782-51b1e900b8c7?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "yakushima",
@@ -319,6 +338,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Miyanoura/Anbou", description: "Port towns with most accommodation and restaurants", best_for: ["convenience"] },
     ],
+    image: "https://images.unsplash.com/photo-1723536415988-318f84346aac?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "shirakawa-go",
@@ -334,6 +354,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "In the village", description: "Stay in a traditional farmhouse for the full experience", best_for: ["culture", "couples"] },
     ],
+    image: "https://plus.unsplash.com/premium_photo-1661883132712-58b38588abbb?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "koyasan",
@@ -349,6 +370,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Central Koya-san", description: "Near Okunoin and main temples, all accommodation is temple lodging", best_for: ["culture", "temples"] },
     ],
+    image: "https://plus.unsplash.com/premium_photo-1715030289259-95d728532ee0?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "matsumoto",
@@ -364,6 +386,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Near Matsumoto Castle", description: "Central, walking distance to castle and shopping streets", best_for: ["convenience", "culture"] },
     ],
+    image: "https://plus.unsplash.com/premium_photo-1724336774996-4c9e00ed53df?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "sendai",
@@ -379,6 +402,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Sendai Station area", description: "Central hub with great restaurant selection and transit access", best_for: ["convenience", "food", "transit"] },
     ],
+    image: "https://plus.unsplash.com/premium_photo-1722872944372-3fac47ddb569?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "furano-biei",
@@ -394,6 +418,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Furano town", description: "Central base for both summer flower fields and winter ski", best_for: ["convenience"] },
     ],
+    image: "https://images.unsplash.com/photo-1626911635167-0b3006fbda39?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "onomichi",
@@ -409,6 +434,7 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
     accommodation_zones: [
       { name: "Onomichi hillside", description: "Atmospheric old town with temple walks and sea views", best_for: ["culture", "budget"] },
     ],
+    image: "https://images.unsplash.com/photo-1574063480530-e00a945bf53c?w=800&h=500&fit=crop&q=80",
   },
   {
     slug: "ito",
@@ -425,5 +451,6 @@ export const SEED_DESTINATIONS: DestinationRow[] = [
       { name: "Ito Station area", description: "Central location near nightlife and restaurants with easy train access", best_for: ["nightlife", "convenience", "first-timers"] },
       { name: "Jogasaki coast", description: "Quieter area near the dramatic coastline with ocean-view ryokans", best_for: ["nature", "couples", "onsen"] },
     ],
+    image: "https://images.unsplash.com/photo-1614832360890-6a0d5171bd49?w=800&h=500&fit=crop&q=80",
   },
 ];
