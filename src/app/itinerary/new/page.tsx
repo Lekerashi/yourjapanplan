@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useItineraryStore } from "@/stores/itinerary-store";
@@ -24,6 +24,20 @@ import { findRoute } from "@/lib/data/transport-routes";
 type Step = "pick" | "build" | "review";
 
 export default function NewItineraryPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-rose-500" />
+        </div>
+      }
+    >
+      <NewItineraryContent />
+    </Suspense>
+  );
+}
+
+function NewItineraryContent() {
   const searchParams = useSearchParams();
   const editId = searchParams.get("edit");
 
