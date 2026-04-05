@@ -67,10 +67,12 @@ When using `experimental_useObject` from `@ai-sdk/react`, the returned object is
 ```
 src/app/               → Next.js App Router pages and API routes
 src/app/api/ai/        → AI endpoints (recommend, itinerary — itinerary is legacy)
-src/app/api/itinerary/ → Save/load itinerary CRUD
+src/app/api/itinerary/ → Save/load itinerary CRUD (POST, GET, PUT, DELETE, PATCH)
+src/app/profile/       → User profile page
 src/components/ui/     → shadcn/ui primitives (auto-generated, don't hand-edit)
 src/components/        → App components by feature (layout/, quiz/, itinerary/, destination/, tools/)
-src/lib/data/          → Static data files (activities, templates, transport routes)
+src/lib/data/          → Static data files (activities, templates, transport routes, packing rules)
+src/lib/utils/         → Utility functions (iCal export)
 src/lib/ai/            → AI prompts, schemas, seed destinations
 src/lib/supabase/      → Supabase client/server utilities
 src/stores/            → Zustand stores (quiz-store, itinerary-store)
@@ -81,12 +83,25 @@ supabase/              → SQL migrations and seed data
 ### Itinerary Builder Flow
 
 The interactive builder uses NO AI. Users:
-1. Pick destinations + set days per destination (`DestinationPicker`)
+1. Pick destinations + set days per destination + optional travel dates (`DestinationPicker`)
 2. Build each day by adding activities from the pre-generated catalog (`DayBuilder` + `ActivityPicker`)
-3. Review the full itinerary with budget estimate, JR Pass recommendation, and reservation checklist (`TripSummary`)
-4. Save to Supabase and share via link
+3. Review the full itinerary with budget estimate, JR Pass recommendation, reservation checklist, and packing list (`TripSummary`)
+4. Save to Supabase, edit later, and share via link
 
 State managed in `src/stores/itinerary-store.ts` with `BuilderDay` and `BuilderActivity` types. Time slots are computed in components via `useMemo`, not stored.
+
+#### Save / Edit / Share
+
+- **Save**: POST to `/api/itinerary`. Stores both `generated_plan` (review format) and `builder_state` (raw `BuilderDay[]`, `SelectedDestination[]`, `eveningPreference`, `startDate`) in `preferences_snapshot` JSONB. The `builder_state` enables loading back into the builder for editing.
+- **Edit**: View page has "Edit" button linking to `/itinerary/new?edit={id}`. The builder page detects the `?edit=` param (via `useSearchParams` wrapped in `<Suspense>`), fetches the itinerary, calls `store.loadItinerary()`, and uses PUT instead of POST on save. `editingId` in the store tracks whether we're editing.
+- **Share**: Owner toggles `is_public` via PATCH. Share page at `/itinerary/[id]/share` fetches with `?public=true` — only works when `is_public` is true. No auth required for public view.
+- **Delete**: DELETE endpoint removes itinerary. Cascade deletes handle days/activities. Confirmation via `window.confirm()`.
+- **API endpoints**: `route.ts` exports POST, GET, PUT, DELETE, PATCH.
+- **DB enum caveat**: `travel_style` enum doesn't include `honeymoon` — the API maps it to `couple` via `safeTravelStyle()`.
+
+#### BuilderActivity Fields
+
+`BuilderActivity` has: `catalogId`, `customName`, `customDescription`, `notes`, `customStartTime` (override auto-calculated time), `booked` (reservation tracking). The `customStartTime` and `booked` fields are used by the day builder for inline time editing and booking status toggles.
 
 #### Day Scheduling Algorithm
 
@@ -124,10 +139,12 @@ Google OAuth + email/password via Supabase Auth. Middleware in `middleware.ts` r
 - `/quiz` → `/quiz/results` — Preference quiz → AI recommendations (cached in store)
 - `/destinations` → `/destinations/[slug]` — Browse/detail pages (statically generated)
 - `/itinerary/new` — Interactive itinerary builder (pick → build → review)
-- `/itinerary/[id]` — View saved itinerary
-- `/itinerary/saved` — List of user's saved itineraries
-- `/itinerary/[id]/share` — Public shared view (no auth)
+- `/itinerary/new?edit={id}` — Edit existing itinerary (loads saved state into builder)
+- `/itinerary/[id]` — View saved itinerary (owner only — has edit, delete, share controls)
+- `/itinerary/saved` — List of user's saved itineraries (with delete)
+- `/itinerary/[id]/share` — Public shared view (no auth, requires `is_public` = true)
 - `/tools/jr-pass` — JR Pass calculator
+- `/profile` — User profile (itineraries, account info, sign out)
 - `/auth` — Sign in/up (Google OAuth + email/password)
 
 ### SEO
@@ -165,6 +182,18 @@ When adding a new destination, update these files in order:
 
 The destination will automatically appear in: browse page, filters, itinerary builder map, JR calculator (if transport routes added, flights filtered out), and the sitemap.
 
+## Builder Features
+
+- **Travel dates** — Optional start date picker in destination step. When set, day-of-week labels appear on builder day tabs and headers. Dates are stored in `start_date`/`end_date` DB columns and in `builder_state.startDate`.
+- **Custom activity times** — Click any activity's time in the day builder to override the auto-calculated schedule via `<input type="time">`. Stored as `customStartTime` on `BuilderActivity`.
+- **Booking status** — Activities with `reservation_required` show a booked/unbooked toggle badge. Trip summary checklist distinguishes booked (checkmark, strikethrough) from unbooked (warning icon).
+- **Budget tracking** — Per-day cost subtotals in day builder header. Trip summary shows a progress bar comparing activity costs against budget tier (budget: ¥8k/day, moderate: ¥18k/day, luxury: ¥40k/day).
+- **Packing list** — Auto-generated from season + activity types/tags. Rules in `src/lib/data/packing-rules.ts`. Checklist UI with localStorage-persisted check state in `src/components/itinerary/packing-list.tsx`. Shown in trip summary.
+- **Seasonal/weather context** — Day builder shows an info banner per destination with crowd level and seasonal tips, color-coded by severity. Uses `crowd_level_by_month` and `best_seasons` from seed destinations.
+- **Print/PDF** — `window.print()` with `print:hidden` on non-printable UI elements (nav, buttons, toggles).
+- **Calendar export** — `.ics` file generation via `src/lib/utils/ical-export.ts`. Available on view page when travel dates are set. One event per activity + transport legs.
+- **Quiz re-take** — Results page has "Edit Preferences" (clears cache, keeps answers) and "Retake Quiz" (full reset) buttons.
+
 ## Conventions
 
 - Path alias: `@/*` maps to `./src/*`
@@ -181,3 +210,5 @@ The destination will automatically appear in: browse page, filters, itinerary bu
 - Activities can have an optional `area` field for movement time calculation and an optional `first_timer: true` flag for must-do badges
 - Travel styles: solo, couple, friends, family, workcation, honeymoon (6 total) — the AI prompt has per-style hints
 - Transport routes can have duplicates for the same city pair (e.g., Shinkansen + Flight for Tokyo→Fukuoka) — `findRoute()` prefers rail, `findAllRoutes()` returns both, trip summary shows alternatives
+- `useSearchParams()` must be wrapped in a `<Suspense>` boundary — Next.js 16 requires this for static page generation. See `/itinerary/new/page.tsx` for the pattern (thin page component wraps content in Suspense).
+- The `itinerary_activities` and `itinerary_days` DB tables exist but the app primarily reads/writes via `preferences_snapshot` JSONB. The `builder_state` key in the snapshot is the source of truth for the edit flow. Structured tables are populated for basic structure but not used as primary data source.
