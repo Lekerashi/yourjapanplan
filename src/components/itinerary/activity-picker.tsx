@@ -64,6 +64,11 @@ export function ActivityPicker({
   const filtered = useMemo(() => {
     let result = allActivities;
 
+    // Hide first-timer-only activities for returning visitors
+    if (!isFirstTimer) {
+      result = result.filter((a) => !a.first_timer);
+    }
+
     if (typeFilter) {
       result = result.filter((a) => a.type === typeFilter);
     }
