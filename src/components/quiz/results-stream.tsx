@@ -15,6 +15,18 @@ import { Loader2, RotateCcw, Train, CalendarCheck, Route } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+const DEST_COORDS: Record<string, [number, number]> = {
+  sapporo: [43.06, 141.35], niseko: [42.86, 140.69], "furano-biei": [43.34, 142.38],
+  sendai: [38.27, 140.87], tokyo: [35.68, 139.69], kamakura: [35.32, 139.55],
+  nikko: [36.75, 139.6], hakone: [35.23, 139.11], "mt-fuji": [35.36, 138.73],
+  matsumoto: [36.24, 137.97], kanazawa: [36.56, 136.65], nagoya: [35.18, 136.91],
+  takayama: [36.14, 137.25], "shirakawa-go": [36.26, 136.91], ito: [34.97, 139.1],
+  kyoto: [35.01, 135.77], osaka: [34.69, 135.5], nara: [34.69, 135.8],
+  kobe: [34.69, 135.19], koyasan: [34.21, 135.6], hiroshima: [34.4, 132.46],
+  onomichi: [34.41, 133.2], naoshima: [34.46, 133.99], fukuoka: [33.59, 130.4],
+  beppu: [33.28, 131.49], yakushima: [30.35, 130.51], "okinawa-main": [26.33, 127.8],
+};
+
 interface ResultsStreamProps {
   quizParams: {
     travelStyle: string;
@@ -213,6 +225,41 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
   );
 }
 
+/** Sort destinations into a geographic route via nearest-neighbor from the easternmost city */
+function sortGeographic<T extends { slug: string }>(
+  dests: T[],
+  coords: Record<string, [number, number]>
+): T[] {
+  if (dests.length <= 1) return dests;
+
+  const dist = (a: string, b: string) => {
+    const [lat1, lng1] = coords[a] ?? [0, 0];
+    const [lat2, lng2] = coords[b] ?? [0, 0];
+    return Math.sqrt((lat1 - lat2) ** 2 + (lng1 - lng2) ** 2);
+  };
+
+  // Start from the easternmost destination (highest longitude)
+  const remaining = [...dests];
+  remaining.sort((a, b) => (coords[b.slug]?.[1] ?? 0) - (coords[a.slug]?.[1] ?? 0));
+  const result: T[] = [remaining.shift()!];
+
+  while (remaining.length > 0) {
+    const last = result[result.length - 1].slug;
+    let nearest = 0;
+    let nearestDist = Infinity;
+    for (let i = 0; i < remaining.length; i++) {
+      const d = dist(last, remaining[i].slug);
+      if (d < nearestDist) {
+        nearestDist = d;
+        nearest = i;
+      }
+    }
+    result.push(remaining.splice(nearest, 1)[0]);
+  }
+
+  return result;
+}
+
 function BuildItineraryButton({
   recommendations,
   quizParams,
@@ -227,19 +274,22 @@ function BuildItineraryButton({
     // Reset builder state
     store.getState().reset();
 
-    // Pre-populate destinations from quiz recommendations
+    // Build destination list from quiz recommendations
     const recs = recommendations.filter(
       (r): r is NonNullable<typeof r> => !!r?.destination_slug
     );
-    for (const rec of recs) {
-      const dest = SEED_DESTINATIONS.find((d) => d.slug === rec.destination_slug);
-      if (dest) {
-        store.getState().addDestination({
-          slug: dest.slug,
-          name: dest.name,
-          days: rec.suggested_days ?? 2,
-        });
-      }
+    const destList = recs
+      .map((rec) => {
+        const dest = SEED_DESTINATIONS.find((d) => d.slug === rec.destination_slug);
+        return dest ? { slug: dest.slug, name: dest.name, days: rec.suggested_days ?? 2 } : null;
+      })
+      .filter((d): d is NonNullable<typeof d> => !!d);
+
+    // Sort into a geographic route using nearest-neighbor from easternmost city
+    const sorted = sortGeographic(destList, DEST_COORDS);
+
+    for (const dest of sorted) {
+      store.getState().addDestination(dest);
     }
 
     // Set preferences from quiz params

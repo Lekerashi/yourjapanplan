@@ -4,11 +4,11 @@ import { useMemo } from "react";
 import { useItineraryStore } from "@/stores/itinerary-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Minus, Plus, X, Calendar } from "lucide-react";
+import { Minus, Plus, X, Calendar, ArrowUp, ArrowDown } from "lucide-react";
 import { JapanMap } from "./japan-map";
 
 export function DestinationPicker() {
-  const { destinations, addDestination, removeDestination, updateDays } =
+  const { destinations, addDestination, removeDestination, updateDays, reorderDestinations } =
     useItineraryStore();
   const startDate = useItineraryStore((s) => s.startDate);
   const setStartDate = useItineraryStore((s) => s.setStartDate);
@@ -42,9 +42,37 @@ export function DestinationPicker() {
             {destinations.map((d, i) => (
               <div
                 key={d.slug}
-                className="flex items-center gap-3 rounded-lg border px-4 py-3"
+                className="flex items-center gap-2 rounded-lg border px-3 py-3"
               >
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-600">
+                <div className="flex flex-col gap-0.5 shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-5 w-5 p-0"
+                    disabled={i === 0}
+                    onClick={() => {
+                      const items = [...destinations];
+                      [items[i - 1], items[i]] = [items[i], items[i - 1]];
+                      reorderDestinations(items);
+                    }}
+                  >
+                    <ArrowUp className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-5 w-5 p-0"
+                    disabled={i === destinations.length - 1}
+                    onClick={() => {
+                      const items = [...destinations];
+                      [items[i], items[i + 1]] = [items[i + 1], items[i]];
+                      reorderDestinations(items);
+                    }}
+                  >
+                    <ArrowDown className="h-3 w-3" />
+                  </Button>
+                </div>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-600 shrink-0">
                   {i + 1}
                 </span>
                 <span className="flex-1 font-medium">{d.name}</span>
