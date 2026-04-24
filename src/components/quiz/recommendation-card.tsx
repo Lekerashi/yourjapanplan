@@ -1,8 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Clock, Bookmark } from "lucide-react";
 interface RecommendationCardProps {
   recommendation: {
     destination_slug?: string;
@@ -16,69 +13,85 @@ interface RecommendationCardProps {
   rank: number;
 }
 
-export function RecommendationCard({ recommendation, rank }: RecommendationCardProps) {
+export function RecommendationCard({
+  recommendation,
+  rank,
+}: RecommendationCardProps) {
   const r = recommendation;
-  const name = r.destination_slug?.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) ?? "...";
+  const name =
+    r.destination_slug
+      ?.replace(/-/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase()) ?? "…";
 
   return (
-    <Card className="overflow-hidden transition-shadow hover:shadow-md">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 text-sm font-bold text-rose-600">
-              {rank}
+    <article className="grid gap-5 border border-border bg-card p-6 md:grid-cols-[auto_1fr_auto] md:items-start">
+      <div className="inline-flex h-12 w-12 items-center justify-center border border-border bg-background font-display text-[18px] font-semibold text-foreground">
+        {String(rank).padStart(2, "0")}
+      </div>
+
+      <div>
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h3 className="font-display text-[clamp(22px,2.4vw,28px)] font-medium tracking-[-0.01em] text-foreground">
+            {name}
+          </h3>
+          {r.suggested_days != null && (
+            <span className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+              {r.suggested_days} {r.suggested_days === 1 ? "day" : "days"}
             </span>
-            <div>
-              <h3 className="text-lg font-bold">{name}</h3>
-              {r.suggested_days != null && (
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Clock className="h-3.5 w-3.5" />
-                  <span>{r.suggested_days} {r.suggested_days === 1 ? "day" : "days"}</span>
-                </div>
-              )}
-            </div>
-          </div>
-          {r.match_score != null && (
-            <div className="flex items-center gap-1 rounded-full bg-rose-50 px-3 py-1 text-sm font-semibold text-rose-600">
-              {r.match_score}% match
-            </div>
           )}
         </div>
 
         {r.reasoning && (
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-3 text-[15px] leading-[1.6] text-ink-2">
             {r.reasoning}
           </p>
         )}
 
         {r.highlights && r.highlights.filter(Boolean).length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-1.5">
             {r.highlights.filter(Boolean).map((h) => (
-              <Badge key={h} variant="secondary" className="text-xs">
+              <span
+                key={h}
+                className="border border-border px-2 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground"
+              >
                 {h}
-              </Badge>
+              </span>
             ))}
           </div>
         )}
 
-        {r.best_area_to_stay && (
-          <div className="mt-4 flex items-start gap-2 text-sm">
-            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-            <span>
-              <strong>Stay in:</strong> {r.best_area_to_stay}
-            </span>
-          </div>
-        )}
+        <dl className="mt-5 flex flex-col gap-2 border-t border-border pt-4 text-[13px]">
+          {r.best_area_to_stay && (
+            <div className="flex gap-3">
+              <dt className="w-[96px] shrink-0 text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+                Stay in
+              </dt>
+              <dd className="text-foreground">{r.best_area_to_stay}</dd>
+            </div>
+          )}
+          {r.must_reserve && r.must_reserve.filter(Boolean).length > 0 && (
+            <div className="flex gap-3">
+              <dt className="w-[96px] shrink-0 text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+                Reserve ahead
+              </dt>
+              <dd className="text-foreground">
+                {r.must_reserve.filter(Boolean).join(", ")}
+              </dd>
+            </div>
+          )}
+        </dl>
+      </div>
 
-        {r.must_reserve && r.must_reserve.filter(Boolean).length > 0 && (
-          <div className="mt-2 flex items-start gap-2 text-sm">
-            <Bookmark className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
-            <span>
-              <strong>Reserve ahead:</strong> {r.must_reserve.filter(Boolean).join(", ")}
-            </span>
+      {r.match_score != null && (
+        <div className="self-start border border-border bg-background px-3 py-2 text-right">
+          <div className="font-display text-[22px] font-semibold tracking-[-0.01em] text-accent">
+            {r.match_score}%
           </div>
-        )}
-      </CardContent>
-    </Card>
+          <div className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground">
+            match
+          </div>
+        </div>
+      )}
+    </article>
   );
 }

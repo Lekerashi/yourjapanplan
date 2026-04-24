@@ -2,14 +2,15 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark *, [data-theme="ink"] *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-mono: var(--font-sans);
+  --font-heading: var(--font-display);
+  --font-display: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,6 +40,12 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-surface: var(--surface);
+  --color-bg-2: var(--bg-2);
+  --color-line: var(--line);
+  --color-washi: var(--washi);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -46,85 +53,144 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --container-editorial: 1200px;
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* Washi (light, default) — warm cream paper + sumi ink */
+  --washi: #f6efe4;
+  --background: #f6efe4;
+  --foreground: #1f1a16;
+  --card: #fbf6ec;
+  --card-foreground: #1f1a16;
+  --popover: #fbf6ec;
+  --popover-foreground: #1f1a16;
+  --primary: #1f1a16;
+  --primary-foreground: #f6efe4;
+  --secondary: #ede2cf;
+  --secondary-foreground: #1f1a16;
+  --muted: #ede2cf;
+  --muted-foreground: #6d6455;
+  --accent: #a83232;
+  --accent-foreground: #fbf6ec;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: #d3c7b0;
+  --input: #d3c7b0;
+  --ring: #a83232;
+
+  /* Handoff-specific aliases for semantic use */
+  --ink: #1f1a16;
+  --ink-2: #3a332b;
+  --surface: #fbf6ec;
+  --bg-2: #ede2cf;
+  --line: #d3c7b0;
+
+  --chart-1: #a83232;
+  --chart-2: #6d6455;
+  --chart-3: #3a332b;
+  --chart-4: #d3c7b0;
+  --chart-5: #ede2cf;
+
+  --radius: 0.125rem;
+
+  --sidebar: #fbf6ec;
+  --sidebar-foreground: #1f1a16;
+  --sidebar-primary: #1f1a16;
+  --sidebar-primary-foreground: #f6efe4;
+  --sidebar-accent: #ede2cf;
+  --sidebar-accent-foreground: #1f1a16;
+  --sidebar-border: #d3c7b0;
+  --sidebar-ring: #a83232;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+.dark,
+[data-theme="ink"] {
+  /* Ink night — deep ink-blue + warm cream + brighter vermillion */
+  --washi: #141820;
+  --background: #141820;
+  --foreground: #f4efe4;
+  --card: #1f2636;
+  --card-foreground: #f4efe4;
+  --popover: #1f2636;
+  --popover-foreground: #f4efe4;
+  --primary: #f4efe4;
+  --primary-foreground: #141820;
+  --secondary: #1b2130;
+  --secondary-foreground: #f4efe4;
+  --muted: #1b2130;
+  --muted-foreground: #a49c89;
+  --accent: #ff6a4d;
+  --accent-foreground: #141820;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --border: #323a4d;
+  --input: #323a4d;
+  --ring: #ff6a4d;
+
+  --ink: #f4efe4;
+  --ink-2: #d7cfbf;
+  --surface: #1f2636;
+  --bg-2: #1b2130;
+  --line: #323a4d;
+
+  --chart-1: #ff6a4d;
+  --chart-2: #a49c89;
+  --chart-3: #d7cfbf;
+  --chart-4: #323a4d;
+  --chart-5: #1b2130;
+
+  --sidebar: #1f2636;
+  --sidebar-foreground: #f4efe4;
+  --sidebar-primary: #ff6a4d;
+  --sidebar-primary-foreground: #141820;
+  --sidebar-accent: #1b2130;
+  --sidebar-accent-foreground: #f4efe4;
+  --sidebar-border: #323a4d;
+  --sidebar-ring: #ff6a4d;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    font-family: var(--font-sans);
+  }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  html {
-    @apply font-sans;
+
+  /* Subtle paper texture — washi only, hidden in ink */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12  0 0 0 0 0.10  0 0 0 0 0.07  0 0 0 0.05 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: 0.7;
+    mix-blend-mode: multiply;
+  }
+  .dark body::before,
+  [data-theme="ink"] body::before {
+    display: none;
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  body::before {
+    display: none !important;
   }
 }

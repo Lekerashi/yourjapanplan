@@ -20,20 +20,30 @@ export function AuthButton() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = createClient();
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
 
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-      setLoading(false);
+    Promise.resolve().then(async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+        if (cancelled) return;
+        setUser(data.user);
+        setLoading(false);
+        const sub = supabase.auth.onAuthStateChange((_event, session) => {
+          setUser(session?.user ?? null);
+        });
+        unsubscribe = () => sub.data.subscription.unsubscribe();
+      } catch {
+        if (cancelled) return;
+        setLoading(false);
+      }
     });
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
 
   const handleSignOut = async () => {
@@ -48,8 +58,8 @@ export function AuthButton() {
 
   if (!user) {
     return (
-      <Button variant="outline" size="sm" render={<Link href="/auth" />}>
-        Sign In
+      <Button variant="ghost" size="sm" render={<Link href="/auth" />}>
+        Sign in
       </Button>
     );
   }

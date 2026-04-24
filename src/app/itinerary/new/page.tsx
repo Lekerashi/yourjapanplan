@@ -9,13 +9,12 @@ import { DestinationPicker } from "@/components/itinerary/destination-picker";
 import { ItineraryBuilder } from "@/components/itinerary/itinerary-builder";
 import { ItineraryDayCard } from "@/components/itinerary/itinerary-day-card";
 import { Button } from "@/components/ui/button";
+import { SectionHead } from "@/components/home/section-head";
 import {
-  ArrowLeft,
   Save,
   Share2,
   Check,
   Loader2,
-  MapPin,
   AlertCircle,
 } from "lucide-react";
 import { getActivitiesForDestination } from "@/lib/data/seed-activities";
@@ -23,12 +22,54 @@ import { findRoute } from "@/lib/data/transport-routes";
 
 type Step = "pick" | "build" | "review";
 
+function BackButton({
+  children,
+  onClick,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <Button variant="ghost" size="sm" className="-ml-3" onClick={onClick}>
+      <svg
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        aria-hidden
+      >
+        <path d="M13 8H3M7 4L3 8l4 4" />
+      </svg>
+      {children}
+    </Button>
+  );
+}
+
+function InlineNotice({
+  children,
+  tone = "info",
+}: {
+  children: React.ReactNode;
+  tone?: "info" | "error";
+}) {
+  const toneClass =
+    tone === "error"
+      ? "border-destructive/40 bg-destructive/5 text-destructive"
+      : "border-accent/40 bg-accent/5 text-foreground";
+  return (
+    <div className={`flex items-center gap-2 border px-4 py-3 text-[13px] ${toneClass}`}>
+      <AlertCircle className="h-4 w-4 shrink-0" />
+      {children}
+    </div>
+  );
+}
+
 export default function NewItineraryPage() {
   return (
     <Suspense
       fallback={
         <div className="flex min-h-[60vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-rose-500" />
+          <Loader2 className="h-7 w-7 animate-spin text-accent" />
         </div>
       }
     >
@@ -51,7 +92,6 @@ function NewItineraryContent() {
   const store = useItineraryStore();
   const quiz = useQuizStore();
 
-  // Skip to builder if destinations are already loaded (e.g. from quiz)
   const fromQuiz = searchParams.get("from") === "quiz";
   useEffect(() => {
     if (fromQuiz && store.destinations.length > 0 && !store.isBuilderActive) {
@@ -61,7 +101,6 @@ function NewItineraryContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromQuiz]);
 
-  // Load existing itinerary for editing
   useEffect(() => {
     if (!editId) return;
 
@@ -145,7 +184,7 @@ function NewItineraryContent() {
         end_date: store.startDate
           ? new Date(
               new Date(store.startDate).getTime() +
-                (totalDays - 1) * 86400000
+                (totalDays - 1) * 86400000,
             )
               .toISOString()
               .split("T")[0]
@@ -189,11 +228,10 @@ function NewItineraryContent() {
     }
   };
 
-  // Loading state for edit mode
   if (loadingEdit) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-500" />
+        <Loader2 className="h-7 w-7 animate-spin text-accent" />
       </div>
     );
   }
@@ -201,36 +239,46 @@ function NewItineraryContent() {
   // Step 1: Pick destinations
   if (step === "pick") {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            {editId ? "Edit Your Itinerary" : "Build Your Itinerary"}
-          </h1>
-          <p className="mt-3 text-muted-foreground">
-            Pick your destinations and set how many days at each, then build
-            your day-by-day plan.
-          </p>
-        </div>
+      <div className="mx-auto max-w-[1200px] px-[clamp(20px,4vw,40px)] py-[clamp(48px,8vw,96px)]">
+        <SectionHead
+          eyebrow={editId ? "Edit itinerary" : "Build an itinerary"}
+          title={
+            <>
+              Pick your stops,{" "}
+              <span className="font-display italic font-normal text-accent">
+                then build the days.
+              </span>
+            </>
+          }
+          lede="Click cities on the map or browse the list. Set how many days at each. We'll do trains, lodging, and reservations next."
+        />
 
         {saveError && (
-          <div className="mt-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            <AlertCircle className="h-4 w-4 shrink-0" />
-            {saveError}
+          <div className="mt-6">
+            <InlineNotice tone="error">{saveError}</InlineNotice>
           </div>
         )}
 
-        <div className="mt-8">
+        <div className="mt-10">
           <DestinationPicker />
         </div>
 
         {store.destinations.length > 0 && (
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-border pt-8">
             <Button size="lg" onClick={handleStartBuild}>
-              <MapPin className="mr-2 h-4 w-4" />
-              Build {totalDays}-Day Itinerary
+              Build {totalDays}-day itinerary
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                aria-hidden
+              >
+                <path d="M3 8h10M9 4l4 4-4 4" />
+              </svg>
             </Button>
             <Button variant="outline" render={<Link href="/quiz" />}>
-              Adjust Preferences
+              Adjust preferences
             </Button>
           </div>
         )}
@@ -241,19 +289,22 @@ function NewItineraryContent() {
   // Step 2: Interactive builder
   if (step === "build") {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
-        <div className="flex items-center justify-between mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="-ml-2"
-            onClick={() => setStep("pick")}
-          >
-            <ArrowLeft className="mr-1.5 h-4 w-4" />
-            Back
-          </Button>
+      <div className="mx-auto max-w-[1200px] px-[clamp(20px,4vw,40px)] py-[clamp(32px,6vw,64px)]">
+        <div className="mb-6 flex items-center justify-between">
+          <BackButton onClick={() => setStep("pick")}>
+            Back to destinations
+          </BackButton>
           <Button onClick={handleReview}>
-            Review & Save
+            Review &amp; save
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden
+            >
+              <path d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
           </Button>
         </div>
 
@@ -266,29 +317,33 @@ function NewItineraryContent() {
   const reviewDays = builderDaysToReviewFormat(store);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="mb-6 -ml-2"
-        onClick={() => setStep("build")}
-      >
-        <ArrowLeft className="mr-1.5 h-4 w-4" />
-        Back to Builder
-      </Button>
+    <div className="mx-auto max-w-[900px] px-[clamp(20px,4vw,40px)] py-[clamp(48px,8vw,96px)]">
+      <BackButton onClick={() => setStep("build")}>
+        Back to builder
+      </BackButton>
 
-      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-        Your {totalDays}-Day Japan Itinerary
-      </h1>
+      <div className="mt-6">
+        <SectionHead
+          eyebrow="Review"
+          title={
+            <>
+              Your {totalDays}-day trip,{" "}
+              <span className="font-display italic font-normal text-accent">
+                day by day.
+              </span>
+            </>
+          }
+          lede="Give it a last look, then save it to your account or keep tweaking."
+        />
+      </div>
 
-      <div className="mt-8 space-y-6">
+      <div className="mt-10 flex flex-col gap-8">
         {reviewDays.map((day) => (
           <ItineraryDayCard key={day.day_number} day={day} />
         ))}
       </div>
 
-      {/* Save / Share */}
-      <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+      <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-border pt-8">
         <Button onClick={handleSave} disabled={saving || saved}>
           {saved ? (
             <>
@@ -298,12 +353,12 @@ function NewItineraryContent() {
           ) : saving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              Saving…
             </>
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {store.editingId ? "Update Itinerary" : "Save Itinerary"}
+              {store.editingId ? "Update itinerary" : "Save itinerary"}
             </>
           )}
         </Button>
@@ -314,37 +369,39 @@ function NewItineraryContent() {
             onClick={() => navigator.clipboard.writeText(shareUrl)}
           >
             <Share2 className="mr-2 h-4 w-4" />
-            Copy Share Link
+            Copy share link
           </Button>
         )}
       </div>
 
       {saveError && (
-        <div className="mt-4 flex items-center justify-center gap-2 text-sm text-red-600">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          {saveError}
-          {saveError.includes("Sign in") && (
-            <Link href="/auth?next=/itinerary/new" className="underline">
-              Sign in
-            </Link>
-          )}
+        <div className="mt-6">
+          <InlineNotice tone="error">
+            {saveError}
+            {saveError.includes("Sign in") && (
+              <Link
+                href="/auth?next=/itinerary/new"
+                className="ml-2 font-medium underline"
+              >
+                Sign in
+              </Link>
+            )}
+          </InlineNotice>
         </div>
       )}
     </div>
   );
 }
 
-// Convert builder state to the format used by ItineraryDayCard for review
 function builderDaysToReviewFormat(
-  store: ReturnType<typeof useItineraryStore.getState>
+  store: ReturnType<typeof useItineraryStore.getState>,
 ) {
   return store.builderDays.map((day) => {
     const dest = store.destinations.find((d) => d.slug === day.destinationSlug);
     const catalog = new Map(
-      getActivitiesForDestination(day.destinationSlug).map((a) => [a.id, a])
+      getActivitiesForDestination(day.destinationSlug).map((a) => [a.id, a]),
     );
 
-    // Sort activities by time-of-day, then calculate time slots
     const sorted = [...day.activities].sort((a, b) => {
       const order = { morning: 0, anytime: 1, afternoon: 2, evening: 3 };
       const aT = catalog.get(a.catalogId)?.best_time_of_day ?? "anytime";
@@ -362,9 +419,16 @@ function builderDaysToReviewFormat(
       const dur = cat?.duration_minutes ?? 60;
 
       let startMin: number;
-      if (tod === "evening") { startMin = eveningTime; eveningTime += dur + 30; }
-      else if (tod === "afternoon") { startMin = afternoonTime; afternoonTime += dur + 30; }
-      else { startMin = morningTime; morningTime += dur + 30; }
+      if (tod === "evening") {
+        startMin = eveningTime;
+        eveningTime += dur + 30;
+      } else if (tod === "afternoon") {
+        startMin = afternoonTime;
+        afternoonTime += dur + 30;
+      } else {
+        startMin = morningTime;
+        morningTime += dur + 30;
+      }
 
       const time = `${String(Math.floor(startMin / 60)).padStart(2, "0")}:${String(startMin % 60).padStart(2, "0")}`;
       return {
@@ -378,7 +442,6 @@ function builderDaysToReviewFormat(
       };
     });
 
-    // Find transport to next destination
     const dayIndex = store.builderDays.indexOf(day);
     const nextDay = store.builderDays[dayIndex + 1];
     let transport = null;
@@ -414,13 +477,11 @@ function builderDaysToReviewFormat(
   });
 }
 
-// Convert builder state to the save API format
 function builderDaysToSaveFormat(
-  store: ReturnType<typeof useItineraryStore.getState>
+  store: ReturnType<typeof useItineraryStore.getState>,
 ) {
   const days = builderDaysToReviewFormat(store);
 
-  // Simple JR pass analysis
   let jrTotal = 0;
   for (let i = 0; i < store.builderDays.length - 1; i++) {
     const curr = store.builderDays[i];
@@ -432,12 +493,11 @@ function builderDaysToSaveFormat(
   }
   const jrPassRecommended = jrTotal > 50000;
 
-  // Budget estimate
   let totalBudget = 0;
   for (const day of store.builderDays) {
     for (const a of day.activities) {
       const cat = getActivitiesForDestination(day.destinationSlug).find(
-        (c) => c.id === a.catalogId
+        (c) => c.id === a.catalogId,
       );
       if (cat) {
         const match = cat.cost_estimate.match(/[\d,]+/);

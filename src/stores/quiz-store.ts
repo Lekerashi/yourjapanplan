@@ -43,12 +43,48 @@ interface QuizActions {
 }
 
 export const QUIZ_STEPS = [
-  { id: "travel-style", label: "Travel Style" },
-  { id: "interests", label: "Interests" },
-  { id: "season", label: "Season" },
-  { id: "duration", label: "Duration" },
-  { id: "preferences", label: "Preferences" },
-  { id: "about-you", label: "About You" },
+  {
+    id: "travel-style",
+    label: "Travel style",
+    question: "Who are you travelling with?",
+    explainer:
+      "This shapes the pace, the lodging style, and how risk-averse our picks get.",
+  },
+  {
+    id: "interests",
+    label: "Interests",
+    question: "What draws you to Japan?",
+    explainer:
+      "Pick two or more. We weight destinations and activities against what you choose.",
+  },
+  {
+    id: "season",
+    label: "Season",
+    question: "When are you thinking of going?",
+    explainer:
+      "Japan is fine in every season. This lets us match the weather to what you want to do.",
+  },
+  {
+    id: "duration",
+    label: "Duration",
+    question: "How long is the trip?",
+    explainer:
+      "We tailor the number of cities and the depth in each to the days you have.",
+  },
+  {
+    id: "preferences",
+    label: "Preferences",
+    question: "Tell us how you travel.",
+    explainer:
+      "Budget, pace, tolerance for crowds, and how late you like to stay out.",
+  },
+  {
+    id: "about-you",
+    label: "About you",
+    question: "Have you been to Japan before?",
+    explainer:
+      "First-timers get navigation and etiquette tips and the classic routes. Returning visitors get deeper, off-radar picks.",
+  },
 ] as const;
 
 const initialState: QuizState = {

@@ -3,9 +3,12 @@
 import { useMemo, useState } from "react";
 import { useItineraryStore } from "@/stores/itinerary-store";
 import { getActivitiesForDestination } from "@/lib/data/seed-activities";
-import { generatePackingList, type PackingItem } from "@/lib/data/packing-rules";
-import { Card, CardContent } from "@/components/ui/card";
-import { Backpack, Check } from "lucide-react";
+import {
+  generatePackingList,
+  type PackingItem,
+} from "@/lib/data/packing-rules";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const CATEGORY_LABELS: Record<string, string> = {
   essentials: "Essentials",
@@ -20,18 +23,16 @@ export function PackingList() {
   const builderDays = useItineraryStore((s) => s.builderDays);
   const destinations = useItineraryStore((s) => s.destinations);
 
-  // Collect all unique activity tags from the itinerary
   const activityTags = useMemo(() => {
     const tags = new Set<string>();
     for (const dest of destinations) {
       for (const a of getActivitiesForDestination(dest.slug)) {
-        // Check if this activity is actually in the itinerary
         const isUsed = builderDays.some((d) =>
-          d.activities.some((act) => act.catalogId === a.id)
+          d.activities.some((act) => act.catalogId === a.id),
         );
         if (isUsed) {
           for (const t of a.tags) tags.add(t);
-          tags.add(a.type); // also use activity type as a tag
+          tags.add(a.type);
         }
       }
     }
@@ -40,10 +41,9 @@ export function PackingList() {
 
   const packingItems = useMemo(
     () => generatePackingList(season ?? "spring", activityTags),
-    [season, activityTags]
+    [season, activityTags],
   );
 
-  // Group by category
   const grouped = useMemo(() => {
     const groups: Record<string, PackingItem[]> = {};
     for (const item of packingItems) {
@@ -53,7 +53,6 @@ export function PackingList() {
     return groups;
   }, [packingItems]);
 
-  // Checked state — persisted in localStorage
   const storageKey = "yjp-packing-checked";
   const [checked, setChecked] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set<string>();
@@ -80,60 +79,66 @@ export function PackingList() {
   const totalChecked = packingItems.filter((i) => checked.has(i.name)).length;
 
   return (
-    <Card size="sm">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Backpack className="h-5 w-5 text-rose-500" />
-            <h4 className="text-sm font-semibold">Packing List</h4>
-          </div>
-          <span className="text-xs text-muted-foreground">
-            {totalChecked}/{packingItems.length} packed
-          </span>
-        </div>
+    <section className="border border-border bg-card p-6">
+      <div className="flex items-baseline justify-between">
+        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+          Packing list
+        </p>
+        <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+          {totalChecked}/{packingItems.length} packed
+        </span>
+      </div>
 
-        <div className="mt-3 space-y-3">
-          {Object.entries(grouped).map(([category, items]) => (
-            <div key={category}>
-              <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                {CATEGORY_LABELS[category] ?? category}
-              </h5>
-              <ul className="space-y-0.5">
-                {items.map((item) => (
+      <div className="mt-4 grid gap-6 sm:grid-cols-2">
+        {Object.entries(grouped).map(([category, items]) => (
+          <div key={category}>
+            <h5 className="font-display text-[14px] font-medium tracking-[-0.005em] text-foreground">
+              {CATEGORY_LABELS[category] ?? category}
+            </h5>
+            <ul className="mt-2 flex flex-col gap-1">
+              {items.map((item) => {
+                const on = checked.has(item.name);
+                return (
                   <li key={item.name}>
                     <button
+                      type="button"
                       onClick={() => toggle(item.name)}
-                      className="flex items-start gap-2 w-full text-left rounded px-1 py-0.5 hover:bg-muted/50 transition-colors"
+                      className="group flex w-full items-start gap-3 py-1 text-left transition-colors"
                     >
                       <span
-                        className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
-                          checked.has(item.name)
-                            ? "border-emerald-500 bg-emerald-500 text-white"
-                            : "border-muted-foreground/30"
-                        }`}
-                      >
-                        {checked.has(item.name) && (
-                          <Check className="h-3 w-3" />
+                        className={cn(
+                          "mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center border transition-colors",
+                          on
+                            ? "border-accent bg-accent text-accent-foreground"
+                            : "border-border group-hover:border-foreground",
                         )}
+                        aria-hidden
+                      >
+                        {on && <Check className="h-3 w-3" />}
                       </span>
-                      <span className="flex-1 min-w-0">
+                      <span className="min-w-0 flex-1">
                         <span
-                          className={`text-sm ${checked.has(item.name) ? "line-through text-muted-foreground" : ""}`}
+                          className={cn(
+                            "block text-[13px]",
+                            on
+                              ? "text-muted-foreground line-through"
+                              : "text-foreground",
+                          )}
                         >
                           {item.name}
                         </span>
-                        <span className="block text-[11px] text-muted-foreground/70 line-clamp-1">
+                        <span className="mt-0.5 block text-[11px] text-muted-foreground line-clamp-1">
                           {item.reason}
                         </span>
                       </span>
                     </button>
                   </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

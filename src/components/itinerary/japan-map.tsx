@@ -234,7 +234,7 @@ export function JapanMap({ selectedSlugs, onSelect }: JapanMapProps) {
               const meta = INTEREST_TAGS.find((t) => t.value === tag);
               return (
                 <Badge key={tag} variant="secondary" className="text-[9px] px-1 py-0">
-                  {meta ? `${meta.icon} ${meta.label}` : tag}
+                  {meta?.label ?? tag}
                 </Badge>
               );
             })}

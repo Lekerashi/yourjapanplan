@@ -4,18 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ItineraryDayCard } from "@/components/itinerary/itinerary-day-card";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Loader2,
-  Train,
-  Wallet,
-  Backpack,
-  MapPin,
-  CalendarCheck,
-  Lock,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface SharedItinerary {
   id: string;
@@ -61,6 +51,30 @@ interface SharedItinerary {
   };
 }
 
+function SummaryBlock({
+  eyebrow,
+  title,
+  body,
+}: {
+  eyebrow: string;
+  title?: string;
+  body: React.ReactNode;
+}) {
+  return (
+    <section className="border border-border bg-card p-6">
+      <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+        {eyebrow}
+      </p>
+      {title && (
+        <h3 className="mt-2 font-display text-[20px] font-medium tracking-[-0.01em] text-foreground">
+          {title}
+        </h3>
+      )}
+      <div className="mt-3 text-[14px] leading-[1.6] text-ink-2">{body}</div>
+    </section>
+  );
+}
+
 export default function SharePage() {
   const params = useParams();
   const id = params.id as string;
@@ -82,35 +96,31 @@ export default function SharePage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-500" />
+        <Loader2 className="h-7 w-7 animate-spin text-accent" />
       </div>
     );
   }
 
   if (notFound || !itinerary) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-12 text-center">
-        <Card>
-          <CardContent className="py-12">
-            <Lock className="mx-auto h-12 w-12 text-muted-foreground/50" />
-            <h1 className="mt-4 text-2xl font-bold">
-              Itinerary Not Available
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              This itinerary is private or doesn&apos;t exist. Ask the owner to
-              make it public, or create your own plan.
-            </p>
-            <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Button render={<Link href="/itinerary/new" />}>
-                <MapPin className="mr-2 h-4 w-4" />
-                Create Your Own
-              </Button>
-              <Button variant="outline" render={<Link href="/quiz" />}>
-                Take the Quiz
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="mx-auto max-w-[720px] px-[clamp(20px,4vw,40px)] py-20 text-center">
+        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+          Private or removed
+        </p>
+        <h1 className="mt-3 font-display text-[clamp(28px,3.5vw,40px)] font-medium tracking-[-0.015em] text-foreground">
+          This itinerary isn&apos;t available.
+        </h1>
+        <p className="mt-3 max-w-[44ch] text-[15px] text-ink-2 mx-auto">
+          Ask the owner to make it public, or build your own plan from scratch.
+        </p>
+        <div className="mt-7 flex flex-wrap justify-center gap-3">
+          <Button render={<Link href="/itinerary/new" />}>
+            Create your own
+          </Button>
+          <Button variant="outline" render={<Link href="/quiz" />}>
+            Take the quiz
+          </Button>
+        </div>
       </div>
     );
   }
@@ -119,102 +129,82 @@ export default function SharePage() {
   const days = plan?.days ?? [];
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
-      <div className="mb-8 text-center">
-        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <CalendarCheck className="h-4 w-4 text-rose-500" />
-          Shared Itinerary
-        </div>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+    <div className="mx-auto max-w-[1000px] px-[clamp(20px,4vw,40px)] py-[clamp(48px,8vw,96px)]">
+      <div className="border-b border-border pb-8 text-center">
+        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+          Shared itinerary
+        </p>
+        <h1 className="mt-3 font-display text-[clamp(32px,4vw,52px)] font-medium leading-[1.02] tracking-[-0.02em] text-foreground">
           {itinerary.title}
         </h1>
         {itinerary.travel_style && (
-          <Badge variant="secondary" className="mt-2">
+          <p className="mt-3 text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
             {itinerary.travel_style}
-          </Badge>
+          </p>
         )}
       </div>
 
-      {/* Day cards */}
       {days.length > 0 && (
-        <div className="space-y-6">
+        <div className="mt-10 flex flex-col gap-6">
           {days.map((day) => (
             <ItineraryDayCard key={day.day_number} day={day} />
           ))}
         </div>
       )}
 
-      {/* Summary cards */}
-      <div className="mt-10 space-y-4">
+      <div className="mt-10 grid gap-4 md:grid-cols-3">
         {itinerary.jr_pass_reasoning && (
-          <Card>
-            <CardContent className="flex gap-4 p-5">
-              <Train className="mt-0.5 h-5 w-5 shrink-0 text-rose-500" />
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold">JR Pass</h3>
-                  <Badge
-                    variant={
-                      itinerary.jr_pass_recommended ? "default" : "secondary"
-                    }
-                  >
-                    {itinerary.jr_pass_recommended
-                      ? "Recommended"
-                      : "Not needed"}
-                  </Badge>
-                </div>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {itinerary.jr_pass_reasoning}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <SummaryBlock
+            eyebrow="JR Pass"
+            title={
+              itinerary.jr_pass_recommended ? "Recommended" : "Not needed"
+            }
+            body={itinerary.jr_pass_reasoning}
+          />
         )}
-
         {itinerary.total_budget_estimate && (
-          <Card>
-            <CardContent className="flex gap-4 p-5">
-              <Wallet className="mt-0.5 h-5 w-5 shrink-0 text-rose-500" />
-              <div>
-                <h3 className="font-semibold">Estimated Budget</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {itinerary.total_budget_estimate} (excluding international
-                  flights)
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <SummaryBlock
+            eyebrow="Budget"
+            title={itinerary.total_budget_estimate}
+            body="Activities only. Flights, lodging, and most meals not included."
+          />
         )}
-
         {plan?.packing_tips && plan.packing_tips.length > 0 && (
-          <Card>
-            <CardContent className="flex gap-4 p-5">
-              <Backpack className="mt-0.5 h-5 w-5 shrink-0 text-rose-500" />
-              <div>
-                <h3 className="font-semibold">Packing Tips</h3>
-                <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
-                  {plan.packing_tips.map((tip, i) => (
-                    <li key={i}>• {tip}</li>
-                  ))}
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
+          <SummaryBlock
+            eyebrow="Packing tips"
+            body={
+              <ul className="flex flex-col gap-1.5">
+                {plan.packing_tips.map((tip, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span
+                      aria-hidden
+                      className="mt-[9px] inline-block h-1 w-1 shrink-0 rounded-full bg-accent"
+                    />
+                    <span>{tip}</span>
+                  </li>
+                ))}
+              </ul>
+            }
+          />
         )}
       </div>
 
-      {/* CTA */}
-      <div className="mt-10 text-center">
-        <p className="text-sm text-muted-foreground">
-          Want to plan your own trip?
+      <div className="mt-12 border-t border-border pt-8 text-center">
+        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+          Plan your own
         </p>
-        <div className="mt-3 flex justify-center gap-3">
+        <h3 className="mt-3 font-display text-[clamp(24px,2.8vw,32px)] font-medium tracking-[-0.01em] text-foreground">
+          Want a plan that fits{" "}
+          <span className="font-display italic font-normal text-accent">
+            your trip?
+          </span>
+        </h3>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Button render={<Link href="/itinerary/new" />}>
-            <MapPin className="mr-2 h-4 w-4" />
-            Build Your Itinerary
+            Build your itinerary
           </Button>
           <Button variant="outline" render={<Link href="/quiz" />}>
-            Take the Quiz
+            Take the quiz
           </Button>
         </div>
       </div>

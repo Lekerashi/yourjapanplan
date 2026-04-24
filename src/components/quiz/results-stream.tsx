@@ -8,10 +8,9 @@ import { useQuizStore } from "@/stores/quiz-store";
 import { useItineraryStore } from "@/stores/itinerary-store";
 import { SEED_DESTINATIONS } from "@/lib/ai/seed-destinations";
 import { RecommendationCard } from "./recommendation-card";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Loader2, RotateCcw, Train, CalendarCheck, Route } from "lucide-react";
+import { SectionHead } from "@/components/home/section-head";
+import { Loader2, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -42,6 +41,24 @@ interface ResultsStreamProps {
   };
 }
 
+function InsightCard({
+  eyebrow,
+  body,
+}: {
+  eyebrow: string;
+  body: string;
+}) {
+  return (
+    <div className="border border-border bg-card p-6">
+      <p className="flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+        {eyebrow}
+      </p>
+      <p className="mt-3 text-[15px] leading-[1.6] text-ink-2">{body}</p>
+    </div>
+  );
+}
+
 export function ResultsStream({ quizParams }: ResultsStreamProps) {
   const submittedRef = useRef(false);
   const cachedResults = useQuizStore((s) => s.cachedResults);
@@ -52,7 +69,6 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
     schema: recommendationResponseSchema,
   });
 
-  // Cache results when streaming completes
   const prevLoadingRef = useRef(isLoading);
   useEffect(() => {
     if (prevLoadingRef.current && !isLoading && object) {
@@ -64,7 +80,6 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
     prevLoadingRef.current = isLoading;
   }, [isLoading, object, setCachedResults]);
 
-  // Use cached results or start streaming
   useEffect(() => {
     if (!submittedRef.current && !cachedResults) {
       submittedRef.current = true;
@@ -72,17 +87,16 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Pick data source: cached or streaming
   const data = cachedResults ?? object;
   const streamingActive = !cachedResults && isLoading;
 
   if (error && !cachedResults) {
     return (
-      <div className="mx-auto max-w-2xl text-center py-20">
-        <p className="text-lg font-semibold text-destructive">
-          Something went wrong generating your recommendations.
+      <div className="mx-auto max-w-[720px] px-[clamp(20px,4vw,40px)] py-20 text-center">
+        <p className="font-display text-[clamp(24px,3vw,32px)] font-medium tracking-[-0.01em] text-foreground">
+          Something went wrong.
         </p>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-3 text-[14px] text-ink-2">
           {error.message || "Please try again."}
         </p>
         <Button
@@ -91,7 +105,7 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
           onClick={() => submit(quizParams)}
         >
           <RotateCcw className="mr-2 h-4 w-4" />
-          Try Again
+          Try again
         </Button>
       </div>
     );
@@ -99,34 +113,39 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
 
   const recommendations = data?.recommendations ?? [];
   const hasRecommendations = recommendations.length > 0;
+  const seasonText =
+    quizParams.season === "flexible" ? "" : `${quizParams.season} `;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Your Japan Plan
-        </h1>
-        <p className="mt-3 text-muted-foreground">
-          {streamingActive && !hasRecommendations
-            ? "Analyzing your preferences and finding the perfect destinations..."
-            : `Here are ${recommendations.length} perfect destinations for your ${quizParams.durationDays}-day ${quizParams.season === "flexible" ? "" : quizParams.season + " "}trip`}
-        </p>
-      </div>
+    <div className="mx-auto max-w-[1000px] px-[clamp(20px,4vw,40px)] py-[clamp(48px,8vw,96px)]">
+      <SectionHead
+        eyebrow="Your plan"
+        title={
+          <>
+            Japan,{" "}
+            <span className="font-display italic font-normal text-accent">
+              shaped around you.
+            </span>
+          </>
+        }
+        lede={
+          streamingActive && !hasRecommendations
+            ? "Reading your answers and pairing them with the catalog…"
+            : `${recommendations.length} cities for your ${quizParams.durationDays}-day ${seasonText}trip, in the order we'd string them together.`
+        }
+      />
 
-      {/* Loading skeleton */}
       {streamingActive && !hasRecommendations && (
-        <div className="mt-10 flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-rose-500" />
-          <p className="text-sm text-muted-foreground animate-pulse">
-            Planning your perfect trip...
+        <div className="mt-14 flex flex-col items-center gap-4">
+          <Loader2 className="h-7 w-7 animate-spin text-accent" />
+          <p className="text-[13px] uppercase tracking-[0.15em] text-muted-foreground">
+            Planning your trip
           </p>
         </div>
       )}
 
-      {/* Recommendation cards */}
       {hasRecommendations && (
-        <div className="mt-10 space-y-4">
+        <div className="mt-10 flex flex-col gap-4">
           {recommendations.map((rec, i) =>
             rec ? (
               <RecommendationCard
@@ -134,74 +153,42 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
                 recommendation={rec}
                 rank={i + 1}
               />
-            ) : null
+            ) : null,
           )}
         </div>
       )}
 
-      {/* Trip flow, seasonal tip, JR pass */}
-      {(data?.trip_flow || data?.seasonal_tip || data?.jr_pass_initial_take) && (
-        <>
-          <Separator className="my-10" />
-          <div className="space-y-6">
-            {data.trip_flow && (
-              <Card>
-                <CardContent className="flex gap-4 p-5">
-                  <Route className="mt-0.5 h-5 w-5 shrink-0 text-rose-500" />
-                  <div>
-                    <h3 className="font-semibold">Suggested Route</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {data.trip_flow}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {data.seasonal_tip && (
-              <Card>
-                <CardContent className="flex gap-4 p-5">
-                  <CalendarCheck className="mt-0.5 h-5 w-5 shrink-0 text-rose-500" />
-                  <div>
-                    <h3 className="font-semibold">Seasonal Tip</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {data.seasonal_tip}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {data.jr_pass_initial_take && (
-              <Card>
-                <CardContent className="flex gap-4 p-5">
-                  <Train className="mt-0.5 h-5 w-5 shrink-0 text-rose-500" />
-                  <div>
-                    <h3 className="font-semibold">JR Pass</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {data.jr_pass_initial_take}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </>
+      {(data?.trip_flow ||
+        data?.seasonal_tip ||
+        data?.jr_pass_initial_take) && (
+        <div className="mt-12 grid gap-4 md:grid-cols-3">
+          {data.trip_flow && (
+            <InsightCard eyebrow="Suggested route" body={data.trip_flow} />
+          )}
+          {data.seasonal_tip && (
+            <InsightCard eyebrow="Seasonal tip" body={data.seasonal_tip} />
+          )}
+          {data.jr_pass_initial_take && (
+            <InsightCard
+              eyebrow="JR Pass"
+              body={data.jr_pass_initial_take}
+            />
+          )}
+        </div>
       )}
 
-      {/* Actions */}
       {!streamingActive && hasRecommendations && (
-        <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-          <BuildItineraryButton recommendations={recommendations} quizParams={quizParams} />
+        <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-border pt-8">
+          <BuildItineraryButton
+            recommendations={recommendations}
+            quizParams={quizParams}
+          />
           <Button
             variant="outline"
-            onClick={() => {
-              useQuizStore.getState().setCachedResults(null as unknown as RecommendationResponse);
-            }}
             render={<Link href="/quiz" />}
           >
             <RotateCcw className="mr-2 h-4 w-4" />
-            Edit Preferences
+            Edit preferences
           </Button>
           <Button
             variant="ghost"
@@ -210,25 +197,24 @@ export function ResultsStream({ quizParams }: ResultsStreamProps) {
             }}
             render={<Link href="/quiz" />}
           >
-            Retake Quiz
+            Retake quiz
           </Button>
         </div>
       )}
 
       {streamingActive && hasRecommendations && (
-        <div className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Still generating...
+        <div className="mt-6 flex items-center justify-center gap-2 text-[13px] uppercase tracking-[0.15em] text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin text-accent" />
+          Still generating
         </div>
       )}
     </div>
   );
 }
 
-/** Sort destinations into a geographic route via nearest-neighbor from the easternmost city */
 function sortGeographic<T extends { slug: string }>(
   dests: T[],
-  coords: Record<string, [number, number]>
+  coords: Record<string, [number, number]>,
 ): T[] {
   if (dests.length <= 1) return dests;
 
@@ -238,9 +224,10 @@ function sortGeographic<T extends { slug: string }>(
     return Math.sqrt((lat1 - lat2) ** 2 + (lng1 - lng2) ** 2);
   };
 
-  // Start from the easternmost destination (highest longitude)
   const remaining = [...dests];
-  remaining.sort((a, b) => (coords[b.slug]?.[1] ?? 0) - (coords[a.slug]?.[1] ?? 0));
+  remaining.sort(
+    (a, b) => (coords[b.slug]?.[1] ?? 0) - (coords[a.slug]?.[1] ?? 0),
+  );
   const result: T[] = [remaining.shift()!];
 
   while (remaining.length > 0) {
@@ -264,35 +251,38 @@ function BuildItineraryButton({
   recommendations,
   quizParams,
 }: {
-  recommendations: ({ destination_slug?: string; suggested_days?: number } | undefined)[];
+  recommendations: (
+    | { destination_slug?: string; suggested_days?: number }
+    | undefined
+  )[];
   quizParams: ResultsStreamProps["quizParams"];
 }) {
   const router = useRouter();
   const store = useItineraryStore;
 
   const handleClick = () => {
-    // Reset builder state
     store.getState().reset();
 
-    // Build destination list from quiz recommendations
     const recs = recommendations.filter(
-      (r): r is NonNullable<typeof r> => !!r?.destination_slug
+      (r): r is NonNullable<typeof r> => !!r?.destination_slug,
     );
     const destList = recs
       .map((rec) => {
-        const dest = SEED_DESTINATIONS.find((d) => d.slug === rec.destination_slug);
-        return dest ? { slug: dest.slug, name: dest.name, days: rec.suggested_days ?? 2 } : null;
+        const dest = SEED_DESTINATIONS.find(
+          (d) => d.slug === rec.destination_slug,
+        );
+        return dest
+          ? { slug: dest.slug, name: dest.name, days: rec.suggested_days ?? 2 }
+          : null;
       })
       .filter((d): d is NonNullable<typeof d> => !!d);
 
-    // Sort into a geographic route using nearest-neighbor from easternmost city
     const sorted = sortGeographic(destList, DEST_COORDS);
 
     for (const dest of sorted) {
       store.getState().addDestination(dest);
     }
 
-    // Set preferences from quiz params
     store.getState().setPreferences({
       travelStyle: quizParams.travelStyle,
       interests: quizParams.interests,
@@ -306,9 +296,5 @@ function BuildItineraryButton({
     router.push("/itinerary/new?from=quiz");
   };
 
-  return (
-    <Button onClick={handleClick}>
-      Build My Itinerary
-    </Button>
-  );
+  return <Button onClick={handleClick}>Build my itinerary</Button>;
 }

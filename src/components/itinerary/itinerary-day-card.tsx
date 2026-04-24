@@ -1,22 +1,22 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { ActivityItem } from "./activity-item";
-import { MapPin, ArrowRight, Bed, Train } from "lucide-react";
 
 interface DayCardProps {
   day: {
     day_number?: number;
     destination_name?: string;
     theme?: string;
-    activities?: ({
-      time?: string;
-      title?: string;
-      description?: string;
-      duration_minutes?: number;
-      reservation_required?: boolean;
-      cost_estimate?: string;
-      tip?: string | null;
-    } | undefined)[];
+    activities?: (
+      | {
+          time?: string;
+          title?: string;
+          description?: string;
+          duration_minutes?: number;
+          reservation_required?: boolean;
+          cost_estimate?: string;
+          tip?: string | null;
+        }
+      | undefined
+    )[];
     transport?: {
       from?: string;
       to?: string;
@@ -36,92 +36,78 @@ interface DayCardProps {
 
 export function ItineraryDayCard({ day }: DayCardProps) {
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <Badge className="mb-2">Day {day.day_number ?? "..."}</Badge>
-            <CardTitle className="text-xl">
-              {day.theme ?? "Planning..."}
-            </CardTitle>
-            {day.destination_name && (
-              <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5" />
-                {day.destination_name}
-              </div>
-            )}
-          </div>
+    <article className="border border-border bg-card">
+      <header className="flex flex-wrap items-end justify-between gap-3 border-b border-border p-6">
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+            Day {day.day_number ?? "…"}
+            {day.destination_name ? ` · ${day.destination_name}` : ""}
+          </p>
+          <h3 className="mt-2 font-display text-[clamp(22px,2.6vw,28px)] font-medium leading-[1.1] tracking-[-0.015em] text-foreground">
+            {day.theme ?? "Planning…"}
+          </h3>
         </div>
-      </CardHeader>
+      </header>
 
-      <CardContent className="space-y-0">
-        {/* Activities timeline */}
+      <div className="px-6 pt-2 pb-5">
         {day.activities && day.activities.length > 0 && (
-          <div>
+          <ul>
             {day.activities
               .filter((a): a is NonNullable<typeof a> => !!a)
               .map((activity, i) => (
-                <ActivityItem key={i} activity={activity} />
+                <li key={i}>
+                  <ActivityItem activity={activity} />
+                </li>
               ))}
-          </div>
+          </ul>
         )}
+      </div>
 
-        {/* Transport to next destination */}
-        {day.transport && (
-          <div className="mt-2 flex items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-sm">
-            <Train className="h-4 w-4 shrink-0 text-blue-600" />
-            <div className="flex flex-1 flex-wrap items-center gap-1.5">
-              <span className="font-medium">{day.transport.from}</span>
-              <ArrowRight className="h-3 w-3 text-blue-400" />
-              <span className="font-medium">{day.transport.to}</span>
-              {day.transport.method && (
-                <span className="text-blue-600">
-                  via {day.transport.method}
-                </span>
-              )}
-              {day.transport.duration && (
-                <span className="text-muted-foreground">
-                  ({day.transport.duration})
-                </span>
-              )}
-              {day.transport.cost && (
-                <span className="text-muted-foreground">
-                  &middot; {day.transport.cost}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
+      {day.transport && (
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-t border-border bg-secondary/40 px-6 py-4 text-[13px] text-foreground">
+          <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Transit
+          </span>
+          <span className="font-display text-[15px] font-medium">
+            {day.transport.from} → {day.transport.to}
+          </span>
+          {day.transport.method && (
+            <span className="text-ink-2">via {day.transport.method}</span>
+          )}
+          <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+            {[day.transport.duration, day.transport.cost]
+              .filter(Boolean)
+              .join(" · ")}
+          </span>
+          {day.transport.tip && (
+            <p className="mt-1 w-full text-[12px] text-ink-2">
+              {day.transport.tip}
+            </p>
+          )}
+        </div>
+      )}
 
-        {day.transport?.tip && (
-          <p className="mt-1 text-xs text-muted-foreground">
-            Tip: {day.transport.tip}
+      {day.accommodation && day.accommodation.name && (
+        <div className="border-t border-border px-6 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Where to stay
           </p>
-        )}
-
-        {/* Accommodation */}
-        {day.accommodation && day.accommodation.name && (
-          <div className="mt-4 flex items-start gap-3 rounded-lg border px-4 py-3">
-            <Bed className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
-            <div>
-              <p className="text-sm font-medium">{day.accommodation.name}</p>
-              {day.accommodation.area && (
-                <p className="text-xs text-muted-foreground">
-                  {day.accommodation.area}
-                  {day.accommodation.type
-                    ? ` · ${day.accommodation.type}`
-                    : ""}
-                </p>
-              )}
-              {day.accommodation.reasoning && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {day.accommodation.reasoning}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          <p className="mt-1 font-display text-[16px] font-medium tracking-[-0.005em] text-foreground">
+            {day.accommodation.name}
+          </p>
+          {day.accommodation.area && (
+            <p className="text-[12px] text-ink-2">
+              {day.accommodation.area}
+              {day.accommodation.type ? ` · ${day.accommodation.type}` : ""}
+            </p>
+          )}
+          {day.accommodation.reasoning && (
+            <p className="mt-1 text-[12px] text-ink-2">
+              {day.accommodation.reasoning}
+            </p>
+          )}
+        </div>
+      )}
+    </article>
   );
 }

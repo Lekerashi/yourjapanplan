@@ -1,7 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Bed } from "lucide-react";
-
 interface Zone {
   name: string;
   description: string;
@@ -14,28 +10,34 @@ interface AccommodationZonesProps {
 
 export function AccommodationZones({ zones }: AccommodationZonesProps) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {zones.map((zone) => (
-        <Card key={zone.name} size="sm">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <Bed className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
-              <div>
-                <h4 className="font-semibold">{zone.name}</h4>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {zone.description}
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {zone.best_for.map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="grid gap-0 border border-border bg-card md:grid-cols-2">
+      {zones.map((zone, i) => (
+        <div
+          key={zone.name}
+          className={
+            "p-5 " +
+            (i < zones.length - 1
+              ? "border-b border-border last:border-b-0 md:border-r md:[&:nth-child(2n)]:border-r-0 md:[&:nth-last-child(-n+2)]:border-b-0"
+              : "")
+          }
+        >
+          <h4 className="font-display text-[18px] font-medium tracking-[-0.005em] text-foreground">
+            {zone.name}
+          </h4>
+          <p className="mt-2 text-[14px] leading-[1.55] text-ink-2">
+            {zone.description}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {zone.best_for.map((tag) => (
+              <span
+                key={tag}
+                className="border border-border px-2 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
       ))}
     </div>
   );

@@ -3,26 +3,17 @@
 import { useMemo } from "react";
 import { useItineraryStore } from "@/stores/itinerary-store";
 import { useQuizStore } from "@/stores/quiz-store";
-import { getActivitiesForDestination, type CatalogActivity } from "@/lib/data/seed-activities";
+import {
+  getActivitiesForDestination,
+  type CatalogActivity,
+} from "@/lib/data/seed-activities";
 import { getMovementTime } from "@/lib/data/movement-times";
 import { SEED_DESTINATIONS } from "@/lib/ai/seed-destinations";
 import { findRoute, TRANSPORT_ROUTES } from "@/lib/data/transport-routes";
 import { ActivityPicker } from "./activity-picker";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  ArrowUp,
-  ArrowDown,
-  X,
-  Clock,
-  Bookmark,
-  Lightbulb,
-  Bed,
-  Plus,
-  UtensilsCrossed,
-  Train,
-  MapPin,
-} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ArrowUp, ArrowDown, X, Plus } from "lucide-react";
 
 interface DayBuilderProps {
   dayNumber: number;
@@ -30,7 +21,7 @@ interface DayBuilderProps {
 
 export function DayBuilder({ dayNumber }: DayBuilderProps) {
   const day = useItineraryStore((s) =>
-    s.builderDays.find((d) => d.dayNumber === dayNumber)
+    s.builderDays.find((d) => d.dayNumber === dayNumber),
   );
   const addActivity = useItineraryStore((s) => s.addActivity);
   const removeActivity = useItineraryStore((s) => s.removeActivity);
@@ -54,38 +45,31 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
   const dayTripSlug = day?.dayTripSlug ?? null;
   const activeSlug = dayTripSlug ?? baseSlug;
 
-  const catalog = useMemo(
-    () => {
-      const all = getActivitiesForDestination(activeSlug);
-      const map = new Map<string, CatalogActivity>();
-      for (const a of all) map.set(a.id, a);
-      return map;
-    },
-    [activeSlug]
-  );
+  const catalog = useMemo(() => {
+    const all = getActivitiesForDestination(activeSlug);
+    const map = new Map<string, CatalogActivity>();
+    for (const a of all) map.set(a.id, a);
+    return map;
+  }, [activeSlug]);
 
   const destination = useMemo(
     () => SEED_DESTINATIONS.find((d) => d.slug === activeSlug),
-    [activeSlug]
+    [activeSlug],
   );
 
-  // Day trip transport route
   const dayTripRoute = useMemo(
     () => (dayTripSlug ? findRoute(baseSlug, dayTripSlug) : null),
-    [baseSlug, dayTripSlug]
+    [baseSlug, dayTripSlug],
   );
 
-  // Nearby destinations for day trip selector (reachable within ~2 hours, exclude flights)
   const nearbyDestinations = useMemo(() => {
     return TRANSPORT_ROUTES.filter((r) => {
       const isFrom = r.from_slug === baseSlug;
       const isTo = r.to_slug === baseSlug;
       if (!isFrom && !isTo) return false;
-      // Parse duration to filter reasonable day trips
       const durMatch = r.duration.match(/(\d+)h/);
       const hours = durMatch ? parseInt(durMatch[1]) : 0;
       if (hours > 2) return false;
-      // Exclude flights
       if (r.primary_method.toLowerCase().includes("flight")) return false;
       return true;
     }).map((r) => {
@@ -97,22 +81,19 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
 
   const addedIds = useMemo(
     () => new Set(day?.activities.map((a) => a.catalogId) ?? []),
-    [day?.activities]
+    [day?.activities],
   );
 
-  // Calculate time slots respecting best_time_of_day and nightlife ordering
   const activitiesWithTime = useMemo(() => {
     if (!day) return [];
 
     const toTimeStr = (m: number) =>
       `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 
-    // Group by time-of-day preference; nightlife goes into a separate late-evening bucket
     const morning: typeof day.activities = [];
     const afternoon: typeof day.activities = [];
     const evening: typeof day.activities = [];
     const lateEvening: typeof day.activities = [];
-
     const lunchFood: typeof day.activities = [];
 
     for (const a of day.activities) {
@@ -121,17 +102,11 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
       const isNightlife = activity?.type === "nightlife";
       const isFood = activity?.type === "food";
 
-      if (isNightlife) {
-        lateEvening.push(a); // Always scheduled after dinner
-      } else if (tod === "evening") {
-        evening.push(a);
-      } else if (tod === "afternoon") {
-        afternoon.push(a);
-      } else if (isFood && tod === "anytime") {
-        lunchFood.push(a); // Food with "anytime" slots into the lunch window
-      } else {
-        morning.push(a); // morning + anytime non-food default to morning
-      }
+      if (isNightlife) lateEvening.push(a);
+      else if (tod === "evening") evening.push(a);
+      else if (tod === "afternoon") afternoon.push(a);
+      else if (isFood && tod === "anytime") lunchFood.push(a);
+      else morning.push(a);
     }
 
     const ordered = [...morning, ...lunchFood, ...afternoon, ...evening];
@@ -152,18 +127,18 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
 
     const results: TimelineItem[] = [];
 
-    // Parse day trip travel duration (e.g., "45m", "1h 30m")
     let dayTripDurationMin = 0;
     if (dayTripRoute) {
       const hMatch = dayTripRoute.duration.match(/(\d+)h/);
       const mMatch = dayTripRoute.duration.match(/(\d+)m/);
-      dayTripDurationMin = (hMatch ? parseInt(hMatch[1]) * 60 : 0) + (mMatch ? parseInt(mMatch[1]) : 0);
+      dayTripDurationMin =
+        (hMatch ? parseInt(hMatch[1]) * 60 : 0) +
+        (mMatch ? parseInt(mMatch[1]) : 0);
     }
 
-    // If day trip, depart early and shift morning start
-    let morningTime = 9 * 60;   // 09:00
+    let morningTime = 9 * 60;
     if (dayTripRoute) {
-      const departTime = 8 * 60; // 08:00 departure
+      const departTime = 8 * 60;
       results.push({
         catalogId: "transport-depart",
         customName: `Train to ${dayTripRoute.to_slug === dayTripSlug ? dayTripRoute.to_name : dayTripRoute.from_name}`,
@@ -176,12 +151,12 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
         isMovement: true,
         movementMethod: dayTripRoute.primary_method,
       });
-      morningTime = departTime + dayTripDurationMin + 15; // arrival + buffer
+      morningTime = departTime + dayTripDurationMin + 15;
     }
 
-    let lunchTime = 11 * 60 + 30; // 11:30
-    let afternoonTime = 13 * 60;  // 13:00
-    let eveningTime = 18 * 60;    // 18:00
+    let lunchTime = 11 * 60 + 30;
+    let afternoonTime = 13 * 60;
+    let eveningTime = 18 * 60;
 
     const lunchFoodSet = new Set(lunchFood.map((a) => a.catalogId));
     let prevMorningActivity: CatalogActivity | undefined;
@@ -198,53 +173,77 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
       let startMinutes: number;
       if (tod === "evening") {
         const move = prevEveningActivity
-          ? getMovementTime(activeSlug, prevEveningActivity.area, activity?.area).minutes
+          ? getMovementTime(
+              activeSlug,
+              prevEveningActivity.area,
+              activity?.area,
+            ).minutes
           : 0;
         startMinutes = eveningTime;
         eveningTime += duration + move;
         prevEveningActivity = activity;
       } else if (tod === "afternoon") {
         const move = prevAfternoonActivity
-          ? getMovementTime(activeSlug, prevAfternoonActivity.area, activity?.area).minutes
+          ? getMovementTime(
+              activeSlug,
+              prevAfternoonActivity.area,
+              activity?.area,
+            ).minutes
           : 0;
         startMinutes = afternoonTime;
         afternoonTime += duration + move;
         prevAfternoonActivity = activity;
       } else if (isLunchSlot) {
         const move = prevLunchActivity
-          ? getMovementTime(activeSlug, prevLunchActivity.area, activity?.area).minutes
+          ? getMovementTime(
+              activeSlug,
+              prevLunchActivity.area,
+              activity?.area,
+            ).minutes
           : 0;
         startMinutes = lunchTime;
         lunchTime += duration + move;
-        // Push afternoon start if lunch runs long
         afternoonTime = Math.max(afternoonTime, lunchTime + 15);
         prevLunchActivity = activity;
       } else {
         const move = prevMorningActivity
-          ? getMovementTime(activeSlug, prevMorningActivity.area, activity?.area).minutes
+          ? getMovementTime(
+              activeSlug,
+              prevMorningActivity.area,
+              activity?.area,
+            ).minutes
           : 0;
         startMinutes = morningTime;
         morningTime += duration + move;
         prevMorningActivity = activity;
       }
 
-      // Use custom time if set, otherwise auto-calculated
       const effectiveTime = a.customStartTime ?? toTimeStr(startMinutes);
       results.push({ ...a, time: effectiveTime, catalogActivity: activity });
     }
 
-    // Insert lunch and dinner meal slots
-    const hasLunchActivity = results.some((r) => r.catalogActivity?.type === "food" && r.time >= "11:30" && r.time <= "14:30");
-    const hasDinnerActivity = results.some((r) => r.catalogActivity?.type === "food" && r.time >= "17:00");
+    const hasLunchActivity = results.some(
+      (r) =>
+        r.catalogActivity?.type === "food" &&
+        r.time >= "11:30" &&
+        r.time <= "14:30",
+    );
+    const hasDinnerActivity = results.some(
+      (r) => r.catalogActivity?.type === "food" && r.time >= "17:00",
+    );
 
     if (!hasLunchActivity && results.length > 0) {
-      const lunchTime = Math.max(11 * 60 + 30, Math.min(morningTime, 14 * 60 + 30));
+      const lunchSlot = Math.max(
+        11 * 60 + 30,
+        Math.min(morningTime, 14 * 60 + 30),
+      );
       results.push({
         catalogId: "meal-lunch",
         customName: "Lunch",
-        customDescription: "Explore local restaurants or try the area's specialty.",
+        customDescription:
+          "Explore local restaurants or try the area's specialty.",
         notes: "",
-        time: toTimeStr(lunchTime),
+        time: toTimeStr(lunchSlot),
         customStartTime: null,
         booked: false,
         catalogActivity: undefined,
@@ -252,19 +251,32 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
       });
     }
 
-    // Dinner timing shifts with evening preference
-    const dinnerMin = eveningPreference === "early" ? 17 * 60 : eveningPreference === "nightowl" ? 19 * 60 : 18 * 60;
-    const dinnerMax = eveningPreference === "early" ? 19 * 60 : eveningPreference === "nightowl" ? 21 * 60 : 20 * 60;
+    const dinnerMin =
+      eveningPreference === "early"
+        ? 17 * 60
+        : eveningPreference === "nightowl"
+          ? 19 * 60
+          : 18 * 60;
+    const dinnerMax =
+      eveningPreference === "early"
+        ? 19 * 60
+        : eveningPreference === "nightowl"
+          ? 21 * 60
+          : 20 * 60;
     let dinnerTime = dinnerMin;
 
     if (!hasDinnerActivity && results.length > 0) {
-      dinnerTime = Math.max(dinnerMin, Math.min(Math.max(afternoonTime, eveningTime - 30), dinnerMax));
+      dinnerTime = Math.max(
+        dinnerMin,
+        Math.min(Math.max(afternoonTime, eveningTime - 30), dinnerMax),
+      );
       results.push({
         catalogId: "meal-dinner",
         customName: "Dinner",
-        customDescription: lateEvening.length > 0
-          ? "Refuel before heading out for the night."
-          : "End the day with a local dining experience.",
+        customDescription:
+          lateEvening.length > 0
+            ? "Refuel before heading out for the night."
+            : "End the day with a local dining experience.",
         notes: "",
         time: toTimeStr(dinnerTime),
         customStartTime: null,
@@ -273,37 +285,45 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
         isMealSlot: true,
       });
     } else {
-      // If there's a dinner food activity, find its end time for late evening scheduling
-      const dinnerActivity = results.find((r) => r.catalogActivity?.type === "food" && r.time >= "17:00");
+      const dinnerActivity = results.find(
+        (r) => r.catalogActivity?.type === "food" && r.time >= "17:00",
+      );
       if (dinnerActivity) {
-        const dStart = parseInt(dinnerActivity.time.split(":")[0]) * 60 + parseInt(dinnerActivity.time.split(":")[1]);
-        dinnerTime = dStart + (dinnerActivity.catalogActivity?.duration_minutes ?? 60);
+        const dStart =
+          parseInt(dinnerActivity.time.split(":")[0]) * 60 +
+          parseInt(dinnerActivity.time.split(":")[1]);
+        dinnerTime =
+          dStart + (dinnerActivity.catalogActivity?.duration_minutes ?? 60);
       }
     }
 
-    // Schedule late evening (nightlife) activities after dinner
     if (lateEvening.length > 0) {
-      let lateTime = dinnerTime + 90; // 90 min for dinner + transition
+      let lateTime = dinnerTime + 90;
       for (const a of lateEvening) {
         const activity = catalog.get(a.catalogId);
         const duration = activity?.duration_minutes ?? 60;
         const effectiveTime = a.customStartTime ?? toTimeStr(lateTime);
         results.push({ ...a, time: effectiveTime, catalogActivity: activity });
-        lateTime += duration + 20; // Shorter buffer between bars
+        lateTime += duration + 20;
       }
     }
 
-    // Add return trip for day trips
     if (dayTripRoute && results.length > 0) {
-      // Find the latest non-transport activity time
       const lastActivity = results
         .filter((r) => r.catalogId !== "transport-depart")
         .sort((a, b) => b.time.localeCompare(a.time))[0];
       if (lastActivity) {
-        const lastTime = parseInt(lastActivity.time.split(":")[0]) * 60 + parseInt(lastActivity.time.split(":")[1]);
-        const lastDuration = lastActivity.catalogActivity?.duration_minutes ?? (lastActivity.isMealSlot ? 60 : 30);
-        const returnTime = lastTime + lastDuration + 15; // buffer to station
-        const tripDest = dayTripRoute.to_slug === dayTripSlug ? dayTripRoute.from_name : dayTripRoute.to_name;
+        const lastTime =
+          parseInt(lastActivity.time.split(":")[0]) * 60 +
+          parseInt(lastActivity.time.split(":")[1]);
+        const lastDuration =
+          lastActivity.catalogActivity?.duration_minutes ??
+          (lastActivity.isMealSlot ? 60 : 30);
+        const returnTime = lastTime + lastDuration + 15;
+        const tripDest =
+          dayTripRoute.to_slug === dayTripSlug
+            ? dayTripRoute.from_name
+            : dayTripRoute.to_name;
         results.push({
           catalogId: "transport-return",
           customName: `Train back to ${tripDest}`,
@@ -319,29 +339,36 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
       }
     }
 
-    // Sort everything by time
     results.sort((a, b) => a.time.localeCompare(b.time));
-
     return results;
   }, [day, catalog, eveningPreference, dayTripRoute, dayTripSlug, activeSlug]);
 
-  // Auto-select accommodation
   const suggestedAccommodation = useMemo(() => {
     if (!destination || day?.accommodation) return null;
     const zones = destination.accommodation_zones;
     if (!zones.length) return null;
-    // Match by budget/style
-    const budgetTag = budget === "luxury" ? "luxury" : budget === "budget" ? "budget" : "first-timers";
-    const match = zones.find((z) => z.best_for.some((b) => b.includes(budgetTag)));
+    const budgetTag =
+      budget === "luxury"
+        ? "luxury"
+        : budget === "budget"
+          ? "budget"
+          : "first-timers";
+    const match = zones.find((z) =>
+      z.best_for.some((b) => b.includes(budgetTag)),
+    );
     const zone = match ?? zones[0];
     return {
       zone: zone.name,
-      type: budget === "luxury" ? "ryokan" : budget === "budget" ? "hostel" : "hotel",
+      type:
+        budget === "luxury"
+          ? "ryokan"
+          : budget === "budget"
+            ? "hostel"
+            : "hotel",
       reasoning: zone.description,
     };
   }, [destination, day?.accommodation, budget]);
 
-  // Per-day cost estimate
   const dayCost = useMemo(() => {
     if (!day) return 0;
     let total = 0;
@@ -354,25 +381,28 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
     return total;
   }, [day, catalog]);
 
-  // Seasonal info banner
   const startDate = useItineraryStore((s) => s.startDate);
   const storeSeason = useItineraryStore((s) => s.season);
 
   const seasonalInfo = useMemo(() => {
     if (!destination) return null;
-    // If we have a start date, compute the month for this specific day
     let month: number | null = null;
     if (startDate) {
       const d = new Date(startDate + "T00:00:00");
       d.setDate(d.getDate() + dayNumber - 1);
-      month = d.getMonth() + 1; // 1-indexed
+      month = d.getMonth() + 1;
     }
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthNames = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
     const crowdMap = destination.crowd_level_by_month as Record<string, number>;
     const crowdLevel = month ? crowdMap[String(month)] ?? null : null;
     const bestSeasons = destination.best_seasons ?? [];
     const currentSeason = storeSeason ?? "spring";
-    const isGoodSeason = bestSeasons.some((s) => s.toLowerCase().includes(currentSeason));
+    const isGoodSeason = bestSeasons.some((s) =>
+      s.toLowerCase().includes(currentSeason),
+    );
 
     if (!crowdLevel && !bestSeasons.length) return null;
 
@@ -380,7 +410,12 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
     if (month) {
       parts.push(`${destination.name} in ${monthNames[month - 1]}`);
       if (crowdLevel) {
-        const crowdLabel = crowdLevel <= 2 ? "Low crowds" : crowdLevel <= 3 ? "Moderate crowds" : "Heavy crowds";
+        const crowdLabel =
+          crowdLevel <= 2
+            ? "Low crowds"
+            : crowdLevel <= 3
+              ? "Moderate crowds"
+              : "Heavy crowds";
         parts.push(`${crowdLabel} (${crowdLevel}/5)`);
       }
     }
@@ -388,9 +423,6 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
       parts.push(`Best seasons: ${bestSeasons.join(", ")}`);
     } else if (bestSeasons.length > 0) {
       parts.push(`Best in ${bestSeasons.join(", ")} (current: ${currentSeason})`);
-    }
-    if (destination.reservation_tips) {
-      parts.push(destination.reservation_tips);
     }
 
     return { parts, crowdLevel, isGoodSeason };
@@ -407,39 +439,39 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr,320px]">
-      {/* Left — Your Day */}
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h3 className="font-semibold">Your Day</h3>
+        <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-3">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              Your day
+            </p>
             {dayCost > 0 && (
-              <span className="text-xs text-muted-foreground">
-                ~¥{dayCost.toLocaleString()}
-              </span>
+              <p className="mt-1 text-[12px] text-ink-2">
+                Approximately ¥{dayCost.toLocaleString()} in activities
+              </p>
             )}
           </div>
           {nearbyDestinations.length > 0 && (
-            <div className="flex items-center gap-2">
+            <div>
               {dayTripSlug ? (
                 <Button
                   variant="outline"
-                  size="sm"
-                  className="h-7 text-xs"
+                  size="xs"
                   onClick={() => setDayTrip(dayNumber, null)}
                 >
                   <X className="mr-1 h-3 w-3" />
-                  Cancel Day Trip
+                  Cancel day trip
                 </Button>
               ) : (
                 <select
-                  className="h-7 rounded-md border bg-background px-2 text-xs"
+                  className="h-8 border border-border bg-background px-2 text-[12px] text-foreground focus:border-foreground focus:outline-none"
                   value=""
                   onChange={(e) => {
                     if (e.target.value) setDayTrip(dayNumber, e.target.value);
                   }}
                 >
-                  <option value="">Day Trip...</option>
+                  <option value="">Add a day trip…</option>
                   {nearbyDestinations.map((d) => (
                     <option key={d.slug} value={d.slug}>
                       {d.name} ({d.route.duration})
@@ -450,252 +482,273 @@ export function DayBuilder({ dayNumber }: DayBuilderProps) {
             </div>
           )}
         </div>
+
         {seasonalInfo && seasonalInfo.parts.length > 0 && (
-          <div className={`mt-2 rounded-lg px-3 py-1.5 text-xs border ${
-            seasonalInfo.crowdLevel && seasonalInfo.crowdLevel >= 4
-              ? "bg-amber-50/50 border-amber-200 text-amber-700"
-              : seasonalInfo.isGoodSeason
-                ? "bg-emerald-50/50 border-emerald-200 text-emerald-700"
-                : "bg-slate-50/50 border-slate-200 text-slate-600"
-          }`}>
+          <p
+            className={cn(
+              "mt-3 text-[11px] uppercase tracking-[0.12em]",
+              seasonalInfo.crowdLevel && seasonalInfo.crowdLevel >= 4
+                ? "text-accent"
+                : "text-muted-foreground",
+            )}
+          >
             {seasonalInfo.parts.join(" · ")}
-          </div>
+          </p>
         )}
+
         {dayTripSlug && (
-          <div className="mt-2 flex items-center gap-2 rounded-lg bg-blue-50/50 border border-blue-200 px-3 py-1.5 text-xs text-blue-700">
-            <MapPin className="h-3 w-3 shrink-0" />
-            <span>Day trip to <strong>{SEED_DESTINATIONS.find((d) => d.slug === dayTripSlug)?.name ?? dayTripSlug}</strong></span>
-          </div>
+          <p className="mt-3 border border-border bg-secondary/40 px-3 py-2 text-[12px] text-foreground">
+            Day trip to{" "}
+            <strong className="font-medium">
+              {SEED_DESTINATIONS.find((d) => d.slug === dayTripSlug)?.name ??
+                dayTripSlug}
+            </strong>
+          </p>
         )}
 
         {activitiesWithTime.length === 0 ? (
-          <div className="mt-4 rounded-lg border-2 border-dashed p-8 text-center">
-            <Plus className="mx-auto h-8 w-8 text-muted-foreground/50" />
-            <p className="mt-2 text-sm text-muted-foreground">
-              Add activities from the panel or use a Quick Start template.
+          <div className="mt-6 border border-dashed border-border p-8 text-center">
+            <Plus className="mx-auto h-7 w-7 text-muted-foreground/40" />
+            <p className="mt-3 text-[14px] text-ink-2">
+              Add activities from the panel or apply a quick-start template.
             </p>
           </div>
         ) : (
-          <div className="mt-4 space-y-0">
+          <ul className="mt-6 flex flex-col border-t border-border">
             {activitiesWithTime.map((item, index) => {
               const a = item.catalogActivity;
-              const name = item.customName ?? a?.name ?? "Custom Activity";
+              const name = item.customName ?? a?.name ?? "Custom activity";
               const desc = item.customDescription ?? a?.description;
-              const isMeal = item.isMealSlot;
 
-              // Movement indicator between activities
               const prev = index > 0 ? activitiesWithTime[index - 1] : null;
               let movementIndicator: React.ReactNode = null;
               if (prev && !item.isMovement && !prev.isMovement) {
-                const prevEnd = parseInt(prev.time.split(":")[0]) * 60 + parseInt(prev.time.split(":")[1]) + (prev.catalogActivity?.duration_minutes ?? (prev.isMealSlot ? 60 : 30));
-                const curStart = parseInt(item.time.split(":")[0]) * 60 + parseInt(item.time.split(":")[1]);
+                const prevEnd =
+                  parseInt(prev.time.split(":")[0]) * 60 +
+                  parseInt(prev.time.split(":")[1]) +
+                  (prev.catalogActivity?.duration_minutes ??
+                    (prev.isMealSlot ? 60 : 30));
+                const curStart =
+                  parseInt(item.time.split(":")[0]) * 60 +
+                  parseInt(item.time.split(":")[1]);
                 const gap = curStart - prevEnd;
                 if (gap > 0 && prev.catalogActivity && a) {
-                  const move = getMovementTime(activeSlug, prev.catalogActivity.area, a.area);
+                  const move = getMovementTime(
+                    activeSlug,
+                    prev.catalogActivity.area,
+                    a.area,
+                  );
                   movementIndicator = (
-                    <div className="flex items-center gap-2 py-1 pl-14 text-[11px] text-muted-foreground/60">
-                      <div className="h-3 border-l border-dashed border-muted-foreground/30" />
-                      <span>{move.method === "walk" ? "🚶" : "🚃"} {move.minutes} min {move.method}</span>
-                    </div>
+                    <li className="py-2 pl-20 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                      {move.minutes} min {move.method}
+                    </li>
                   );
                 }
               }
 
-              // Transport slot — day trip travel, not removable
+              const rowBase =
+                "flex items-start gap-4 border-b border-border py-4";
+
               if (item.isMovement) {
                 return (
-                  <div key={item.catalogId}>
+                  <span key={item.catalogId} className="contents">
                     {movementIndicator}
-                    <div className="flex items-center gap-3 rounded-lg border border-dashed border-blue-200 bg-blue-50/50 px-3 py-2">
-                      <div className="w-12 shrink-0 text-right">
-                        <span className="text-sm font-semibold text-blue-600">
-                          {item.time}
-                        </span>
+                    <li
+                      className={cn(
+                        rowBase,
+                        "border-l-0 border-r-0 bg-secondary/30",
+                      )}
+                    >
+                      <div className="w-14 shrink-0 text-right font-display text-[15px] font-medium text-muted-foreground">
+                        {item.time}
                       </div>
-                      <Train className="h-4 w-4 shrink-0 text-blue-500" />
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-blue-800">{name}</p>
-                        <p className="text-xs text-blue-600/80">{desc}</p>
+                        <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                          Transit
+                        </div>
+                        <p className="mt-1 font-display text-[17px] font-medium tracking-[-0.005em] text-foreground">
+                          {name}
+                        </p>
+                        {desc && (
+                          <p className="mt-1 text-[13px] text-ink-2">{desc}</p>
+                        )}
                       </div>
-                    </div>
-                  </div>
+                    </li>
+                  </span>
                 );
               }
 
-              // Meal slot — simple row, not removable
-              if (isMeal) {
+              if (item.isMealSlot) {
                 return (
-                  <div key={item.catalogId}>
+                  <span key={item.catalogId} className="contents">
                     {movementIndicator}
-                    <div className="flex items-center gap-3 rounded-lg border border-dashed border-amber-200 bg-amber-50/50 px-3 py-2">
-                      <div className="w-12 shrink-0 text-right">
-                        <span className="text-sm font-semibold text-amber-600">
-                          {item.time}
-                        </span>
+                    <li className={rowBase}>
+                      <div className="w-14 shrink-0 text-right font-display text-[15px] font-medium text-muted-foreground">
+                        {item.time}
                       </div>
-                      <UtensilsCrossed className="h-4 w-4 shrink-0 text-amber-500" />
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-amber-800">{name}</p>
-                        <p className="text-xs text-amber-600/80">{desc}</p>
+                        <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                          Meal
+                        </div>
+                        <p className="mt-1 font-display text-[17px] font-medium tracking-[-0.005em] text-foreground">
+                          {name}
+                        </p>
+                        {desc && (
+                          <p className="mt-1 text-[13px] text-ink-2">{desc}</p>
+                        )}
                       </div>
-                    </div>
-                  </div>
+                    </li>
+                  </span>
                 );
               }
 
               return (
-                <div key={item.catalogId}>
+                <span key={item.catalogId} className="contents">
                   {movementIndicator}
-                  <Card size="sm">
-                    <CardContent className="flex items-start gap-3 p-3">
-                      {/* Time — click to edit */}
-                      <div className="w-12 shrink-0 pt-0.5 text-right">
-                        <input
-                          type="time"
-                          value={item.customStartTime ?? item.time}
-                          onChange={(e) =>
-                            setActivityTime(dayNumber, item.catalogId, e.target.value || null)
-                          }
-                          className="w-full bg-transparent text-sm font-semibold text-rose-600 text-right cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden appearance-none border-none p-0 focus:outline-none focus:ring-1 focus:ring-rose-300 rounded"
-                          title="Click to set custom time"
-                        />
-                      </div>
+                  <li className={rowBase}>
+                    <div className="w-14 shrink-0 pt-0.5 text-right">
+                      <input
+                        type="time"
+                        value={item.customStartTime ?? item.time}
+                        onChange={(e) =>
+                          setActivityTime(
+                            dayNumber,
+                            item.catalogId,
+                            e.target.value || null,
+                          )
+                        }
+                        className="w-full cursor-pointer appearance-none border-none bg-transparent p-0 text-right font-display text-[15px] font-semibold text-accent [&::-webkit-calendar-picker-indicator]:hidden focus:outline-none focus:ring-1 focus:ring-accent"
+                        title="Click to set custom time"
+                      />
+                    </div>
 
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="text-sm font-medium">{name}</p>
-                          {a?.reservation_required && (
-                            <button
-                              onClick={() => toggleBooked(dayNumber, item.catalogId)}
-                              className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium transition-colors ${
-                                item.booked
-                                  ? "bg-emerald-100 text-emerald-700"
-                                  : "bg-amber-100 text-amber-700 hover:bg-amber-200"
-                              }`}
-                              title={item.booked ? "Marked as booked" : "Click to mark as booked"}
-                            >
-                              {item.booked ? "Booked" : "Book"}
-                            </button>
-                          )}
-                        </div>
-                        {desc && (
-                          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
-                            {desc}
-                          </p>
-                        )}
-                        <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                          {a && (
-                            <>
-                              <span className="flex items-center gap-0.5">
-                                <Clock className="h-3 w-3" />
-                                {a.duration_minutes}m
-                              </span>
-                              <span>{a.cost_estimate}</span>
-                            </>
-                          )}
-                          {a?.reservation_required && (
-                            <span className="flex items-center gap-0.5 text-amber-600">
-                              <Bookmark className="h-3 w-3" />
-                              Reserve
-                            </span>
-                          )}
-                        </div>
-                        {a?.insider_tip && (
-                          <div className="mt-1 flex items-start gap-1 text-[11px] text-muted-foreground">
-                            <Lightbulb className="mt-0.5 h-3 w-3 shrink-0 text-amber-500" />
-                            <span className="line-clamp-1">{a.insider_tip}</span>
-                          </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-display text-[17px] font-medium tracking-[-0.005em] text-foreground">
+                          {name}
+                        </p>
+                        {a?.reservation_required && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              toggleBooked(dayNumber, item.catalogId)
+                            }
+                            className={cn(
+                              "border px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] transition-colors",
+                              item.booked
+                                ? "border-accent bg-accent/10 text-accent"
+                                : "border-border text-muted-foreground hover:border-foreground hover:text-foreground",
+                            )}
+                          >
+                            {item.booked ? "Booked" : "Reserve"}
+                          </button>
                         )}
                       </div>
-
-                      {/* Controls */}
-                      <div className="flex flex-col gap-0.5 shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0"
-                          disabled={index === 0}
-                          onClick={() => moveActivity(index, -1)}
-                        >
-                          <ArrowUp className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0"
-                          disabled={index === activitiesWithTime.length - 1}
-                          onClick={() => moveActivity(index, 1)}
-                        >
-                          <ArrowDown className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0 text-muted-foreground"
-                          onClick={() =>
-                            removeActivity(dayNumber, item.catalogId)
-                          }
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
+                      {desc && (
+                        <p className="mt-1 text-[14px] leading-[1.55] text-ink-2">
+                          {desc}
+                        </p>
+                      )}
+                      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                        {a && (
+                          <>
+                            <span>{a.duration_minutes} min</span>
+                            <span>{a.cost_estimate}</span>
+                          </>
+                        )}
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                      {a?.insider_tip && (
+                        <p className="mt-2 border-l-2 border-accent/40 pl-3 text-[12px] text-ink-2">
+                          {a.insider_tip}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col items-end gap-0.5">
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        disabled={index === 0}
+                        onClick={() => moveActivity(index, -1)}
+                        aria-label="Move up"
+                      >
+                        <ArrowUp className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        disabled={index === activitiesWithTime.length - 1}
+                        onClick={() => moveActivity(index, 1)}
+                        aria-label="Move down"
+                      >
+                        <ArrowDown className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={() =>
+                          removeActivity(dayNumber, item.catalogId)
+                        }
+                        aria-label="Remove activity"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </li>
+                </span>
               );
             })}
-          </div>
+          </ul>
         )}
 
-        {/* Accommodation */}
-        <div className="mt-6">
-          <h4 className="text-sm font-semibold text-muted-foreground">
-            Where to Stay
-          </h4>
+        <div className="mt-8">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Where to stay
+          </p>
           {(day.accommodation ?? suggestedAccommodation) && (
-            <Card size="sm" className="mt-2">
-              <CardContent className="flex items-start gap-3 p-3">
-                <Bed className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
-                <div>
-                  <p className="text-sm font-medium">
-                    {(day.accommodation ?? suggestedAccommodation)!.zone}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {(day.accommodation ?? suggestedAccommodation)!.type} ·{" "}
-                    {(day.accommodation ?? suggestedAccommodation)!.reasoning}
-                  </p>
-                </div>
-                {!day.accommodation && suggestedAccommodation && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ml-auto h-7 text-xs"
-                    onClick={() =>
-                      setAccommodation(dayNumber, suggestedAccommodation)
-                    }
-                  >
-                    Confirm
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+            <div className="mt-3 flex flex-wrap items-start gap-4 border border-border bg-card p-4">
+              <div className="flex-1">
+                <p className="font-display text-[17px] font-medium tracking-[-0.005em] text-foreground">
+                  {(day.accommodation ?? suggestedAccommodation)!.zone}
+                </p>
+                <p className="mt-1 text-[13px] text-ink-2">
+                  {(day.accommodation ?? suggestedAccommodation)!.type} ·{" "}
+                  {(day.accommodation ?? suggestedAccommodation)!.reasoning}
+                </p>
+              </div>
+              {!day.accommodation && suggestedAccommodation && (
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={() =>
+                    setAccommodation(dayNumber, suggestedAccommodation)
+                  }
+                >
+                  Confirm
+                </Button>
+              )}
+            </div>
           )}
         </div>
       </div>
 
-      {/* Right — Activity Picker */}
-      <div className="lg:max-h-[70vh] lg:overflow-y-auto lg:rounded-lg lg:border lg:p-3">
-        <h3 className="mb-3 font-semibold text-sm">Add Activities</h3>
-        <ActivityPicker
-          destinationSlug={activeSlug}
-          addedActivityIds={addedIds}
-          userInterests={interests}
-          isFirstTimer={quizFirstTime ?? false}
-          onAddActivity={(id) => addActivity(dayNumber, id)}
-          onApplyTemplate={(ids) => applyTemplate(dayNumber, ids)}
-          showTemplates={day.activities.length === 0}
-        />
+      <div className="border border-border bg-card lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:self-start lg:overflow-y-auto">
+        <div className="border-b border-border px-4 py-3">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Activity picker
+          </p>
+        </div>
+        <div className="p-4">
+          <ActivityPicker
+            destinationSlug={activeSlug}
+            addedActivityIds={addedIds}
+            userInterests={interests}
+            isFirstTimer={quizFirstTime ?? false}
+            onAddActivity={(id) => addActivity(dayNumber, id)}
+            onApplyTemplate={(ids) => applyTemplate(dayNumber, ids)}
+            showTemplates={day.activities.length === 0}
+          />
+        </div>
       </div>
     </div>
   );

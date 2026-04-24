@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Plus, CalendarCheck, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
+import { SectionHead } from "@/components/home/section-head";
 
 interface ItinerarySummary {
   id: string;
@@ -50,84 +50,113 @@ export default function SavedItinerariesPage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-500" />
+        <Loader2 className="h-7 w-7 animate-spin text-accent" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold">Sign in to view your itineraries</h1>
-        <p className="mt-2 text-muted-foreground">
+      <div className="mx-auto max-w-[900px] px-[clamp(20px,4vw,40px)] py-[clamp(48px,8vw,96px)] text-center">
+        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+          Sign in required
+        </p>
+        <h1 className="mt-3 font-display text-[clamp(28px,3.5vw,40px)] font-medium tracking-[-0.015em] text-foreground">
+          Sign in to view your itineraries.
+        </h1>
+        <p className="mt-3 text-[15px] text-ink-2">
           Save and access your Japan travel plans from any device.
         </p>
-        <Button render={<Link href="/auth" />} className="mt-6">
-          Sign In
+        <Button render={<Link href="/auth" />} className="mt-7">
+          Sign in
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          My Itineraries
-        </h1>
+    <div className="mx-auto max-w-[1200px] px-[clamp(20px,4vw,40px)] py-[clamp(48px,8vw,96px)]">
+      <SectionHead
+        eyebrow="Your itineraries"
+        title={
+          <>
+            Saved{" "}
+            <span className="font-display italic font-normal text-accent">
+              plans.
+            </span>
+          </>
+        }
+        lede="Every trip you've built. Click through to view, edit, share, or print."
+      />
+
+      <div className="mt-8 flex justify-end">
         <Button size="sm" render={<Link href="/itinerary/new" />}>
-          <Plus className="mr-1.5 h-4 w-4" />
-          New
+          New itinerary
         </Button>
       </div>
 
       {itineraries.length === 0 ? (
         <div className="mt-16 text-center">
-          <CalendarCheck className="mx-auto h-12 w-12 text-muted-foreground/50" />
-          <h2 className="mt-4 text-lg font-semibold">No itineraries yet</h2>
-          <p className="mt-1 text-muted-foreground">
-            Create your first Japan travel plan.
+          <h2 className="font-display text-[22px] font-medium tracking-[-0.01em] text-foreground">
+            Nothing saved yet.
+          </h2>
+          <p className="mt-3 text-[14px] text-ink-2">
+            Build your first Japan travel plan.
           </p>
-          <Button render={<Link href="/itinerary/new" />} className="mt-6">
-            Build an Itinerary
+          <Button
+            render={<Link href="/itinerary/new" />}
+            className="mt-6"
+            size="sm"
+          >
+            Build an itinerary
           </Button>
         </div>
       ) : (
-        <div className="mt-6 space-y-3">
+        <ul className="mt-6 flex flex-col border-t border-border">
           {itineraries.map((it) => (
-            <Link key={it.id} href={`/itinerary/${it.id}`} className="block">
-              <Card className="transition-shadow hover:shadow-md">
-                <CardContent className="flex items-center justify-between p-4">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold">{it.title}</h3>
-                    <p className="mt-0.5 text-sm text-muted-foreground">
-                      {it.travel_style}
-                      {it.total_budget_estimate
-                        ? ` · ${it.total_budget_estimate}`
-                        : ""}
-                    </p>
+            <li
+              key={it.id}
+              className="relative border-b border-border"
+            >
+              <Link
+                href={`/itinerary/${it.id}`}
+                className="group flex items-center justify-between gap-4 py-5 pr-12 transition-colors"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="font-display text-[20px] font-medium tracking-[-0.01em] text-foreground transition-colors group-hover:text-accent">
+                    {it.title}
                   </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(it.created_at).toLocaleDateString()}
-                    </span>
-                    <button
-                      onClick={(e) => handleDelete(e, it.id)}
-                      disabled={deletingId === it.id}
-                      className="rounded-md p-1.5 text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
-                    >
-                      {deletingId === it.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </button>
+                  <div className="mt-1 text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                    {it.travel_style}
+                    {it.total_budget_estimate
+                      ? ` · ${it.total_budget_estimate}`
+                      : ""}
                   </div>
-                </CardContent>
-              </Card>
-            </Link>
+                </div>
+                <span className="shrink-0 text-[11px] uppercase tracking-[0.1em] text-muted-foreground">
+                  {new Date(it.created_at).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
+              </Link>
+              <button
+                type="button"
+                onClick={(e) => handleDelete(e, it.id)}
+                disabled={deletingId === it.id}
+                aria-label="Delete itinerary"
+                className="absolute top-1/2 right-0 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center text-muted-foreground transition-colors hover:text-destructive disabled:opacity-50"
+              >
+                {deletingId === it.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+              </button>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );

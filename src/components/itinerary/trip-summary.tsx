@@ -3,29 +3,53 @@
 import { useMemo } from "react";
 import { useItineraryStore } from "@/stores/itinerary-store";
 import { getActivitiesForDestination } from "@/lib/data/seed-activities";
-import { findRoute, findAllRoutes, JR_PASS_PRICES } from "@/lib/data/transport-routes";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
-import { PackingList } from "./packing-list";
 import {
-  Wallet,
-  Train,
-  Bookmark,
-  Check,
-  AlertTriangle,
-  ArrowRight,
-} from "lucide-react";
+  findRoute,
+  findAllRoutes,
+  JR_PASS_PRICES,
+} from "@/lib/data/transport-routes";
+import { PackingList } from "./packing-list";
+import { cn } from "@/lib/utils";
+
+function SummarySection({
+  eyebrow,
+  title,
+  children,
+}: {
+  eyebrow: string;
+  title?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="border border-border bg-card p-6">
+      <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+        {eyebrow}
+      </p>
+      {title && (
+        <h4 className="mt-2 font-display text-[20px] font-medium tracking-[-0.01em] text-foreground">
+          {title}
+        </h4>
+      )}
+      <div className="mt-4">{children}</div>
+    </section>
+  );
+}
 
 export function TripSummary() {
   const builderDays = useItineraryStore((s) => s.builderDays);
   const destinations = useItineraryStore((s) => s.destinations);
   const budgetTier = useItineraryStore((s) => s.budget);
 
-  // Build activity lookup
   const catalogMap = useMemo(() => {
-    const map = new Map<string, { cost_estimate: string; reservation_required: boolean; name: string; destination_slug: string }>();
+    const map = new Map<
+      string,
+      {
+        cost_estimate: string;
+        reservation_required: boolean;
+        name: string;
+        destination_slug: string;
+      }
+    >();
     for (const dest of destinations) {
       for (const a of getActivitiesForDestination(dest.slug)) {
         map.set(a.id, a);
@@ -34,7 +58,6 @@ export function TripSummary() {
     return map;
   }, [destinations]);
 
-  // Budget estimate
   const budgetEstimate = useMemo(() => {
     let total = 0;
     for (const day of builderDays) {
@@ -48,7 +71,6 @@ export function TripSummary() {
     return total;
   }, [builderDays, catalogMap]);
 
-  // Budget comparison
   const budgetComparison = useMemo(() => {
     const dailyBudgets: Record<string, number> = {
       budget: 8000,
@@ -57,11 +79,13 @@ export function TripSummary() {
     };
     const dailyTarget = dailyBudgets[budgetTier ?? "moderate"] ?? 18000;
     const totalTarget = dailyTarget * builderDays.length;
-    const pct = totalTarget > 0 ? Math.round((budgetEstimate / totalTarget) * 100) : 0;
+    const pct =
+      totalTarget > 0
+        ? Math.round((budgetEstimate / totalTarget) * 100)
+        : 0;
     return { dailyTarget, totalTarget, pct };
   }, [budgetEstimate, budgetTier, builderDays.length]);
 
-  // Transport routes between consecutive destinations
   const transportLegs = useMemo(() => {
     const legs: {
       from: string;
@@ -74,9 +98,10 @@ export function TripSummary() {
       if (day.destinationSlug !== prevSlug && prevSlug) {
         const allRoutes = findAllRoutes(prevSlug, day.destinationSlug);
         const primary = findRoute(prevSlug, day.destinationSlug);
-        const alt = allRoutes.length > 1
-          ? allRoutes.find((r) => r !== primary) ?? null
-          : null;
+        const alt =
+          allRoutes.length > 1
+            ? (allRoutes.find((r) => r !== primary) ?? null)
+            : null;
         legs.push({
           from: prevSlug,
           to: day.destinationSlug,
@@ -89,7 +114,6 @@ export function TripSummary() {
     return legs;
   }, [builderDays]);
 
-  // JR Pass analysis
   const jrAnalysis = useMemo(() => {
     let jrCoveredTotal = 0;
     let totalTransport = 0;
@@ -116,17 +140,20 @@ export function TripSummary() {
     };
   }, [transportLegs, builderDays.length]);
 
-  // Reservation checklist
   const reservations = useMemo(() => {
     const items: { name: string; destination: string; booked: boolean }[] = [];
     for (const day of builderDays) {
       for (const activity of day.activities) {
         const a = catalogMap.get(activity.catalogId);
         if (a?.reservation_required) {
-          const destName = destinations.find(
-            (d) => d.slug === a.destination_slug
-          )?.name ?? a.destination_slug;
-          items.push({ name: a.name, destination: destName, booked: activity.booked });
+          const destName =
+            destinations.find((d) => d.slug === a.destination_slug)?.name ??
+            a.destination_slug;
+          items.push({
+            name: a.name,
+            destination: destName,
+            booked: activity.booked,
+          });
         }
       }
     }
@@ -135,142 +162,146 @@ export function TripSummary() {
 
   const totalActivities = builderDays.reduce(
     (sum, d) => sum + d.activities.length,
-    0
+    0,
   );
 
   if (totalActivities === 0) return null;
 
-  return (
-    <div className="space-y-4">
-      <h3 className="font-semibold">Trip Summary</h3>
+  const progressPct = Math.min(budgetComparison.pct, 100);
 
-      {/* Budget */}
-      <Card size="sm">
-        <CardContent className="flex gap-3 p-4">
-          <Wallet className="mt-0.5 h-5 w-5 shrink-0 text-rose-500" />
-          <div>
-            <h4 className="text-sm font-semibold">Estimated Activity Costs</h4>
-            <p className="text-lg font-bold">
-              ~¥{budgetEstimate.toLocaleString()}
-            </p>
-            <div className="mt-2 flex items-center gap-3">
-              <Progress
-                value={Math.min(budgetComparison.pct, 100)}
-                className="h-2 flex-1"
-              />
-              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                {budgetComparison.pct}% of {budgetTier ?? "moderate"} budget
+  return (
+    <div className="flex flex-col gap-4 border-t border-border pt-10">
+      <div>
+        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+          Trip summary
+        </p>
+        <h3 className="mt-2 font-display text-[clamp(24px,2.8vw,32px)] font-medium tracking-[-0.01em] text-foreground">
+          How it adds up.
+        </h3>
+      </div>
+
+      <SummarySection
+        eyebrow="Activity budget"
+        title={`~¥${budgetEstimate.toLocaleString()}`}
+      >
+        <div className="flex items-center gap-4">
+          <div className="h-1 flex-1 bg-border">
+            <div
+              className="h-full bg-accent"
+              style={{ width: `${progressPct}%` }}
+              aria-hidden
+            />
+          </div>
+          <span className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+            {budgetComparison.pct}% of {budgetTier ?? "moderate"} target
+          </span>
+        </div>
+        <p className="mt-3 text-[12px] text-ink-2">
+          {totalActivities} activities across {builderDays.length} days ·
+          target ~¥{budgetComparison.totalTarget.toLocaleString()} (excludes
+          lodging, transport, meals not listed).
+        </p>
+      </SummarySection>
+
+      {transportLegs.length > 0 && (
+        <SummarySection eyebrow="Transport between cities">
+          <ul className="flex flex-col gap-3">
+            {transportLegs.map((leg, i) => {
+              const fromName =
+                destinations.find((d) => d.slug === leg.from)?.name ?? leg.from;
+              const toName =
+                destinations.find((d) => d.slug === leg.to)?.name ?? leg.to;
+              return (
+                <li
+                  key={i}
+                  className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-3 last:border-b-0 last:pb-0"
+                >
+                  <span className="font-display text-[15px] font-medium text-foreground">
+                    {fromName} → {toName}
+                  </span>
+                  {leg.route ? (
+                    <span className="text-right">
+                      <span className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                        {leg.route.primary_method} · {leg.route.duration} ·{" "}
+                        {leg.route.cost_display}
+                      </span>
+                      {leg.altRoute && (
+                        <span className="mt-0.5 block text-[10px] uppercase tracking-[0.1em] text-muted-foreground/70">
+                          or {leg.altRoute.primary_method} ·{" "}
+                          {leg.altRoute.duration} · {leg.altRoute.cost_display}
+                        </span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                      Route info not available
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="mt-4 border-t border-border pt-4">
+            <p className="font-display text-[16px] font-medium tracking-[-0.005em] text-foreground">
+              {jrAnalysis.passType} JR Pass{" "}
+              <span
+                className={cn(
+                  "font-display italic font-normal",
+                  jrAnalysis.worthIt ? "text-accent" : "text-muted-foreground",
+                )}
+              >
+                {jrAnalysis.worthIt
+                  ? `saves ~¥${(jrAnalysis.jrCoveredTotal - jrAnalysis.passCost).toLocaleString()}.`
+                  : "may not be worth it."}
               </span>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {totalActivities} activities across {builderDays.length} days
-              · Target: ~¥{budgetComparison.totalTarget.toLocaleString()}
-              (excludes lodging, transport, meals not listed)
+            </p>
+            <p className="mt-1 text-[12px] text-ink-2">
+              JR-covered routes: ¥
+              {jrAnalysis.jrCoveredTotal.toLocaleString()} · Pass: ¥
+              {jrAnalysis.passCost.toLocaleString()}
             </p>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Transport */}
-      {transportLegs.length > 0 && (
-        <Card size="sm">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Train className="h-5 w-5 text-rose-500" />
-              <h4 className="text-sm font-semibold">Transport Between Cities</h4>
-            </div>
-            <div className="mt-3 space-y-2">
-              {transportLegs.map((leg, i) => {
-                const fromName =
-                  destinations.find((d) => d.slug === leg.from)?.name ?? leg.from;
-                const toName =
-                  destinations.find((d) => d.slug === leg.to)?.name ?? leg.to;
-                return (
-                  <div
-                    key={i}
-                    className="flex items-center gap-2 text-sm"
-                  >
-                    <span className="font-medium">{fromName}</span>
-                    <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                    <span className="font-medium">{toName}</span>
-                    {leg.route ? (
-                      <div className="ml-auto text-right">
-                        <span className="text-xs text-muted-foreground">
-                          {leg.route.primary_method} · {leg.route.duration} ·{" "}
-                          {leg.route.cost_display}
-                        </span>
-                        {leg.altRoute && (
-                          <p className="text-[11px] text-muted-foreground/70">
-                            or {leg.altRoute.primary_method} · {leg.altRoute.duration} · {leg.altRoute.cost_display}
-                          </p>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="ml-auto text-xs text-muted-foreground">
-                        Route info not available
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <Separator className="my-3" />
-
-            {/* JR Pass recommendation */}
-            <div className="flex items-start gap-2">
-              {jrAnalysis.worthIt ? (
-                <Check className="mt-0.5 h-4 w-4 text-emerald-600" />
-              ) : (
-                <AlertTriangle className="mt-0.5 h-4 w-4 text-amber-600" />
-              )}
-              <div>
-                <p className="text-sm font-medium">
-                  {jrAnalysis.passType} JR Pass{" "}
-                  {jrAnalysis.worthIt
-                    ? `saves ~¥${(jrAnalysis.jrCoveredTotal - jrAnalysis.passCost).toLocaleString()}`
-                    : "may not be worth it"}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  JR-covered routes: ¥{jrAnalysis.jrCoveredTotal.toLocaleString()} ·
-                  Pass: ¥{jrAnalysis.passCost.toLocaleString()}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        </SummarySection>
       )}
 
-      {/* Reservations */}
       {reservations.length > 0 && (
-        <Card size="sm">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Bookmark className="h-5 w-5 text-amber-500" />
-              <h4 className="text-sm font-semibold">Book in Advance</h4>
-            </div>
-            <ul className="mt-2 space-y-1">
-              {reservations.map((r, i) => (
-                <li key={i} className="flex items-center gap-2 text-sm">
-                  {r.booked ? (
-                    <Check className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                  ) : (
-                    <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+        <SummarySection eyebrow="Book in advance">
+          <ul className="flex flex-col">
+            {reservations.map((r, i) => (
+              <li
+                key={i}
+                className="flex items-center gap-3 border-b border-border py-2.5 last:border-b-0"
+              >
+                <span
+                  className={cn(
+                    "inline-block h-1.5 w-1.5 rounded-full",
+                    r.booked ? "bg-muted-foreground" : "bg-accent",
                   )}
-                  <Badge variant="outline" className="text-[10px] shrink-0">
-                    {r.destination}
-                  </Badge>
-                  <span className={r.booked ? "line-through text-muted-foreground" : ""}>
-                    {r.name}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+                  aria-hidden
+                />
+                <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+                  {r.destination}
+                </span>
+                <span
+                  className={cn(
+                    "flex-1 text-[14px]",
+                    r.booked
+                      ? "text-muted-foreground line-through"
+                      : "text-foreground",
+                  )}
+                >
+                  {r.name}
+                </span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                  {r.booked ? "Booked" : "Pending"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </SummarySection>
       )}
 
-      {/* Packing List */}
       <PackingList />
     </div>
   );

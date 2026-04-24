@@ -1,6 +1,3 @@
-import { Badge } from "@/components/ui/badge";
-import { Clock, Bookmark, Lightbulb } from "lucide-react";
-
 interface ActivityItemProps {
   activity: {
     time?: string;
@@ -15,57 +12,39 @@ interface ActivityItemProps {
 
 export function ActivityItem({ activity: a }: ActivityItemProps) {
   return (
-    <div className="flex gap-3">
-      {/* Time column */}
-      <div className="flex w-14 shrink-0 flex-col items-end pt-0.5">
-        <span className="text-sm font-semibold text-rose-600">
-          {a.time ?? "..."}
-        </span>
+    <div className="grid gap-3 border-b border-border py-4 last:border-b-0 sm:grid-cols-[64px_1fr_auto]">
+      <div className="font-display text-[15px] font-medium text-foreground">
+        {a.time ?? "…"}
       </div>
 
-      {/* Timeline dot + line */}
-      <div className="flex flex-col items-center">
-        <div className="mt-1.5 h-2.5 w-2.5 rounded-full bg-rose-400" />
-        <div className="w-px flex-1 bg-border" />
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 pb-6">
-        <h4 className="font-semibold">{a.title ?? "..."}</h4>
+      <div>
+        <h4 className="font-display text-[18px] font-medium tracking-[-0.005em] text-foreground">
+          {a.title ?? "…"}
+        </h4>
         {a.description && (
-          <p className="mt-1 text-sm text-muted-foreground">{a.description}</p>
+          <p className="mt-1 text-[14px] leading-[1.55] text-ink-2">
+            {a.description}
+          </p>
         )}
 
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
           {a.duration_minutes != null && (
-            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock className="h-3 w-3" />
+            <span>
               {a.duration_minutes >= 60
                 ? `${Math.floor(a.duration_minutes / 60)}h${a.duration_minutes % 60 ? ` ${a.duration_minutes % 60}m` : ""}`
                 : `${a.duration_minutes}m`}
             </span>
           )}
-          {a.cost_estimate && (
-            <span className="text-xs text-muted-foreground">
-              {a.cost_estimate}
-            </span>
-          )}
+          {a.cost_estimate && <span>{a.cost_estimate}</span>}
           {a.reservation_required && (
-            <Badge
-              variant="outline"
-              className="border-amber-200 bg-amber-50 text-xs text-amber-700"
-            >
-              <Bookmark className="mr-0.5 h-3 w-3" />
-              Reserve ahead
-            </Badge>
+            <span className="text-accent">Reserve ahead</span>
           )}
         </div>
 
         {a.tip && (
-          <div className="mt-2 flex items-start gap-1.5 rounded bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
-            <Lightbulb className="mt-0.5 h-3 w-3 shrink-0 text-amber-500" />
+          <p className="mt-2 border-l-2 border-accent/40 pl-3 text-[12px] leading-[1.5] text-ink-2">
             {a.tip}
-          </div>
+          </p>
         )}
       </div>
     </div>

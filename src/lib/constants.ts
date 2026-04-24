@@ -65,7 +65,8 @@ export const EVENING_PREFERENCES: { value: EveningPreference; label: string; des
 
 export const NAV_LINKS = [
   { href: "/quiz", label: "Quiz" },
-  { href: "/itinerary/new", label: "Build Itinerary" },
   { href: "/destinations", label: "Destinations" },
-  { href: "/tools/jr-pass", label: "JR Pass Calculator" },
+  { href: "/itinerary/new", label: "Itinerary" },
+  { href: "/tools/jr-pass", label: "JR Pass" },
+  { href: "/destinations", label: "Guides" },
 ] as const;

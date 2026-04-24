@@ -5,8 +5,7 @@ import { SEED_DESTINATIONS } from "@/lib/ai/seed-destinations";
 import { findRoute } from "@/lib/data/transport-routes";
 import { DayBuilder } from "./day-builder";
 import { TripSummary } from "./trip-summary";
-import { Badge } from "@/components/ui/badge";
-import { Train } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 function getDayDate(startDate: string | null, dayNumber: number): Date | null {
   if (!startDate) return null;
@@ -24,7 +23,6 @@ export function ItineraryBuilder() {
   const destinations = useItineraryStore((s) => s.destinations);
   const startDate = useItineraryStore((s) => s.startDate);
 
-  // Group days by destination for the navigator
   const dayGroups: {
     dayNumber: number;
     slug: string;
@@ -47,83 +45,100 @@ export function ItineraryBuilder() {
     : null;
 
   return (
-    <div className="space-y-6">
-      {/* Day navigator */}
-      <div className="flex flex-wrap items-center gap-1.5">
+    <div className="flex flex-col gap-10">
+      <div className="flex flex-wrap items-center gap-2">
         {dayGroups.map((group, i) => {
-          // Show transport indicator between different destinations
-          const showTransport =
-            group.isNewDestination && i > 0;
+          const showTransport = group.isNewDestination && i > 0;
           const prevSlug = i > 0 ? dayGroups[i - 1].slug : null;
           const route =
-            showTransport && prevSlug
-              ? findRoute(prevSlug, group.slug)
-              : null;
+            showTransport && prevSlug ? findRoute(prevSlug, group.slug) : null;
+          const on = activeDay === group.dayNumber;
+          const dateOfDay = startDate
+            ? getDayDate(startDate, group.dayNumber)
+            : null;
 
           return (
-            <div key={group.dayNumber} className="flex items-center gap-1.5">
+            <div key={group.dayNumber} className="flex items-center gap-2">
               {showTransport && (
-                <div className="flex items-center gap-1 rounded bg-blue-50 px-2 py-1 text-[10px] text-blue-600">
-                  <Train className="h-3 w-3" />
-                  {route ? route.duration : "→"}
+                <div className="flex items-center gap-1.5 border border-border bg-background px-2 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                  <svg
+                    viewBox="0 0 16 16"
+                    width="10"
+                    height="10"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    aria-hidden
+                  >
+                    <path d="M3 8h10M9 4l4 4-4 4" />
+                  </svg>
+                  {route ? route.duration : "transfer"}
                 </div>
               )}
               <button
+                type="button"
                 onClick={() => setActiveDay(group.dayNumber)}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-colors ${
-                  activeDay === group.dayNumber
-                    ? "bg-rose-600 text-white"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
+                className={cn(
+                  "flex items-center gap-2 border px-3 py-2 text-[13px] font-medium transition-colors",
+                  on
+                    ? "border-accent bg-accent text-accent-foreground"
+                    : "border-border bg-card text-ink-2 hover:border-foreground hover:text-foreground",
+                )}
               >
-                <span className="font-semibold">D{group.dayNumber}</span>
-                {startDate && (() => {
-                  const d = getDayDate(startDate, group.dayNumber);
-                  return d ? (
-                    <span className="text-[10px] opacity-70">{SHORT_DAYS[d.getDay()]}</span>
-                  ) : null;
-                })()}
-                <span className="text-xs opacity-80">{group.name}</span>
-                {activeDayData &&
-                  group.dayNumber === activeDay &&
-                  activeDayData.activities.length > 0 && (
-                    <Badge
-                      variant="secondary"
-                      className="ml-0.5 h-4 text-[10px] px-1"
-                    >
-                      {activeDayData.activities.length}
-                    </Badge>
+                <span className="font-display text-[13px] font-semibold">
+                  Day {group.dayNumber}
+                </span>
+                {dateOfDay && (
+                  <span
+                    className={cn(
+                      "text-[10px] uppercase tracking-[0.1em]",
+                      on ? "text-accent-foreground/70" : "text-muted-foreground",
+                    )}
+                  >
+                    {SHORT_DAYS[dateOfDay.getDay()]}
+                  </span>
+                )}
+                <span
+                  className={cn(
+                    "text-[12px]",
+                    on ? "text-accent-foreground/80" : "text-muted-foreground",
                   )}
+                >
+                  {group.name}
+                </span>
               </button>
             </div>
           );
         })}
       </div>
 
-      {/* Active day header */}
       {activeDest && activeDayData && (
-        <div>
-          <h2 className="text-xl font-bold">
-            Day {activeDay}: {activeDest.name}
-            {startDate && (() => {
-              const d = getDayDate(startDate, activeDay);
-              return d ? (
-                <span className="ml-2 text-base font-normal text-muted-foreground">
-                  {d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
-                </span>
-              ) : null;
-            })()}
+        <div className="border-t border-border pt-8">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Day {activeDay} · {activeDest.name}
+            {startDate &&
+              (() => {
+                const d = getDayDate(startDate, activeDay);
+                return d
+                  ? ` · ${d.toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "short",
+                      day: "numeric",
+                    })}`
+                  : "";
+              })()}
+          </p>
+          <h2 className="mt-2 font-display text-[clamp(26px,3vw,36px)] font-medium leading-[1.05] tracking-[-0.015em] text-foreground">
+            {activeDest.name} in one day.
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-3 max-w-[60ch] text-[15px] leading-[1.6] text-ink-2">
             {activeDest.description.split(".")[0]}.
           </p>
         </div>
       )}
 
-      {/* Day builder */}
       {activeDayData && <DayBuilder dayNumber={activeDay} />}
 
-      {/* Trip summary */}
       <TripSummary />
     </div>
   );
