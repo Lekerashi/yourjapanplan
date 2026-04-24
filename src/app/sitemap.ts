@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { SEED_DESTINATIONS } from "@/lib/ai/seed-destinations";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://yourjapanplan.com";
+  const baseUrl = "https://www.yourjapanplan.com";
 
   const destinations = SEED_DESTINATIONS.map((d) => ({
     url: `${baseUrl}/destinations/${d.slug}`,

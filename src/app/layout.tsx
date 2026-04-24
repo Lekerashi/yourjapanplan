@@ -2,8 +2,37 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { JsonLd } from "@/components/seo/json-ld";
 import { SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
 import "./globals.css";
+
+const SITE_URL = "https://www.yourjapanplan.com";
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}/apple-touch-icon.png`,
+  description: SITE_DESCRIPTION,
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE_NAME,
+  url: SITE_URL,
+  description: SITE_DESCRIPTION,
+  inLanguage: "en-US",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${SITE_URL}/destinations?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
+};
 
 const playfair = Playfair_Display({
   variable: "--font-display",
@@ -43,7 +72,7 @@ export const metadata: Metadata = {
     "Japan travel planning",
     "custom Japan itinerary",
   ],
-  metadataBase: new URL("https://yourjapanplan.com"),
+  metadataBase: new URL("https://www.yourjapanplan.com"),
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
@@ -52,7 +81,7 @@ export const metadata: Metadata = {
     title: `${SITE_NAME} — Japan Trip Planner & Itinerary Builder`,
     description: SITE_DESCRIPTION,
     siteName: SITE_NAME,
-    url: "https://yourjapanplan.com",
+    url: "https://www.yourjapanplan.com",
     type: "website",
     locale: "en_US",
   },
@@ -60,9 +89,6 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${SITE_NAME} — Japan Trip Planner`,
     description: SITE_DESCRIPTION,
-  },
-  alternates: {
-    canonical: "https://yourjapanplan.com",
   },
 };
 
@@ -93,6 +119,7 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <JsonLd data={[organizationSchema, websiteSchema]} />
       </head>
       <body className="min-h-full flex flex-col">
         <Navbar />

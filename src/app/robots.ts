@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/", "/auth/callback"],
     },
-    sitemap: "https://yourjapanplan.com/sitemap.xml",
+    sitemap: "https://www.yourjapanplan.com/sitemap.xml",
   };
 }

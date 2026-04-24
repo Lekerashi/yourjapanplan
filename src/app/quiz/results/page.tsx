@@ -3,7 +3,9 @@ import { ResultsStream } from "@/components/quiz/results-stream";
 
 export const metadata: Metadata = {
   title: "Your Recommendations",
-  description: "AI-powered Japan destination recommendations based on your preferences.",
+  description:
+    "Personalised Japan destination recommendations based on your quiz answers.",
+  robots: { index: false, follow: true },
 };
 
 interface ResultsPageProps {

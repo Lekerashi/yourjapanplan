@@ -3,10 +3,14 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { SEED_DESTINATIONS } from "@/lib/ai/seed-destinations";
+import { DESTINATION_COORDS } from "@/lib/data/destination-coords";
 import { INTEREST_TAGS, REGIONS, SEASONS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { CrowdCalendar } from "@/components/destination/crowd-calendar";
 import { AccommodationZones } from "@/components/destination/accommodation-zones";
+import { JsonLd } from "@/components/seo/json-ld";
+
+const SITE_URL = "https://www.yourjapanplan.com";
 
 export function generateStaticParams() {
   return SEED_DESTINATIONS.map((d) => ({ slug: d.slug }));
@@ -36,6 +40,7 @@ export function generateMetadata({
         `${dest.name} itinerary`,
         `visit ${dest.name}`,
       ],
+      alternates: { canonical: `/destinations/${slug}` },
     };
   });
 }
@@ -70,8 +75,54 @@ export default async function DestinationDetailPage({
     (s) => SEASONS.find((ss) => ss.value === s)?.label ?? s,
   );
 
+  const coords = DESTINATION_COORDS[slug];
+  const canonicalUrl = `${SITE_URL}/destinations/${slug}`;
+  const destinationSchema: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "TouristDestination",
+    name: dest.name,
+    description: dest.description,
+    url: canonicalUrl,
+    image: dest.image,
+    touristType: tagLabels,
+    containedInPlace: [
+      ...(region
+        ? [{ "@type": "AdministrativeArea", name: region.label }]
+        : []),
+      { "@type": "Country", name: "Japan" },
+    ],
+  };
+  if (coords) {
+    destinationSchema.geo = {
+      "@type": "GeoCoordinates",
+      latitude: coords[0],
+      longitude: coords[1],
+    };
+  }
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Destinations",
+        item: `${SITE_URL}/destinations`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: dest.name,
+        item: canonicalUrl,
+      },
+    ],
+  };
+
   return (
     <div className="mx-auto max-w-[1200px] px-[clamp(20px,4vw,40px)] pt-8 pb-[clamp(48px,8vw,96px)]">
+      <JsonLd data={[destinationSchema, breadcrumbSchema]} />
       <Button
         variant="ghost"
         size="sm"

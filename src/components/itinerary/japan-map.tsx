@@ -2,40 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { SEED_DESTINATIONS } from "@/lib/ai/seed-destinations";
+import { DESTINATION_COORDS } from "@/lib/data/destination-coords";
 import { REGIONS, INTEREST_TAGS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { Check, Plus } from "lucide-react";
-
-// Real lat/lng for each destination
-const DESTINATION_COORDS: Record<string, [number, number]> = {
-  sapporo: [43.06, 141.35],
-  niseko: [42.86, 140.69],
-  "furano-biei": [43.34, 142.38],
-  sendai: [38.27, 140.87],
-  tokyo: [35.68, 139.69],
-  kamakura: [35.32, 139.55],
-  nikko: [36.75, 139.6],
-  hakone: [35.23, 139.11],
-  "mt-fuji": [35.36, 138.73],
-  matsumoto: [36.24, 137.97],
-  kanazawa: [36.56, 136.65],
-  nagoya: [35.18, 136.91],
-  takayama: [36.14, 137.25],
-  "shirakawa-go": [36.26, 136.91],
-  ito: [34.97, 139.1],
-  kyoto: [35.01, 135.77],
-  osaka: [34.69, 135.5],
-  nara: [34.69, 135.8],
-  kobe: [34.69, 135.19],
-  koyasan: [34.21, 135.6],
-  hiroshima: [34.4, 132.46],
-  onomichi: [34.41, 133.2],
-  naoshima: [34.46, 133.99],
-  fukuoka: [33.59, 130.4],
-  beppu: [33.28, 131.49],
-  yakushima: [30.35, 130.51],
-  "okinawa-main": [26.33, 127.8],
-};
 
 interface JapanMapProps {
   selectedSlugs: Set<string>;

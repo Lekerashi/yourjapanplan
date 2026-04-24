@@ -23,6 +23,7 @@ export const metadata: Metadata = {
     "custom Japan itinerary",
     "Japan for first timers",
   ],
+  alternates: { canonical: "/" },
 };
 
 export default function Home() {
