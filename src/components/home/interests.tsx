@@ -1,22 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import { INTEREST_TAGS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-
-const DEFAULT_ACTIVE = new Set(["food", "nature"]);
+import { Button } from "@/components/ui/button";
+import { useHomeDemo } from "./home-demo-context";
 
 export function Interests() {
-  const [active, setActive] = useState<Set<string>>(DEFAULT_ACTIVE);
-
-  const toggle = (value: string) => {
-    setActive((prev) => {
-      const next = new Set(prev);
-      if (next.has(value)) next.delete(value);
-      else next.add(value);
-      return next;
-    });
-  };
+  const { selectedInterests, toggleInterest } = useHomeDemo();
 
   return (
     <section className="border-b border-border">
@@ -31,21 +22,21 @@ export function Interests() {
               What draws you to Japan?
             </h3>
           </div>
-          <p className="max-w-[28ch] text-sm text-muted-foreground">
-            Pick as many as you like. We&apos;ll weight destinations and
-            activities against your picks.
+          <p className="max-w-[32ch] text-sm text-muted-foreground">
+            Pick as many as you like. We&apos;ll filter the destinations below
+            to match. Take the full quiz when you&apos;re ready.
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
           {INTEREST_TAGS.map((tag, i) => {
-            const isActive = active.has(tag.value);
+            const isActive = selectedInterests.has(tag.value);
             const number = String(i + 1).padStart(2, "0");
             return (
               <button
                 key={tag.value}
                 type="button"
-                onClick={() => toggle(tag.value)}
+                onClick={() => toggleInterest(tag.value)}
                 aria-pressed={isActive}
                 className={cn(
                   "inline-flex w-full items-center justify-center gap-2.5 border px-4 py-2.5 text-[13px] font-medium transition-colors",
@@ -66,6 +57,21 @@ export function Interests() {
               </button>
             );
           })}
+        </div>
+
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Button size="lg" render={<Link href="/quiz" />}>
+            Start the quiz
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden
+            >
+              <path d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
+          </Button>
         </div>
       </div>
     </section>

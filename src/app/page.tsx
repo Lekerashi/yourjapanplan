@@ -7,6 +7,7 @@ import { ItineraryPreview } from "@/components/home/itinerary-preview";
 import { JRPassPreview } from "@/components/home/jr-pass-preview";
 import { QuizPreview } from "@/components/home/quiz-preview";
 import { CTABand } from "@/components/home/cta-band";
+import { HomeDemoProvider } from "@/components/home/home-demo-context";
 
 export const metadata: Metadata = {
   title: "Your Japan Plan — Japan Trip Planner & Itinerary Builder",
@@ -26,15 +27,15 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <>
+    <HomeDemoProvider>
       <Hero />
-      <Interests />
       <HowItWorks />
+      <Interests />
       <DestinationsPreview />
       <ItineraryPreview />
       <JRPassPreview />
       <QuizPreview />
       <CTABand />
-    </>
+    </HomeDemoProvider>
   );
 }

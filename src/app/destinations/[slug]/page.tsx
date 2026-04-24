@@ -12,6 +12,11 @@ export function generateStaticParams() {
   return SEED_DESTINATIONS.map((d) => ({ slug: d.slug }));
 }
 
+// Cities that stay crowded every month of the year. The crowd calendar
+// shows relative levels against that destination's own baseline, so a
+// "low" month in Kyoto is still busier than a "high" month in Yakushima.
+const ALWAYS_CROWDED_SLUGS = new Set(["tokyo", "kyoto", "nara", "osaka"]);
+
 export function generateMetadata({
   params,
 }: {
@@ -157,6 +162,13 @@ export default async function DestinationDetailPage({
           Vermillion density shows how crowded the city feels each month.
           Darker cells mean more tourists and higher prices.
         </p>
+        {ALWAYS_CROWDED_SLUGS.has(dest.slug) && (
+          <p className="mt-4 max-w-[56ch] border-l-2 border-accent/60 pl-4 text-[13px] leading-[1.55] text-ink-2">
+            {dest.name} stays busy with domestic and international tourism
+            year-round. Treat these levels as relative: a quieter month here is
+            still busier than a peak month in a smaller destination.
+          </p>
+        )}
         <div className="mt-6">
           <CrowdCalendar crowdByMonth={dest.crowd_level_by_month} />
         </div>

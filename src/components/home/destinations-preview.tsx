@@ -7,8 +7,11 @@ import { cn } from "@/lib/utils";
 import { SectionHead } from "./section-head";
 import { DestinationCard } from "@/components/destination/destination-card";
 import { Button } from "@/components/ui/button";
+import { useHomeDemo } from "./home-demo-context";
+import { INTEREST_TAGS } from "@/lib/constants";
 
-const COLLAPSED_COUNT = 6;
+const COLLAPSED_COUNT_MOBILE = 3;
+const COLLAPSED_COUNT_DESKTOP = 6;
 
 type TabKey = "all" | (typeof REGIONS)[number]["value"];
 
@@ -36,15 +39,37 @@ export function DestinationsPreview() {
   const [tab, setTab] = useState<TabKey>("all");
   const [expanded, setExpanded] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const { selectedInterests, clearInterests } = useHomeDemo();
 
   const filtered = useMemo(() => {
-    if (tab === "all") return SEED_DESTINATIONS;
-    return SEED_DESTINATIONS.filter((d) => d.region === tab);
-  }, [tab]);
+    let result =
+      tab === "all"
+        ? SEED_DESTINATIONS
+        : SEED_DESTINATIONS.filter((d) => d.region === tab);
+    if (selectedInterests.size > 0) {
+      result = result.filter((d) =>
+        d.tags.some((t) => selectedInterests.has(t)),
+      );
+    }
+    return result;
+  }, [tab, selectedInterests]);
 
-  const canCollapse = tab === "all" && filtered.length > COLLAPSED_COUNT;
+  const interestLabels = useMemo(
+    () =>
+      Array.from(selectedInterests)
+        .map((v) => INTEREST_TAGS.find((t) => t.value === v)?.label ?? v)
+        .join(", "),
+    [selectedInterests],
+  );
+
+  const hasInterestFilter =
+    selectedInterests.size > 0 && selectedInterests.size < INTEREST_TAGS.length;
+
+  const canCollapse = tab === "all" && filtered.length > COLLAPSED_COUNT_MOBILE;
   const visible =
-    canCollapse && !expanded ? filtered.slice(0, COLLAPSED_COUNT) : filtered;
+    canCollapse && !expanded
+      ? filtered.slice(0, COLLAPSED_COUNT_DESKTOP)
+      : filtered;
   const hiddenCount = filtered.length - visible.length;
 
   const toggleExpanded = () => {
@@ -74,6 +99,21 @@ export function DestinationsPreview() {
           }
           lede="Every city we cover, ordered by region. Filter to the part of Japan you want to see."
         />
+
+        {hasInterestFilter && (
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border border-border bg-card px-4 py-3">
+            <p className="text-[13px] text-ink-2">
+              Filtered by{" "}
+              <span className="font-medium text-foreground">
+                {interestLabels}
+              </span>
+              . Showing {filtered.length} of {SEED_DESTINATIONS.length}.
+            </p>
+            <Button variant="ghost" size="xs" onClick={clearInterests}>
+              Clear
+            </Button>
+          </div>
+        )}
 
         <div
           className="mt-8 flex flex-wrap gap-x-6 border-b border-border"
@@ -113,9 +153,18 @@ export function DestinationsPreview() {
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {visible.map((d, i) => (
-            <DestinationCard key={d.slug} destination={d} index={i} />
-          ))}
+          {visible.map((d, i) => {
+            const mobileHidden =
+              canCollapse && !expanded && i >= COLLAPSED_COUNT_MOBILE;
+            return (
+              <div
+                key={d.slug}
+                className={cn(mobileHidden && "hidden sm:block")}
+              >
+                <DestinationCard destination={d} index={i} />
+              </div>
+            );
+          })}
         </div>
 
         {canCollapse && (

@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { SeigaihaDivider } from "@/components/layout/seigaiha-divider";
 import { SEED_DESTINATIONS } from "@/lib/ai/seed-destinations";
 import { ACTIVITY_CATALOG } from "@/lib/data/seed-activities";
 import { REGIONS } from "@/lib/constants";
@@ -125,7 +124,6 @@ export function Hero() {
           </div>
         </div>
 
-        <SeigaihaDivider className="mt-12" />
       </div>
     </section>
   );
