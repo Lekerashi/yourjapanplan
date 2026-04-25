@@ -1,0 +1,40 @@
+# Your Japan Plan
+
+> A Japan trip planner for travellers, not tourists. Take a six-question quiz to get a destination shortlist tuned to how you travel, then build a day-by-day itinerary from a curated catalog of activities, transit, lodging, and reservations across 27 cities and every region of Japan.
+
+Your Japan Plan is a free, account-optional planning tool. It is not a booking engine and not affiliated with JR, JNTO, or any tour operator. Recommendations come from hand-curated data, not advertising.
+
+## Core tools
+
+- [Plan My Trip quiz](https://www.yourjapanplan.com/quiz): Six questions on travel style, budget, season, pace, and interests, then a personalised Japan destination shortlist.
+- [Custom itinerary builder](https://www.yourjapanplan.com/itinerary/new): Pick destinations, build day-by-day plans from a catalog of 127+ activities, with auto-scheduled meals, transit, packing list, and reservation timeline.
+- [JR Pass calculator](https://www.yourjapanplan.com/tools/jr-pass): Compares real Shinkansen fares against the 7, 14, and 21-day Japan Rail Pass to determine break-even.
+
+## Destinations
+
+- [All destinations](https://www.yourjapanplan.com/destinations): 27 curated cities across every region of Japan, filterable by region, interest, and season. Each destination page covers highlights, monthly crowd levels, accommodation zones, and reservation tips.
+
+## What's covered
+
+- Regions: Hokkaido, Tohoku, Kanto, Chubu, Kansai, Chugoku, Shikoku, Kyushu, Okinawa
+- Interests: temples, food, nightlife, nature, onsen, shopping, culture, tradition, history, modern, beaches, hiking, snow
+- Seasons: spring (cherry blossom), summer (festivals), autumn (foliage), winter (snow, onsen)
+- Travel styles: solo, couple, friends, family, workcation, honeymoon
+
+## Editorial principles
+
+- Concrete and factual. Real station names, real prices in JPY, real travel times.
+- No superlatives ("breathtaking", "must-see") and no AI marketing voice.
+- Single vermillion accent on a washi-paper background. No ukiyo-e illustrations, no rising-sun imagery, no emoji in UI.
+- Accessibility: color alone never encodes meaning.
+
+## Notable accuracy notes
+
+- Shinkansen does not reach Sapporo (only Shin-Hakodate). Hokkaido travel uses flights for the Tokyo leg.
+- No rail to Okinawa. Flights only.
+- JR Pass price doubled in 2023; the calculator uses 2026 prices.
+- Crowd levels on each destination page are relative to that destination's own baseline, not absolute.
+
+## Contact
+
+This is a personal project. Bug reports and corrections are welcome via the site.

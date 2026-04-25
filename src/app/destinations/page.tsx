@@ -53,6 +53,7 @@ export default function DestinationsPage() {
     <div className="mx-auto max-w-[1200px] px-[clamp(20px,4vw,40px)] py-[clamp(48px,8vw,96px)]">
       <JsonLd data={[breadcrumbSchema, itemListSchema]} />
       <SectionHead
+        as="h1"
         eyebrow="Destinations"
         title={
           <>

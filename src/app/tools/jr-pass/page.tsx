@@ -50,6 +50,7 @@ export default function JRPassPage() {
     <div className="mx-auto max-w-[1200px] px-[clamp(20px,4vw,40px)] py-[clamp(48px,8vw,96px)]">
       <JsonLd data={[webAppSchema, breadcrumbSchema]} />
       <SectionHead
+        as="h1"
         eyebrow="JR Pass calculator"
         title={
           <>
@@ -59,7 +60,7 @@ export default function JRPassPage() {
             </span>
           </>
         }
-        lede="The JR Pass price doubled in 2023 — it's still a bargain on some itineraries and a money pit on others. Put your real route in and we'll show you the break-even."
+        lede="The JR Pass price doubled in 2023. It's still a bargain on some itineraries and a money pit on others. Put your real route in and we'll show you the break-even."
       />
 
       <div className="mt-10">

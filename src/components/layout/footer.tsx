@@ -16,13 +16,6 @@ const TOOL_LINKS = [
   { href: "/itinerary/new", label: "Reservation timeline" },
 ];
 
-const COMPANY_LINKS = [
-  { href: "/", label: "About" },
-  { href: "/", label: "Writers" },
-  { href: "/", label: "Press" },
-  { href: "/", label: "Contact" },
-];
-
 function SeigaihaCorner() {
   return (
     <svg
@@ -94,7 +87,7 @@ export function Footer() {
   return (
     <footer className="mt-auto border-t border-border bg-secondary text-foreground">
       <div className="mx-auto max-w-[1200px] px-[clamp(20px,4vw,40px)] py-14">
-        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 md:gap-8">
+        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 md:gap-8">
           <div>
             <div className="flex items-center gap-2.5">
               <BrandMark size={28} />
@@ -108,7 +101,6 @@ export function Footer() {
           </div>
           <FooterColumn heading="Plan" links={PLAN_LINKS} />
           <FooterColumn heading="Tools" links={TOOL_LINKS} />
-          <FooterColumn heading="Company" links={COMPANY_LINKS} />
         </div>
 
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-border pt-6 text-[11px] text-muted-foreground sm:flex-row sm:items-center">
